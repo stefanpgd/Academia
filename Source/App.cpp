@@ -46,21 +46,25 @@ void App::Run()
 
 	vec3 screenCenter = camera + viewDir;
 	
-	vec3 screenP0 = screenCenter + vec3(-0.5f, 0.5f, 0.0f);		// Top left
-	vec3 screenP1 = screenCenter + vec3(0.5, 0.5, 0.0f);		// Top Right
-	vec3 screenP2 = screenCenter + vec3(-0.5f, -0.5f, 0.0f);	// Bottom Left
+	vec3 screenP0 = screenCenter + vec3(-0.5f, -0.5f, 0.0f);	// Bottom Left
+	vec3 screenP1 = screenCenter + vec3(0.5, -0.5, 0.0f);		// Bottom Right
+	vec3 screenP2 = screenCenter + vec3(-0.5f, 0.5f, 0.0f);		// Top left
 
-	vec3 uDir = screenP1 - screenP0;
+	float aspect = screenWidth / float(screenHeight);
+	vec3 uDir = (screenP1 - screenP0) * aspect;
 	vec3 vDir = screenP2 - screenP0;
+
+	int frameCount = 0;
 
 	while (runApp)
 	{
+		frameCount++;
+
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// DRAW UV SPACE
-		for (int y = 0; y < screenHeight; y++)
+		for (int x = 0; x < screenWidth; x++)
 		{
-			for (int x = 0; x < screenWidth; x++)
+			for (int y = 0; y < screenHeight; y++)
 			{
 				float xScale = x / float(screenWidth);
 				float yScale = y / float(screenHeight);
@@ -75,7 +79,7 @@ void App::Run()
 				Ray ray = Ray(camera, rayDir);
 
 				float sphereRad = 0.5;
-				vec3 spherePos = vec3(0.0f, 0.0f, 2.5f);
+				vec3 spherePos = vec3(0.3f, 0.0f, 1.5f);
 
 				float t = Dot(spherePos - ray.Origin, ray.Direction);
 				vec3 p = ray.At(t);
@@ -85,7 +89,23 @@ void App::Run()
 
 				if (d < sphereRad)
 				{
-					screenBuffer[x + y * screenWidth] = 0xffffff;
+					float insideLength = sqrtf(sphereRad * sphereRad - d * d);
+					vec3 t1 = ray.At(t - insideLength);
+					vec3 normal = (t1 - spherePos);
+					normal.Normalize();
+
+					vec3 lightP = spherePos + vec3(0.5 * sin(float(frameCount) * 0.05), 2.5f, -1.25f * cos(float(frameCount) * 0.05));
+					vec3 lightD = lightP - t1;
+					lightD.Normalize();
+
+					float c = max(Dot(lightD, normal), 0.0);
+					c += 0.075;
+					c = min(c, 1.0);
+
+					int lightS = 255.0f * max(c, 0.0);
+					unsigned int outputC = (lightS << 16) + (lightS << 8);
+
+					screenBuffer[x + y * screenWidth] = outputC;
 				}
 			}
 		}
