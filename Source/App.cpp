@@ -79,7 +79,7 @@ void App::Run()
 				Ray ray = Ray(camera, rayDir);
 
 				float sphereRad = 0.5;
-				vec3 spherePos = vec3(0.3f, 0.0f, 1.5f);
+				vec3 spherePos = vec3(1.5f, 0.0f, 4.0f);
 
 				float t = Dot(spherePos - ray.Origin, ray.Direction);
 				vec3 p = ray.At(t);
@@ -94,16 +94,28 @@ void App::Run()
 					vec3 normal = (t1 - spherePos);
 					normal.Normalize();
 
-					vec3 lightP = spherePos + vec3(0.5 * sin(float(frameCount) * 0.05), 2.5f, -1.25f * cos(float(frameCount) * 0.05));
+					vec3 lightP = spherePos + vec3(2.0f, 2.0f, -3.0f);
 					vec3 lightD = lightP - t1;
 					lightD.Normalize();
 
 					float c = max(Dot(lightD, normal), 0.0);
-					c += 0.075;
+
+					vec3 hitToEye = camera - t1;
+					hitToEye.Normalize();
+
+					vec3 LightDIn = t1 - lightP;
+					LightDIn.Normalize();
+					float spec = pow(Dot(hitToEye, Reflect(LightDIn, normal)), 512.0);
+
+					if (c > 0.0)
+					{
+						c += spec;
+					}
+					c += 0.075; // ambient
 					c = min(c, 1.0);
 
 					int lightS = 255.0f * max(c, 0.0);
-					unsigned int outputC = (lightS << 16) + (lightS << 8);
+					unsigned int outputC = (lightS << 16) + (int(float(lightS)) << 8) + lightS;
 
 					screenBuffer[x + y * screenWidth] = outputC;
 				}

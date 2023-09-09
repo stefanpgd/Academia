@@ -40,3 +40,10 @@ float Dot(const vec3& lh, const vec3& rh)
 {
 	return lh.x * rh.x + lh.y * rh.y + lh.z * rh.z;
 }
+
+vec3 Reflect(const vec3& in, const vec3& normal)
+{
+	vec3 v = normal * Dot(in, normal);
+	vec3 u = in - v;
+	return u - v;
+}
