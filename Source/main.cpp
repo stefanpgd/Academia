@@ -1,7 +1,9 @@
-#include <iostream>
+#include "App.h"
 
 int main()
 {
-	printf("Hello World\n");
+	App application;
+	application.Run();
+
 	return 0;
 }
