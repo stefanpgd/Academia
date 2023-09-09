@@ -1,8 +1,14 @@
 #include "App.h"
-#include "Utilities.h"
+#include "Utilities/Utilities.h"
+#include "Math/MathCommon.h"
 
 #include <GLFW/glfw3.h>
 #include <cassert>
+
+void GLFWErrorCallback(int, const char* err_str)
+{
+	LOG(Log::MessageType::Error, err_str);
+}
 
 App::App()
 {
@@ -30,11 +36,23 @@ App::App()
 
 	LOG("Succesfully created a window");
 	glfwMakeContextCurrent(window);
-
 }
 
 void App::Run()
 {
+	// LH system
+	vec3 camera = Vec3(0.0f);
+	vec3 viewDir = Vec3(0.0f, 0.0f, 1.0f);
+
+	vec3 screenCenter = camera + viewDir;
+	
+	vec3 screenP0 = screenCenter + vec3(-0.5f, 0.5f, 0.0f);		// Top left
+	vec3 screenP1 = screenCenter + vec3(0.5, 0.5, 0.0f);		// Top Right
+	vec3 screenP2 = screenCenter + vec3(-0.5f, -0.5f, 0.0f);	// Bottom Left
+
+	vec3 uDir = screenP1 - screenP0;
+	vec3 vDir = screenP2 - screenP0;
+
 	while (runApp)
 	{
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -44,10 +62,31 @@ void App::Run()
 		{
 			for (int x = 0; x < screenWidth; x++)
 			{
-				int x_t = ((float)x / (float)screenWidth) * 255.0f;
-				int y_t = ((float)y / (float)screenHeight) * 255.0f;
+				float xScale = x / float(screenWidth);
+				float yScale = y / float(screenHeight);
 
-				screenBuffer[x + y * screenWidth] = (uint32_t)((0x00000100 * x_t) | (0x00000001 * y_t));
+				vec3 screenPoint = screenP0;
+				screenPoint += uDir * xScale;
+				screenPoint += vDir * yScale;
+
+				vec3 rayDir = screenPoint - camera;
+				rayDir.Normalize();
+
+				Ray ray = Ray(camera, rayDir);
+
+				float sphereRad = 0.5;
+				vec3 spherePos = vec3(0.0f, 0.0f, 2.5f);
+
+				float t = Dot(spherePos - ray.Origin, ray.Direction);
+				vec3 p = ray.At(t);
+				float d = (spherePos - p).Magnitude();
+
+				screenBuffer[x + y * screenWidth] = 0x00;
+
+				if (d < sphereRad)
+				{
+					screenBuffer[x + y * screenWidth] = 0xffffff;
+				}
 			}
 		}
 

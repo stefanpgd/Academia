@@ -42,15 +42,30 @@
     <ClCompile Include="Dependencies\ImGUI\source\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Math\Vec3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Math\Ray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\App.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Utilities.h">
+    <ClInclude Include="Source\Utilities\Utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utilities\LogHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Vec3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\MathCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Math\Ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

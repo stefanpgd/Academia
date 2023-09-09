@@ -148,13 +148,18 @@
     <ClCompile Include="Dependencies\ImGUI\source\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Dependencies\ImGUI\source\imgui_tables.cpp" />
     <ClCompile Include="Dependencies\ImGUI\source\imgui_widgets.cpp" />
+    <ClCompile Include="Source\Math\Ray.cpp" />
     <ClCompile Include="Source\App.cpp" />
     <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Math\Vec3.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Math\Ray.h" />
     <ClInclude Include="Source\App.h" />
+    <ClInclude Include="Source\Math\MathCommon.h" />
     <ClInclude Include="Source\Utilities\LogHelper.h" />
-    <ClInclude Include="Source\Utilities.h" />
+    <ClInclude Include="Source\Utilities\Utilities.h" />
+    <ClInclude Include="Source\Math\Vec3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
