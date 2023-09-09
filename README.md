@@ -1,2 +1,2 @@
 # Academia
-Path Tracer built alongside the 'Advanced Graphics' masterclass
+Path Tracer build alongside the 'Advanced Graphics' masterclass
