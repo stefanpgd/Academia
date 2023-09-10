@@ -22,7 +22,7 @@ void Vec3::operator+=(const Vec3& rh)
 	z += rh.z;
 }
 
-float Vec3::Magnitude()
+float Vec3::Magnitude() const
 {
 	return sqrtf(x * x + y * y + z * z);
 }
@@ -46,4 +46,10 @@ vec3 Reflect(const vec3& in, const vec3& normal)
 	vec3 v = normal * Dot(in, normal);
 	vec3 u = in - v;
 	return u - v;
+}
+
+vec3 Normalize(const vec3& n)
+{
+	float InvMag = 1.0 / n.Magnitude();
+	return vec3(n.x * InvMag, n.y * InvMag, n.z * InvMag);
 }

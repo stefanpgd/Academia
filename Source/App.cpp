@@ -44,7 +44,7 @@ App::App()
 void App::Run()
 {
 	// LH system
-	vec3 camera = Vec3(0.0f);
+	vec3 camera = Vec3(0.0f, 0.5f, 0.0f);
 	vec3 viewDir = Vec3(0.0f, 0.0f, 1.0f);
 
 	vec3 screenCenter = camera + viewDir;
@@ -60,8 +60,9 @@ void App::Run()
 	int frameCount = 0;
 
 	std::vector<Primitive*> primitives;
-	primitives.push_back(new Sphere(vec3(1.5f, 0.0f, 4.0f), 0.5f));
-	primitives.push_back(new Sphere(vec3(4.5f, 0.0f, 6.0f), 0.15f));
+	primitives.push_back(new Sphere(vec3(1.5f, 0.5f, 4.0f), 0.5f));
+	primitives.push_back(new Sphere(vec3(2.5f, 0.15f, 4.0f), 0.15f, vec3(0.4f, 1.0f, 0.6f)));
+	primitives.push_back(new Sphere(vec3(1.5f, -5000.0f, 4.0f), 5000.0f, vec3(1.0f)));
 
 	const float maxDepth = 10000.0f;
 
@@ -91,22 +92,52 @@ void App::Run()
 
 				screenBuffer[x + y * screenWidth] = 0x00;
 
-				float closestT = maxDepth;
-				int primI = -1;
+				HitRecord record;
+				record.t = maxDepth;
+
+				HitRecord tempRecord;
 
 				for (Primitive* prim : primitives)
 				{
-					float t = prim->Intersect(ray);
+					prim->Intersect(ray, tempRecord);
 
-					if (t > 0.0f && t < closestT)
+					if (tempRecord.t > 0.0f && tempRecord.t < record.t)
 					{
-						closestT = t;
+						record = tempRecord;
 					}
 				}
 
-				if (closestT != maxDepth)
+				if (record.t != maxDepth)
 				{
-					screenBuffer[x + y * screenWidth] = 0xff;
+					vec3 lightP = vec3(5.0f, 1.0f, -3.0f);
+					vec3 lightD = Normalize(lightP - record.HitPoint);
+
+					vec3 LightDIn = record.HitPoint - lightP;
+					LightDIn.Normalize();
+
+					vec3 hitToEye = camera - record.HitPoint;
+					hitToEye.Normalize();
+					float spec = pow(Dot(hitToEye, Reflect(LightDIn, record.Normal)), 512.0);
+					
+					float c = max(Dot(lightD, record.Normal), 0.0);
+					if (c > 0.0)
+					{
+						c += spec;
+					}
+					c += 0.075f;
+					c = min(c, 1.0f);
+
+					vec3 lightC = vec3(1.0f);
+					vec3 col = record.Primitive->Color;
+					vec3 outputC = vec3(lightC.x * col.x, lightC.y * col.y, lightC.z * col.z);
+					outputC = outputC * c;
+					screenBuffer[x + y * screenWidth] = (int(outputC.x * 255.0f) << 16) | (int(outputC.y * 255.0f) << 8) | int(outputC.z * 255.0f);
+				}
+				else
+				{
+					float yT = ray.Direction.y + 0.5f;
+					vec3 col = vec3(0.963, 0.729, 0.1f) * (1.0f - yT);
+					screenBuffer[x + y * screenWidth] = (int(col.x * 255.0f) << 16) + (int(col.y * 255.0f) << 8) + int(col.z * 255.0f);
 				}
 			}
 		}

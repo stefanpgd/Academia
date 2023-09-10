@@ -1,15 +1,14 @@
 #pragma once
 #include "Primitive.h"
-#include "Math/MathCommon.h"
 
 class Sphere : public Primitive
 {
 public:
 	Sphere(vec3 position, float radius);
+	Sphere(vec3 position, float radius, vec3 color);
 
-	virtual float Intersect(const Ray& ray) override;
+	virtual void Intersect(const Ray& ray, HitRecord& record) override;
 
-	vec3 Position;
 	float Radius;
 	float Radius2;
 };

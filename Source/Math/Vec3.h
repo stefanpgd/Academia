@@ -11,7 +11,7 @@ public:
 	Vec3& operator=(const Vec3& rh);
 	void operator+=(const Vec3& rh);
 
-	float Magnitude();
+	float Magnitude() const;
 	void Normalize();
 
 	float x, y, z;
@@ -25,6 +25,7 @@ inline vec3 operator*(const vec3& lh, float rh) { return vec3(lh.x * rh, lh.y * 
 
 float Dot(const vec3& lh, const vec3& rh);
 vec3 Reflect(const vec3& in, const vec3& normal);
+vec3 Normalize(const vec3& n);
 
 // To do:
 // Operator overloading
