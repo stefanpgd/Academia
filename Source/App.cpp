@@ -4,6 +4,9 @@
 
 #include <GLFW/glfw3.h>
 #include <cassert>
+#include <vector>
+
+#include "Sphere.h"
 
 void GLFWErrorCallback(int, const char* err_str)
 {
@@ -24,7 +27,7 @@ App::App()
 		LOG(Log::MessageType::Error, "GLFW didn't intialize properly");
 		assert(false);
 	}
-	
+
 	LOG("Succesfully initialized GLFW.");
 	window = glfwCreateWindow(screenWidth, screenHeight, appName.c_str(), NULL, NULL);
 
@@ -45,7 +48,7 @@ void App::Run()
 	vec3 viewDir = Vec3(0.0f, 0.0f, 1.0f);
 
 	vec3 screenCenter = camera + viewDir;
-	
+
 	vec3 screenP0 = screenCenter + vec3(-0.5f, -0.5f, 0.0f);	// Bottom Left
 	vec3 screenP1 = screenCenter + vec3(0.5, -0.5, 0.0f);		// Bottom Right
 	vec3 screenP2 = screenCenter + vec3(-0.5f, 0.5f, 0.0f);		// Top left
@@ -55,6 +58,12 @@ void App::Run()
 	vec3 vDir = screenP2 - screenP0;
 
 	int frameCount = 0;
+
+	std::vector<Primitive*> primitives;
+	primitives.push_back(new Sphere(vec3(1.5f, 0.0f, 4.0f), 0.5f));
+	primitives.push_back(new Sphere(vec3(4.5f, 0.0f, 6.0f), 0.15f));
+
+	const float maxDepth = 10000.0f;
 
 	while (runApp)
 	{
@@ -66,9 +75,11 @@ void App::Run()
 		{
 			for (int y = 0; y < screenHeight; y++)
 			{
+				// determine where on the virtual screen we need to be //
 				float xScale = x / float(screenWidth);
 				float yScale = y / float(screenHeight);
 
+				// Using our screen vectors, determine our ray direction //
 				vec3 screenPoint = screenP0;
 				screenPoint += uDir * xScale;
 				screenPoint += vDir * yScale;
@@ -78,46 +89,24 @@ void App::Run()
 
 				Ray ray = Ray(camera, rayDir);
 
-				float sphereRad = 0.5;
-				vec3 spherePos = vec3(1.5f, 0.0f, 4.0f);
-
-				float t = Dot(spherePos - ray.Origin, ray.Direction);
-				vec3 p = ray.At(t);
-				float d = (spherePos - p).Magnitude();
-
 				screenBuffer[x + y * screenWidth] = 0x00;
 
-				if (d < sphereRad)
+				float closestT = maxDepth;
+				int primI = -1;
+
+				for (Primitive* prim : primitives)
 				{
-					float insideLength = sqrtf(sphereRad * sphereRad - d * d);
-					vec3 t1 = ray.At(t - insideLength);
-					vec3 normal = (t1 - spherePos);
-					normal.Normalize();
+					float t = prim->Intersect(ray);
 
-					vec3 lightP = spherePos + vec3(2.0f, 2.0f, -3.0f);
-					vec3 lightD = lightP - t1;
-					lightD.Normalize();
-
-					float c = max(Dot(lightD, normal), 0.0);
-
-					vec3 hitToEye = camera - t1;
-					hitToEye.Normalize();
-
-					vec3 LightDIn = t1 - lightP;
-					LightDIn.Normalize();
-					float spec = pow(Dot(hitToEye, Reflect(LightDIn, normal)), 512.0);
-
-					if (c > 0.0)
+					if (t > 0.0f && t < closestT)
 					{
-						c += spec;
+						closestT = t;
 					}
-					c += 0.075; // ambient
-					c = min(c, 1.0);
+				}
 
-					int lightS = 255.0f * max(c, 0.0);
-					unsigned int outputC = (lightS << 16) + (int(float(lightS)) << 8) + lightS;
-
-					screenBuffer[x + y * screenWidth] = outputC;
+				if (closestT != maxDepth)
+				{
+					screenBuffer[x + y * screenWidth] = 0xff;
 				}
 			}
 		}

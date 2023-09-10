@@ -8,7 +8,7 @@ public:
 	Ray();
 	Ray(const Vec3& origin, const Vec3& direction);
 
-	Vec3 At(float t);
+	Vec3 At(float t) const;
 	
 	Vec3 Origin;
 	Vec3 Direction;
