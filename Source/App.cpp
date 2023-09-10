@@ -2,6 +2,8 @@
 #include "Utilities/Utilities.h"
 #include "Math/MathCommon.h"
 
+
+
 #include <GLFW/glfw3.h>
 #include <cassert>
 #include <vector>
@@ -39,6 +41,19 @@ App::App()
 
 	LOG("Succesfully created a window");
 	glfwMakeContextCurrent(window);
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
 }
 
 void App::Run()
@@ -71,6 +86,12 @@ void App::Run()
 		frameCount++;
 
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::ShowDemoWindow();
 
 		for (int x = 0; x < screenWidth; x++)
 		{
@@ -144,6 +165,9 @@ void App::Run()
 
 		// draw buffer into screen buffer
 		glDrawPixels(screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, screenBuffer);
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
