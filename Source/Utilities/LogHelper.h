@@ -9,6 +9,8 @@
 #endif
 #include <Windows.h>
 
+#define LOG_IN_RELEASE false
+
 namespace Log
 {
 	enum class MessageType
@@ -38,6 +40,7 @@ namespace Log
 
 	inline void print(MessageType aType, const char* aFile, int aLineNumber, const std::string& aMessage)
 	{
+#if _DEBUG || LOG_IN_RELEASE
 		HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
 
 		// Modify color of text
@@ -51,6 +54,7 @@ namespace Log
 		// Print and reset color
 		printf("[%s: %i] - %s\n", fileName.c_str(), aLineNumber, aMessage.c_str());
 		SetConsoleTextAttribute(handle, 15);
+#endif
 	}
 }
 
