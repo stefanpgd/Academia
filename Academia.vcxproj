@@ -148,6 +148,7 @@
     <ClCompile Include="Dependencies\ImGUI\source\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Dependencies\ImGUI\source\imgui_tables.cpp" />
     <ClCompile Include="Dependencies\ImGUI\source\imgui_widgets.cpp" />
+    <ClCompile Include="Source\Plane.cpp" />
     <ClCompile Include="Source\Primitive.cpp" />
     <ClCompile Include="Source\Math\Ray.cpp" />
     <ClCompile Include="Source\App.cpp" />
@@ -156,6 +157,7 @@
     <ClCompile Include="Source\Sphere.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Plane.h" />
     <ClInclude Include="Source\Primitive.h" />
     <ClInclude Include="Source\Math\Ray.h" />
     <ClInclude Include="Source\App.h" />

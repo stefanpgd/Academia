@@ -2,13 +2,13 @@
 #include "Utilities/Utilities.h"
 #include "Math/MathCommon.h"
 
-
-
 #include <GLFW/glfw3.h>
 #include <cassert>
 #include <vector>
 
 #include "Sphere.h"
+#include "Plane.h"
+
 
 void GLFWErrorCallback(int, const char* err_str)
 {
@@ -75,9 +75,9 @@ void App::Run()
 	int frameCount = 0;
 
 	std::vector<Primitive*> primitives;
-	primitives.push_back(new Sphere(vec3(1.5f, 0.5f, 4.0f), 0.5f));
-	primitives.push_back(new Sphere(vec3(2.5f, 0.15f, 4.0f), 0.15f, vec3(0.4f, 1.0f, 0.6f)));
-	primitives.push_back(new Sphere(vec3(1.5f, -5000.0f, 4.0f), 5000.0f, vec3(1.0f)));
+	//primitives.push_back(new Sphere(vec3(1.5f, 0.5f, 4.0f), 0.5f));
+	//primitives.push_back(new Sphere(vec3(2.5f, 0.15f, 4.0f), 0.15f, vec3(0.4f, 1.0f, 0.6f)));
+	primitives.push_back(new Plane(vec3(2.0f, 0.0f, 5.0f), Normalize(vec3(1.0f, 0.5f, 0.0f))));
 
 	const float maxDepth = 10000.0f;
 
