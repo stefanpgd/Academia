@@ -77,7 +77,6 @@ void App::Run()
 	std::vector<Primitive*> primitives;
 	primitives.push_back(new Sphere(vec3(1.5f, 0.5f, 4.0f), 0.5f));
 	primitives.push_back(new Sphere(vec3(2.5f, 0.15f, 4.0f), 0.15f, vec3(0.4f, 1.0f, 0.6f)));
-	//primitives.push_back(new Plane(vec3(2.0f, 0.0f, 5.0f), Normalize(vec3(1.0f, 0.5f, 0.0f))));
 
 	const float maxDepth = 10000.0f;
 
@@ -135,7 +134,7 @@ void App::Run()
 
 				if (record.t != maxDepth)
 				{
-					vec3 lightP = vec3(5.0f, 1.0f, -3.0f);
+					vec3 lightP = vec3(5.0f, 15.0f, -3.0f);
 					vec3 lightD = Normalize(lightP - record.HitPoint);
 
 					vec3 LightDIn = record.HitPoint - lightP;
@@ -158,12 +157,6 @@ void App::Run()
 					vec3 outputC = vec3(lightC.x * col.x, lightC.y * col.y, lightC.z * col.z);
 					outputC = outputC * c;
 					screenBuffer[x + y * screenWidth] = (int(outputC.x * 255.0f) << 16) | (int(outputC.y * 255.0f) << 8) | int(outputC.z * 255.0f);
-				}
-				else
-				{
-					float yT = ray.Direction.y + 0.5f;
-					vec3 col = vec3(0.963, 0.729, 0.1f) * (1.0f - yT);
-					screenBuffer[x + y * screenWidth] = (int(col.x * 255.0f) << 16) + (int(col.y * 255.0f) << 8) + int(col.z * 255.0f);
 				}
 			}
 		}
