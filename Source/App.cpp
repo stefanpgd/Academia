@@ -77,6 +77,7 @@ void App::Run()
 	std::vector<Primitive*> primitives;
 	primitives.push_back(new Sphere(vec3(1.5f, 0.5f, 4.0f), 0.5f));
 	primitives.push_back(new Sphere(vec3(2.5f, 0.15f, 4.0f), 0.15f, vec3(0.4f, 1.0f, 0.6f)));
+	primitives.push_back(new Plane(vec3(0.0f, 0.0f, 5.0f), Normalize(vec3(0.0f, 1.0f, 0.0f))));
 
 	const float maxDepth = 10000.0f;
 
@@ -134,7 +135,7 @@ void App::Run()
 
 				if (record.t != maxDepth)
 				{
-					vec3 lightP = vec3(5.0f, 15.0f, -3.0f);
+					vec3 lightP = vec3(0.0f, 2.0f, 0.0f);
 					vec3 lightD = Normalize(lightP - record.HitPoint);
 
 					vec3 LightDIn = record.HitPoint - lightP;
@@ -142,13 +143,8 @@ void App::Run()
 
 					vec3 hitToEye = camera - record.HitPoint;
 					hitToEye.Normalize();
-					float spec = pow(Dot(hitToEye, Reflect(LightDIn, record.Normal)), 512.0);
 					
 					float c = max(Dot(lightD, record.Normal), 0.0);
-					if (c > 0.0)
-					{
-						c += spec;
-					}
 					c += 0.075f;
 					c = min(c, 1.0f);
 

@@ -12,7 +12,7 @@ void Plane::Intersect(const Ray& ray, HitRecord& record)
 {
 	float denom = Dot(Normal, ray.Direction);
 
-	if (denom > 1e-6)
+	if (abs(denom) > 1e-6)
 	{
 		vec3 pToIntersect = Position - ray.Origin;
 		float d = Dot(pToIntersect, Normal);

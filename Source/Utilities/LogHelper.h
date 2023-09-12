@@ -9,7 +9,7 @@
 #endif
 #include <Windows.h>
 
-#define LOG_IN_RELEASE false
+#define LOG_IN_RELEASE true
 
 namespace Log
 {
