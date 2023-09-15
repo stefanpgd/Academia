@@ -18,5 +18,5 @@ public:
 	virtual void Intersect(const Ray& ray, HitRecord& record) = 0;
 
 	vec3 Position;
-	vec3 Color;
+	vec3 Color = vec3(1.0f);
 };

@@ -149,15 +149,18 @@
     <ClCompile Include="Dependencies\ImGUI\source\imgui_tables.cpp" />
     <ClCompile Include="Dependencies\ImGUI\source\imgui_widgets.cpp" />
     <ClCompile Include="Source\Plane.cpp" />
+    <ClCompile Include="Source\PlaneInfinite.cpp" />
     <ClCompile Include="Source\Primitive.cpp" />
     <ClCompile Include="Source\Math\Ray.cpp" />
     <ClCompile Include="Source\App.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Math\Vec3.cpp" />
     <ClCompile Include="Source\Sphere.cpp" />
+    <ClCompile Include="Source\Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Plane.h" />
+    <ClInclude Include="Source\PlaneInfinite.h" />
     <ClInclude Include="Source\Primitive.h" />
     <ClInclude Include="Source\Math\Ray.h" />
     <ClInclude Include="Source\App.h" />
@@ -166,6 +169,7 @@
     <ClInclude Include="Source\Utilities\Utilities.h" />
     <ClInclude Include="Source\Math\Vec3.h" />
     <ClInclude Include="Source\Sphere.h" />
+    <ClInclude Include="Source\Triangle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

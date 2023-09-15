@@ -8,6 +8,8 @@
 
 #include "Sphere.h"
 #include "Plane.h"
+#include "PlaneInfinite.h"
+#include "Triangle.h"
 
 
 void GLFWErrorCallback(int, const char* err_str)
@@ -75,11 +77,16 @@ void App::Run()
 	int frameCount = 0;
 
 	std::vector<Primitive*> primitives;
-	primitives.push_back(new Sphere(vec3(1.5f, 0.5f, 4.0f), 0.5f));
-	primitives.push_back(new Sphere(vec3(2.5f, 0.15f, 4.0f), 0.15f, vec3(0.4f, 1.0f, 0.6f)));
-	primitives.push_back(new Plane(vec3(0.0f, 0.0f, 5.0f), Normalize(vec3(0.0f, 1.0f, 0.0f))));
 
-	const float maxDepth = 10000.0f;
+	Plane plane = Plane(vec3(-0.5f, 0.0f, 4.0f), vec3(1.0f, 0.0f, 9.0f), vec3(-0.5f, 3.0f, 6.0f));
+	primitives.push_back(new Sphere(vec3(2.5f, 0.15f, 4.0f), 0.15f, vec3(0.4f, 1.0f, 0.6f)));
+	primitives.push_back(&plane);
+	primitives.push_back(new PlaneInfinite(vec3(0.0f, 0.0f, 5.0f), Normalize(vec3(0.0f, 1.0f, 0.0f))));
+	primitives.push_back(new Triangle(vec3(1.0f, 0.5f, 3.0f), vec3(2.0f, 0.5f, 3.0f), vec3(1.5f, 1.0f, 3.0f)));
+
+	const float maxDepth = 1000.0f;
+
+	vec3 pPos = primitives[1]->Position;
 
 	while (runApp)
 	{
@@ -97,7 +104,7 @@ void App::Run()
 		ImGui::NewFrame();
 
 		ImGui::ShowDemoWindow();
-
+		
 		for (int x = 0; x < screenWidth; x++)
 		{
 			for (int y = 0; y < screenHeight; y++)
@@ -143,7 +150,7 @@ void App::Run()
 
 					vec3 hitToEye = camera - record.HitPoint;
 					hitToEye.Normalize();
-					
+
 					float c = max(Dot(lightD, record.Normal), 0.0);
 					c += 0.075f;
 					c = min(c, 1.0f);

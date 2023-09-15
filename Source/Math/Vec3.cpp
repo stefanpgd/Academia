@@ -41,6 +41,15 @@ float Dot(const vec3& lh, const vec3& rh)
 	return lh.x * rh.x + lh.y * rh.y + lh.z * rh.z;
 }
 
+vec3 Cross(const vec3& lh, const vec3& rh)
+{
+	float x = lh.y * rh.z - lh.z * rh.y;
+	float y = lh.z * rh.x - lh.x * rh.z;
+	float z = lh.x * rh.y - lh.y * rh.x;
+
+	return vec3(x, y, z);
+}
+
 vec3 Reflect(const vec3& in, const vec3& normal)
 {
 	vec3 v = normal * Dot(in, normal);

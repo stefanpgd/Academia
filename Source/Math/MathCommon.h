@@ -4,5 +4,5 @@
 #include "Vec3.h"
 #include "Ray.h"
 
-#define EPSILON 0.0001f
+#define EPSILON 0.0000001f
 #define PI 3.14159265359f
