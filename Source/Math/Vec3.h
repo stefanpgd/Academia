@@ -22,6 +22,7 @@ typedef Vec3 vec3;
 inline vec3 operator+(const vec3& lh, const vec3& rh) { return vec3(lh.x + rh.x, lh.y + rh.y, lh.z + rh.z); }
 inline vec3 operator-(const vec3& lh, const vec3& rh) { return vec3(lh.x - rh.x, lh.y - rh.y, lh.z - rh.z); }
 inline vec3 operator*(const vec3& lh, float rh) { return vec3(lh.x * rh, lh.y * rh, lh.z * rh); }
+inline vec3 operator*(const vec3& lh, const vec3& rh) { return vec3(lh.x * rh.x, lh.y * rh.y, lh.z * rh.z); }
 
 float Dot(const vec3& lh, const vec3& rh);
 vec3 Cross(const vec3& lh, const vec3& rh);

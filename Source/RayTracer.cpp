@@ -32,6 +32,8 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 
 unsigned int RayTracer::Trace(float xScale, float yScale)
 {
+	vec3 outputColor = vec3(0.0f);
+
 	vec3 screenPoint = screenP0 + (screenU * xScale) + (screenV * yScale);
 	vec3 rayDirection = Normalize(screenPoint - camera);
 
@@ -40,14 +42,16 @@ unsigned int RayTracer::Trace(float xScale, float yScale)
 	HitRecord record;
 	record.t = maxDepth;
 
+	// Primary Ray //
 	IntersectScene(ray, record);
 
 	if (record.t != maxDepth)
 	{
-		return AlbedoToRGB(1.0f, 0.0f, 0.0f);
+		outputColor += record.Primitive->Color * DirectIllumination(record);
 	}
+	// else, skybox?
 
-	return 0x00;
+	return AlbedoToRGB(outputColor.x, outputColor.y, outputColor.z);
 }
 
 void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
@@ -56,11 +60,40 @@ void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
 
 	for (Primitive* primitive : scene)
 	{
+		if (record.Primitive == primitive)
+		{
+			continue;
+		}
+
 		primitive->Intersect(ray, tempRecord);
 
-		if (tempRecord.t > 0.0f && tempRecord.t < record.t)
+		if (tempRecord.t > 0.0001f && tempRecord.t < record.t)
 		{
 			record = tempRecord;
 		}
 	}
+}
+
+vec3 RayTracer::DirectIllumination(const HitRecord& record)
+{
+	vec3 lightPos = vec3(2.0f, 10.0f, 0.0f); // hardcoded for now
+	vec3 lightColor = vec3(1.0f);
+
+	vec3 lightDir = Normalize(lightPos - record.HitPoint);
+
+	Ray shadowRay = Ray(record.HitPoint, lightDir);
+
+	HitRecord shadowRecord;
+	shadowRecord.t = maxDepth;
+
+	IntersectScene(shadowRay, shadowRecord);
+
+	if (shadowRecord.t < maxDepth)
+	{
+		// Direct light is blocked by another surface
+		return vec3(0.0f);
+	}
+
+	float diff = max(Dot(record.Normal, lightDir), 0.0);
+	return lightColor * diff;
 }

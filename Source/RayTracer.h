@@ -13,7 +13,7 @@ public:
 private:
 	void IntersectScene(const Ray& ray, HitRecord& record);
 
-	void DirectIllumination();
+	vec3 DirectIllumination(const HitRecord& record);
 	void IndirectIllumination();
 
 private:
