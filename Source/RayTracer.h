@@ -14,7 +14,8 @@ private:
 	void IntersectScene(const Ray& ray, HitRecord& record);
 
 	vec3 DirectIllumination(const HitRecord& record);
-	void IndirectIllumination();
+	vec3 IndirectIllumination(const HitRecord& record, const Ray& ray, int rayDepth);
+	vec3 GetSkyColor(const Ray& ray);
 
 private:
 	// Camera //
@@ -29,5 +30,6 @@ private:
 	std::vector<Primitive*> scene;
 
 	// Tracing settings // 
-	float maxDepth = 1000.0f;
+	float maxT = 1000.0f;
+	int maxRayDepth = 3;
 };
