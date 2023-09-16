@@ -14,6 +14,8 @@ public:
 	void Run();
 
 private:
+	int frameCount = 0;
+
 	bool runApp = true;
 	std::string appName = "Academia";
 

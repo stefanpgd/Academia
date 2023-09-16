@@ -6,7 +6,5 @@
 #include "LogHelper.h"
 #include <iostream>
 
-void ClearBuffer(unsigned int* buffer, unsigned int color, unsigned int elementCount)
-{
-	memset(buffer, color, elementCount * sizeof(unsigned int));
-}
+void ClearBuffer(unsigned int* buffer, unsigned int color, unsigned int elementCount);
+unsigned int AlbedoToRGB(float r, float g, float b);
