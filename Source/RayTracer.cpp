@@ -32,17 +32,19 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	plane2->material.Specularity = 0.8f;
 	//plane2->material.Color = vec3(0.0f, 0.439, 0.231);
 
-	Sphere* sphere = new Sphere(vec3(1.35f, 0.15f, 2.0f), 0.15f);
+	Sphere* sphere = new Sphere(vec3(1.25f, 0.15f, 2.2f), 0.15f);
 	sphere->material.Color = vec3(1.0f, 0.561f, 0.0f);
 
+	Sphere* sphere2 = new Sphere(vec3(0.85f, 0.125f, 2.0f), 0.125f);
+	sphere2->material.Specularity = 1.0f;
+
 	PlaneInfinite* planeInf = new PlaneInfinite(vec3(0.0f, 0.0f, 5.0f), Normalize(vec3(0.0f, 1.0f, 0.0f)));
-	planeInf->material.Color = vec3(0.8f);
-	planeInf->material.Specularity = 0.1f;
 
 	scene.push_back(planeInf);
 	scene.push_back(plane);
 	scene.push_back(plane2);
 	scene.push_back(sphere);
+	scene.push_back(sphere2);
 }
 
 unsigned int RayTracer::Trace(float xScale, float yScale)
@@ -62,7 +64,7 @@ unsigned int RayTracer::Trace(float xScale, float yScale)
 
 	if (record.t != maxT)
 	{
-		float diffuse = 1.0f -  record.Primitive->material.Specularity;
+		float diffuse = 1.0f - record.Primitive->material.Specularity;
 		float specular = record.Primitive->material.Specularity;
 
 		if (diffuse > 0.0f)
@@ -91,11 +93,6 @@ void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
 
 	for (Primitive* primitive : scene)
 	{
-		if (record.Primitive == primitive)
-		{
-			continue;
-		}
-
 		primitive->Intersect(ray, tempRecord);
 
 		if (tempRecord.t > EPSILON && tempRecord.t < record.t)
@@ -107,9 +104,13 @@ void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
 
 vec3 RayTracer::DirectIllumination(const HitRecord& record)
 {
-	vec3 lightPos = vec3(2.0f, 10.0f, 0.0f); // hardcoded for now
-	vec3 lightColor = vec3(1.0f);
-	vec3 lightDir = Normalize(lightPos - record.HitPoint);
+	vec3 lightPos = vec3(1.35f, 2.15f, 2.0f); // hardcoded for now
+	vec3 lightColor = vec3(0.9f, 0.7f, 1.0f);
+	vec3 lightDir = lightPos - record.HitPoint;
+	float lightIntensity = 1.75f;
+
+	float r2 = lightDir.MagnitudeSquared();
+	lightDir.Normalize();
 
 	Ray shadowRay = Ray(record.HitPoint, lightDir);
 
@@ -125,7 +126,10 @@ vec3 RayTracer::DirectIllumination(const HitRecord& record)
 	}
 
 	float diff = max(Dot(record.Normal, lightDir), 0.0);
-	return record.Primitive->material.Color * lightColor * diff;
+
+	vec3 lightC = lightColor * min((lightIntensity / r2), 1.0f);
+
+	return record.Primitive->material.Color * lightC * diff;
 }
 
 vec3 RayTracer::IndirectIllumination(const HitRecord& record, const Ray& ray, int rayDepth)
@@ -156,7 +160,7 @@ vec3 RayTracer::IndirectIllumination(const HitRecord& record, const Ray& ray, in
 
 		if (diffuse > 0.0f)
 		{
-			illumination += diffuse * materialColor *  DirectIllumination(reflectRecord);
+			illumination += diffuse * materialColor * DirectIllumination(reflectRecord);
 		}
 
 		if (specular > 0.0f)
@@ -174,9 +178,10 @@ vec3 RayTracer::IndirectIllumination(const HitRecord& record, const Ray& ray, in
 
 vec3 RayTracer::GetSkyColor(const Ray& ray)
 {
-	vec3 a = vec3(1.0f, 0.561f, 0.0f);
+	vec3 a = vec3(0.8f, 0.761f, 0.6f);
 	vec3 b = vec3(0.475f, 0.91f, 1.0f);
 
-	float t = ray.Direction.y + 0.3f;
+	float t = max(ray.Direction.y, 0.0);
+
 	return (1.0f - t) * a + b * t;
 }

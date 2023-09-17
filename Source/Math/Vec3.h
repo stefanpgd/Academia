@@ -12,6 +12,7 @@ public:
 	void operator+=(const Vec3& rh);
 
 	float Magnitude() const;
+	float MagnitudeSquared() const;
 	void Normalize();
 
 	float x, y, z;

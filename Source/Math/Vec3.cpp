@@ -27,6 +27,11 @@ float Vec3::Magnitude() const
 	return sqrtf(x * x + y * y + z * z);
 }
 
+float Vec3::MagnitudeSquared() const
+{
+	return x * x + y * y + z * z;
+}
+
 void Vec3::Normalize()
 {
 	float InvMag = 1.0 / Magnitude();
