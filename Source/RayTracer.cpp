@@ -11,7 +11,7 @@
 RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 {
 	// LH system
-	camera = Vec3(0.0f, 0.5f, 0.0f);
+	camera = Vec3(0.5f, 0.5f, 0.0f);
 	viewDirection = Vec3(0.0f, 0.0f, 1.0f);
 
 	screenCenter = camera + viewDirection;
@@ -24,30 +24,24 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	screenU = (screenP1 - screenP0) * aspect;
 	screenV = screenP2 - screenP0;
 
-	Sphere* sphere = new Sphere(vec3(0.55f, 0.3f, 4.0f), 0.3f, vec3(1.0f));
-	sphere->material.Specularity = 1.0f;
+	Plane* plane = new Plane(vec3(0.0f, 0.0f, 2.0f), vec3(0.5f, 0.0f, 2.5f), vec3(0.0f, 1.f, 2.0f));
+	plane->material.Specularity = 0.99f;
+	plane->material.Color = vec3(0.98f, 1.0f, 0.97f);
 
-	Sphere* sphere2 = new Sphere(vec3(0.55f, 0.9f, 4.0f), 0.3f, vec3(1.0f));
-	sphere2->material.Specularity = 1.0f;
+	Plane* plane2 = new Plane(vec3(1.5f, 0.0f, 2.5f), vec3(2.0f, 0.0f, 2.0f), vec3(1.5f, 1.f, 2.5f));
+	plane2->material.Specularity = 0.8f;
+	//plane2->material.Color = vec3(0.0f, 0.439, 0.231);
 
-	Sphere* sphere3 = new Sphere(vec3(0.55f, 1.5f, 4.0f), 0.3f, vec3(1.0f));
-	sphere3->material.Specularity = 1.0f;
-
-	Plane* plane = new Plane(vec3(-0.5f, 0.0f, 4.0f), vec3(1.0f, 0.0f, 9.0f), vec3(-0.5f, 3.0f, 6.0f));
-	plane->material.Color = vec3(1.0f, 0.2f, 0.1f);
+	Sphere* sphere = new Sphere(vec3(1.35f, 0.15f, 2.0f), 0.15f);
+	sphere->material.Color = vec3(1.0f, 0.561f, 0.0f);
 
 	PlaneInfinite* planeInf = new PlaneInfinite(vec3(0.0f, 0.0f, 5.0f), Normalize(vec3(0.0f, 1.0f, 0.0f)));
 	planeInf->material.Color = vec3(0.8f);
 
-	Triangle* triangle = new Triangle(vec3(1.0f, 0.5f, 3.0f), vec3(2.0f, 0.0f, 3.0f), vec3(1.5f, 1.0f, 4.0f));
-	triangle->material.Color = vec3(1.0f, 0.56f, 0.475f);
-
-	scene.push_back(sphere);
-	scene.push_back(sphere2);
-	scene.push_back(sphere3);
-	scene.push_back(plane);
 	scene.push_back(planeInf);
-	scene.push_back(triangle);
+	scene.push_back(plane);
+	scene.push_back(plane2);
+	scene.push_back(sphere);
 }
 
 unsigned int RayTracer::Trace(float xScale, float yScale)
@@ -72,12 +66,12 @@ unsigned int RayTracer::Trace(float xScale, float yScale)
 
 		if (diffuse > 0.0f)
 		{
-			outputColor += diffuse * (record.Primitive->material.Color * DirectIllumination(record));
+			outputColor += diffuse * DirectIllumination(record);
 		}
 
 		if (specular > 0.0f)
 		{
-			outputColor += specular * (record.Primitive->material.Color * IndirectIllumination(record, ray, 1));
+			outputColor += specular * IndirectIllumination(record, ray, 1);
 		}
 	}
 	else
@@ -86,7 +80,7 @@ unsigned int RayTracer::Trace(float xScale, float yScale)
 		outputColor = GetSkyColor(ray);
 	}
 
-
+	// Do gamma correction?
 	return AlbedoToRGB(outputColor.x, outputColor.y, outputColor.z);
 }
 
@@ -130,16 +124,19 @@ vec3 RayTracer::DirectIllumination(const HitRecord& record)
 	}
 
 	float diff = max(Dot(record.Normal, lightDir), 0.0);
-	return lightColor * diff;
+	return record.Primitive->material.Color * lightColor * diff;
 }
 
 vec3 RayTracer::IndirectIllumination(const HitRecord& record, const Ray& ray, int rayDepth)
 {
-	if (rayDepth == maxRayDepth)
+	if (rayDepth >= maxRayDepth)
 	{
 		// Max recursion depth exceeded
 		return vec3(0.0f);
 	}
+
+	int currentRayDepth = rayDepth + 1;
+	vec3 materialColor = record.Primitive->material.Color;
 
 	vec3 reflected = Reflect(ray.Direction, Normalize(record.Normal));
 	Ray reflectedRay = Ray(record.HitPoint, reflected);
@@ -151,12 +148,27 @@ vec3 RayTracer::IndirectIllumination(const HitRecord& record, const Ray& ray, in
 
 	if (reflectRecord.t < maxT)
 	{
+		vec3 illumination(0.0f);
+
+		float diffuse = 1.0f - reflectRecord.Primitive->material.Specularity;
+		float specular = reflectRecord.Primitive->material.Specularity;
+
+		if (diffuse > 0.0f)
+		{
+			illumination += diffuse * materialColor *  DirectIllumination(reflectRecord);
+		}
+
+		if (specular > 0.0f)
+		{
+			illumination += specular * materialColor * IndirectIllumination(reflectRecord, ray, currentRayDepth);
+		}
+
 		// for now we don't step further, do in a minute
-		return reflectRecord.Primitive->material.Color * DirectIllumination(reflectRecord);
+		return illumination;
 	}
 
 	// Return skybox
-	return GetSkyColor(reflectedRay);
+	return materialColor * GetSkyColor(reflectedRay);
 }
 
 vec3 RayTracer::GetSkyColor(const Ray& ray)
