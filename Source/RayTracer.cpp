@@ -37,6 +37,7 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 
 	PlaneInfinite* planeInf = new PlaneInfinite(vec3(0.0f, 0.0f, 5.0f), Normalize(vec3(0.0f, 1.0f, 0.0f)));
 	planeInf->material.Color = vec3(0.8f);
+	planeInf->material.Specularity = 0.1f;
 
 	scene.push_back(planeInf);
 	scene.push_back(plane);
@@ -173,9 +174,9 @@ vec3 RayTracer::IndirectIllumination(const HitRecord& record, const Ray& ray, in
 
 vec3 RayTracer::GetSkyColor(const Ray& ray)
 {
-	vec3 a = vec3(0.678f, 0.667f, 0.91f);
+	vec3 a = vec3(1.0f, 0.561f, 0.0f);
 	vec3 b = vec3(0.475f, 0.91f, 1.0f);
 
-	float t = ray.Direction.y;
+	float t = ray.Direction.y + 0.3f;
 	return (1.0f - t) * a + b * t;
 }
