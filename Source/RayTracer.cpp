@@ -8,11 +8,13 @@
 
 #include "Utilities/Utilities.h"
 
+#define Cornell true
+
 RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 {
 	// LH system
-	camera = Vec3(1.0f, 0.5f, -1.0f);
-	viewDirection = Vec3(0.0f, 0.0f, 1.0f);
+	camera = Vec3(0.5, 0.5f, -1.0f);
+	viewDirection = Vec3(0.0f, 0.0f, 1.f);
 
 	screenCenter = camera + viewDirection;
 
@@ -23,6 +25,41 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	screenU = screenP1 - screenP0;
 	screenV = screenP2 - screenP0;
 
+#if Cornell
+	Plane* bottom = new Plane(vec3(0.0f, 0.0f, 0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
+	Plane* left = new Plane(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, 1.0f, 0.0f));
+	Plane* right = new Plane(vec3(1.0f, 0.0f, 1.0f), vec3(1.0f, 0.0f, 0.0f), vec3(1.0f, 1.0f, 1.0f));
+	Plane* back = new Plane(vec3(0.0f, 0.0f, 1.0f), vec3(1.0f, 0.0f, 1.0f), vec3(0.0f, 1.0f, 1.0f));
+	Plane* top = new Plane(vec3(0.0f, 1.0f, 1.0f), vec3(1.0f, 1.0f, 1.0f), vec3(0.0f, 1.0f, 0.0f));
+
+	vec3 white = vec3(0.83f);
+	vec3 red = vec3(0.65f, 0.05f, 0.05f);
+	vec3 green = vec3(0.12f, 0.45f, 0.15f);
+
+	left->material.Color = red;
+	right->material.Color = green;
+	bottom->material.Color = white;
+	back->material.Color = white;
+	top->material.Color = white;
+
+	Plane* light = new Plane(vec3(0.4f, 0.999f, 0.6f), vec3(0.6f, 0.999f, 0.6f), vec3(0.4f, 0.999f, 0.4f));
+	light->material.isEmissive = true;
+
+	Sphere* metalBall = new Sphere(vec3(0.3, 0.175f, 0.65), 0.175f);
+	metalBall->material.Specularity = 1.0f;
+
+	Sphere* gloss = new Sphere(vec3(0.7, 0.1, 0.2), 0.1f);
+
+	scene.push_back(bottom);
+	scene.push_back(left);
+	scene.push_back(right);
+	scene.push_back(back);
+	scene.push_back(top);
+	scene.push_back(metalBall);
+	scene.push_back(gloss);
+	scene.push_back(light);
+
+#else
 	Plane* plane = new Plane(vec3(0.0f, 0.0f, 2.0f), vec3(0.5f, 0.0f, 2.5f), vec3(0.0f, 1.f, 2.0f));
 	plane->material.Specularity = 0.99f;
 	plane->material.Color = vec3(0.98f, 1.0f, 0.97f);
@@ -44,6 +81,7 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	scene.push_back(plane2);
 	scene.push_back(sphere);
 	scene.push_back(sphere2);
+#endif
 }
 
 unsigned int RayTracer::Trace(float xScale, float yScale)
@@ -63,6 +101,12 @@ unsigned int RayTracer::Trace(float xScale, float yScale)
 
 	if (record.t != maxT)
 	{
+		if (record.Primitive->material.isEmissive)
+		{
+			vec3 c = record.Primitive->material.Color;
+			return AlbedoToRGB(c.x, c.y, c.z);
+		}
+
 		float diffuse = 1.0f - record.Primitive->material.Specularity;
 		float specular = record.Primitive->material.Specularity;
 
@@ -103,10 +147,10 @@ void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
 
 vec3 RayTracer::DirectIllumination(const HitRecord& record)
 {
-	vec3 lightPos = vec3(1.35f, 2.15f, 2.0f); // hardcoded for now
-	vec3 lightColor = vec3(0.9f, 0.7f, 1.0f);
+	vec3 lightPos = vec3(0.5f, 0.93f, 0.5f); // hardcoded for now
+	vec3 lightColor = vec3(1.0f);
 	vec3 lightDir = lightPos - record.HitPoint;
-	float lightIntensity = 1.75f;
+	float lightIntensity = 0.5f;
 
 	float r = lightDir.Magnitude();
 	float r2 = r * r;
@@ -127,7 +171,6 @@ vec3 RayTracer::DirectIllumination(const HitRecord& record)
 	}
 
 	float diff = max(Dot(record.Normal, lightDir), 0.0);
-
 	vec3 lightC = lightColor * min((lightIntensity / r2), 1.0f);
 
 	return record.Primitive->material.Color * lightC * diff;
@@ -179,6 +222,9 @@ vec3 RayTracer::IndirectIllumination(const HitRecord& record, const Ray& ray, in
 
 vec3 RayTracer::GetSkyColor(const Ray& ray)
 {
+#if Cornell
+	return vec3(0.0f);
+#endif
 	vec3 a = vec3(0.8f, 0.761f, 0.6f);
 	vec3 b = vec3(0.475f, 0.91f, 1.0f);
 
