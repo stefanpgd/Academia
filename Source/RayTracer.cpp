@@ -109,17 +109,19 @@ vec3 RayTracer::DirectIllumination(const HitRecord& record)
 	vec3 lightDir = lightPos - record.HitPoint;
 	float lightIntensity = 1.75f;
 
-	float r2 = lightDir.MagnitudeSquared();
+	float r = lightDir.Magnitude();
+	float r2 = r * r;
+
 	lightDir.Normalize();
 
 	Ray shadowRay = Ray(record.HitPoint, lightDir);
 
 	HitRecord shadowRecord;
-	shadowRecord.t = maxT;
+	shadowRecord.t = r;
 
 	IntersectScene(shadowRay, shadowRecord);
 
-	if (shadowRecord.t < maxT)
+	if (shadowRecord.t < r)
 	{
 		// Direct light is blocked by another surface
 		return vec3(0.0f);
