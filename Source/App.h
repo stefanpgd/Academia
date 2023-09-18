@@ -22,7 +22,7 @@ private:
 	GLFWwindow* window;
 
 	// In future, save this to a text file and load in last settings.
-	unsigned int screenWidth = 1280;
+	unsigned int screenWidth = 720;
 	unsigned int screenHeight = 720;
 	unsigned int bufferSize;
 	unsigned int* screenBuffer;

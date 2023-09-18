@@ -11,17 +11,16 @@
 RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 {
 	// LH system
-	camera = Vec3(0.5f, 0.5f, 0.0f);
+	camera = Vec3(1.0f, 0.5f, -1.0f);
 	viewDirection = Vec3(0.0f, 0.0f, 1.0f);
 
 	screenCenter = camera + viewDirection;
 
-	screenP0 = screenCenter + vec3(-0.5f, -0.5f, 0.0f);	// Bottom Left
+	screenP0 = screenCenter + vec3(-0.5f, -0.5f, 0.0f);		// Bottom Left
 	screenP1 = screenCenter + vec3(0.5, -0.5, 0.0f);		// Bottom Right
 	screenP2 = screenCenter + vec3(-0.5f, 0.5f, 0.0f);		// Top left
 
-	float aspect = screenWidth / float(screenHeight);
-	screenU = (screenP1 - screenP0) * aspect;
+	screenU = screenP1 - screenP0;
 	screenV = screenP2 - screenP0;
 
 	Plane* plane = new Plane(vec3(0.0f, 0.0f, 2.0f), vec3(0.5f, 0.0f, 2.5f), vec3(0.0f, 1.f, 2.0f));
