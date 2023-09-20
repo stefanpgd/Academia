@@ -28,6 +28,7 @@ inline vec3 operator*(const vec3& lh, const vec3& rh) { return vec3(lh.x * rh.x,
 float Dot(const vec3& lh, const vec3& rh);
 vec3 Cross(const vec3& lh, const vec3& rh);
 vec3 Reflect(const vec3& in, const vec3& normal);
+vec3 Refract(const vec3& in, const vec3& normal, float IoR);
 vec3 Normalize(const vec3& n);
 
 // To do:

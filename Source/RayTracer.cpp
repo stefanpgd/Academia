@@ -50,6 +50,11 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 
 	Sphere* gloss = new Sphere(vec3(0.7, 0.1, 0.2), 0.1f);
 
+	Plane* glassTest = new Plane(vec3(0.3f, 0.3f, 0.07f), vec3(0.7f, 0.3f, 0.1f), vec3(0.3f, 0.7f, 0.2f));
+
+	glassTest->material.Translucency = 0.6f;
+	glassTest->material.Specularity = 0.4f;
+
 	scene.push_back(bottom);
 	scene.push_back(left);
 	scene.push_back(right);
@@ -58,6 +63,7 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	scene.push_back(metalBall);
 	scene.push_back(gloss);
 	scene.push_back(light);
+	scene.push_back(glassTest);
 
 #else
 	Plane* plane = new Plane(vec3(0.0f, 0.0f, 2.0f), vec3(0.5f, 0.0f, 2.5f), vec3(0.0f, 1.f, 2.0f));
@@ -107,8 +113,9 @@ unsigned int RayTracer::Trace(float xScale, float yScale)
 			return AlbedoToRGB(c.x, c.y, c.z);
 		}
 
-		float diffuse = 1.0f - record.Primitive->material.Specularity;
-		float specular = record.Primitive->material.Specularity;
+		float diffuse = 1.0f - record.Primitive->material.Specularity - record.Primitive->material.Translucency;
+		float specular = record.Primitive->material.Specularity - record.Primitive->material.Translucency;
+		float translucency = record.Primitive->material.Translucency;
 
 		if (diffuse > 0.0f)
 		{
@@ -118,6 +125,11 @@ unsigned int RayTracer::Trace(float xScale, float yScale)
 		if (specular > 0.0f)
 		{
 			outputColor += specular * IndirectIllumination(record, ray, 1);
+		}
+
+		if (translucency > 0.0f)
+		{
+			outputColor += translucency * RefractionIllumination(record, ray, 1);
 		}
 	}
 	else
@@ -231,4 +243,48 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 	float t = max(ray.Direction.y, 0.0);
 
 	return (1.0f - t) * a + b * t;
+}
+
+vec3 RayTracer::RefractionIllumination(const HitRecord& record, const Ray& ray, int rayDepth)
+{
+	if (rayDepth >= maxRayDepth)
+	{
+		// Max recursion depth exceeded
+		return vec3(0.0f);
+	}
+
+	int currentRayDepth = rayDepth + 1;
+	vec3 materialColor = record.Primitive->material.Color;
+
+	vec3 rf = Refract(ray.Direction, record.Normal, 1.33f);
+	Ray refractedRay = Ray(record.HitPoint, Normalize(rf));
+
+	HitRecord refractRecord;
+	refractRecord.t = maxT;
+
+	IntersectScene(refractedRay, refractRecord);
+
+	if (refractRecord.t < maxT)
+	{
+		vec3 illumination(0.0f);
+
+		float diffuse = 1.0f - refractRecord.Primitive->material.Specularity;
+		float specular = refractRecord.Primitive->material.Specularity;
+
+		if (diffuse > 0.0f)
+		{
+			illumination += diffuse * materialColor * DirectIllumination(refractRecord);
+		}
+
+		if (specular > 0.0f)
+		{
+			illumination += specular * materialColor * IndirectIllumination(refractRecord, ray, currentRayDepth);
+		}
+
+		// for now we don't step further, do in a minute
+		return illumination;
+	}
+
+	// Return skybox
+	return materialColor * GetSkyColor(refractedRay);
 }

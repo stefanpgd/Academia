@@ -17,6 +17,8 @@ private:
 	vec3 IndirectIllumination(const HitRecord& record, const Ray& ray, int rayDepth);
 	vec3 GetSkyColor(const Ray& ray);
 
+	vec3 RefractionIllumination(const HitRecord& record, const Ray& ray, int rayDepth);
+
 private:
 	// Camera //
 	vec3 camera;
