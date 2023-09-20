@@ -45,6 +45,9 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	Plane* light = new Plane(vec3(0.4f, 0.999f, 0.6f), vec3(0.6f, 0.999f, 0.6f), vec3(0.4f, 0.999f, 0.4f));
 	light->material.isEmissive = true;
 
+	Sphere* metal = new Sphere(vec3(0.5, 0.075f, 0.5), 0.075f);
+	metal->material.Specularity = 1.0f;
+
 	Sphere* glass = new Sphere(vec3(0.5, 0.5f, -0.75f), 0.05f);
 	glass->material.isDielectric = true;
 
@@ -71,6 +74,7 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	scene.push_back(glass);
 	scene.push_back(glass2);
 	scene.push_back(glass3);
+	scene.push_back(metal);
 	//scene.push_back(gs);
 	//scene.push_back(glassTest);
 
@@ -185,17 +189,26 @@ vec3 RayTracer::DirectIllumination(const HitRecord& record)
 	shadowRecord.t = r;
 
 	IntersectScene(shadowRay, shadowRecord);
+	
+	float decrease = 1.0f;
 
 	if (shadowRecord.t < r)
 	{
-		// Direct light is blocked by another surface
-		return vec3(0.0f);
+		if (!shadowRecord.Primitive->material.isDielectric)
+		{
+			// Direct light is blocked by another surface
+			return vec3(0.0f);
+		}
+		else
+		{
+			decrease = 0.65f;
+		}
 	}
 
 	float diff = max(Dot(record.Normal, lightDir), 0.0);
 	vec3 lightC = lightColor * min((lightIntensity / r2), 1.0f);
 
-	return record.Primitive->material.Color * lightC * diff;
+	return record.Primitive->material.Color * lightC * diff * decrease;
 }
 
 vec3 RayTracer::IndirectIllumination(const HitRecord& record, const Ray& ray, int rayDepth)
