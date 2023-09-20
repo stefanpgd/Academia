@@ -100,3 +100,34 @@ vec3 Normalize(const vec3& n)
 	float InvMag = 1.0 / n.Magnitude();
 	return vec3(n.x * InvMag, n.y * InvMag, n.z * InvMag);
 }
+
+// Returns the amount of Reflectance from fresnel
+// using this value, compute the refractivity by doing: '1.0 - Reflectance'
+float Fresnel(const vec3& in, const vec3& normal, float IoR)
+{
+	float cosI = Dot(in, normal);
+	float n1 = 1.0f;
+	float n2 = IoR;
+
+	if (cosI > 0.0f)
+	{
+		float t = n1;
+		n1 = n2;
+		n2 = n1;
+	}
+
+	float sinR = n1 / n2 * fmaxf(sqrtf(1.0f - cosI * cosI), 0.0f);
+	if (sinR >= 1.0f)
+	{
+		// TIR, aka perfect reflectance, which happens at the exact edges of a surface.
+		return 1.0f;
+	}
+
+	float cosR = sqrtf(fmaxf(sqrtf(1.0f - sinR * sinR), 0.0f));
+	cosI = fabsf(cosI);
+
+	float Fp = (n2 * cosI - n1 * cosR) / (n2 * cosI + n1 * cosR);
+	float Fr = (n1 * cosI - n2 * cosR) / (n1 * cosI + n2 * cosR);
+
+	return (Fp * Fp * Fr * Fr) * 0.5f;
+}

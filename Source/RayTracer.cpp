@@ -9,11 +9,12 @@
 #include "Utilities/Utilities.h"
 
 #define Cornell true
+#define ior 1.5f
 
 RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 {
 	// LH system
-	camera = Vec3(0.5, 0.5f, -1.1f);
+	camera = Vec3(0.5, 0.5f, -1.0f);
 	viewDirection = Vec3(0.0f, 0.0f, 1.f);
 
 	screenCenter = camera + viewDirection;
@@ -41,6 +42,7 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	bottom->material.Color = white;
 	back->material.Color = white;
 	top->material.Color = white;
+	top->material.Specularity = 1.0f;
 
 	Plane* light = new Plane(vec3(0.4f, 0.999f, 0.6f), vec3(0.6f, 0.999f, 0.6f), vec3(0.4f, 0.999f, 0.4f));
 	light->material.isEmissive = true;
@@ -62,16 +64,13 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	Plane* glassTest = new Plane(vec3(0.3f, 0.3f, 0.07f), vec3(0.7f, 0.3f, 0.1f), vec3(0.3f, 0.7f, 0.2f));
 	glassTest->material.isDielectric = true;
 
-	Sphere* gs = new Sphere(vec3(0.3f, 0.5f, 0.5f), 0.15f);
-	//gs->material.isDielectric = true;
-
 	scene.push_back(bottom);
 	scene.push_back(left);
 	scene.push_back(right);
 	scene.push_back(back);
 	scene.push_back(top);
 	scene.push_back(light);
-	scene.push_back(glass);
+	//scene.push_back(glass);
 	scene.push_back(glass2);
 	scene.push_back(glass3);
 	scene.push_back(metal);
@@ -79,27 +78,20 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	//scene.push_back(glassTest);
 
 #else
-	Plane* plane = new Plane(vec3(0.0f, 0.0f, 2.0f), vec3(0.5f, 0.0f, 2.5f), vec3(0.0f, 1.f, 2.0f));
-	plane->material.Specularity = 0.99f;
-	plane->material.Color = vec3(0.98f, 1.0f, 0.97f);
+	Sphere* sphere = new Sphere(vec3(0.5f, 0.5f, 0.5f), 0.25f);
+	sphere->material.Color = vec3(1.0f, 1.0f, 1.0f);
+	sphere->material.isDielectric = true;
 
-	Plane* plane2 = new Plane(vec3(1.5f, 0.0f, 2.5f), vec3(2.0f, 0.0f, 2.0f), vec3(1.5f, 1.f, 2.5f));
-	plane2->material.Specularity = 0.8f;
-	//plane2->material.Color = vec3(0.0f, 0.439, 0.231);
+	//Sphere* sphere2 = new Sphere(vec3(0.5f, 0.5f, 6.5f), 0.25f);
+	//sphere2->material.Color = vec3(1.0f, 1.0f, 1.0f);
+	//sphere2->material.isDielectric = true;
 
-	Sphere* sphere = new Sphere(vec3(1.25f, 0.15f, 2.2f), 0.15f);
-	sphere->material.Color = vec3(1.0f, 0.561f, 0.0f);
+	PlaneInfinite* plane = new PlaneInfinite(vec3(0.0f, 0.25f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	plane->material.Specularity = 0.1f;
 
-	Sphere* sphere2 = new Sphere(vec3(0.85f, 0.125f, 2.0f), 0.125f);
-	sphere2->material.Specularity = 1.0f;
-
-	PlaneInfinite* planeInf = new PlaneInfinite(vec3(0.0f, 0.0f, 5.0f), Normalize(vec3(0.0f, 1.0f, 0.0f)));
-
-	scene.push_back(planeInf);
-	scene.push_back(plane);
-	scene.push_back(plane2);
 	scene.push_back(sphere);
-	scene.push_back(sphere2);
+	//scene.push_back(sphere2);
+	scene.push_back(plane);
 #endif
 }
 
@@ -131,7 +123,11 @@ unsigned int RayTracer::Trace(float xScale, float yScale)
 
 		if (record.Primitive->material.isDielectric)
 		{
-			outputColor += RefractionIllumination(record, ray, 1);
+			float fReflection = min(Fresnel(ray.Direction, record.Normal, ior) * 4.0f, 1.0);
+			float fRefraction = 1.0f - fReflection;
+
+			outputColor += fReflection * IndirectIllumination(record, ray, 1);
+			outputColor += fRefraction * RefractionIllumination(record, ray, 1);
 		}
 		else
 		{
@@ -189,7 +185,7 @@ vec3 RayTracer::DirectIllumination(const HitRecord& record)
 	shadowRecord.t = r;
 
 	IntersectScene(shadowRay, shadowRecord);
-	
+
 	float decrease = 1.0f;
 
 	if (shadowRecord.t < r)
@@ -260,7 +256,7 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 #if Cornell
 	return vec3(0.0f);
 #endif
-	vec3 a = vec3(0.8f, 0.761f, 0.6f);
+	vec3 a = vec3(0.8f, 0.261f, 0.6f);
 	vec3 b = vec3(0.475f, 0.91f, 1.0f);
 
 	float t = max(ray.Direction.y, 0.0);
@@ -279,8 +275,7 @@ vec3 RayTracer::RefractionIllumination(const HitRecord& record, const Ray& ray, 
 	int currentRayDepth = rayDepth + 1;
 	vec3 materialColor = record.Primitive->material.Color;
 
-	vec3 rf = Refract(ray.Direction, record.Normal, 1.5f);
-	Ray refractedRay = Ray(record.HitPoint, Normalize(rf));
+	vec3 rf = Refract(ray.Direction, record.Normal, ior);
 
 	HitRecord refractRecord;
 	refractRecord.t = maxT;
@@ -296,7 +291,11 @@ vec3 RayTracer::RefractionIllumination(const HitRecord& record, const Ray& ray, 
 
 		if (refractRecord.Primitive->material.isDielectric)
 		{
-			illumination += materialColor * RefractionIllumination(refractRecord, ray, currentRayDepth);
+			float fReflection = Fresnel(ray.Direction, refractRecord.Normal, ior);
+			float fRefraction = 1.0f - fReflection;
+
+			illumination += fReflection * materialColor * IndirectIllumination(refractRecord, ray, currentRayDepth);
+			illumination += fRefraction * materialColor * RefractionIllumination(refractRecord, ray, currentRayDepth);
 		}
 		else
 		{

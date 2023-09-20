@@ -30,6 +30,7 @@ vec3 Cross(const vec3& lh, const vec3& rh);
 vec3 Reflect(const vec3& in, const vec3& normal);
 vec3 Refract(const vec3& in, const vec3& normal, float IoR);
 vec3 Normalize(const vec3& n);
+float Fresnel(const vec3& in, const vec3& normal, float IoR);
 
 // To do:
 // Operator overloading

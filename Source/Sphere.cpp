@@ -30,8 +30,14 @@ void Sphere::Intersect(const Ray& ray, HitRecord& record)
 	// we already know the opposite (dist) and the hypotenuse, which is always sphere radius.
 	// so a2 + b2 = c2, which also means c2 - b2 = a2;
 	float insideLength = sqrtf(Radius2 - dist * dist);
+	float t = projection - insideLength;
 
-	record.t = projection - insideLength;
+	//if (t < 0.0f)
+	//{
+	//	t = projection * 2.0f;
+	//}
+
+	record.t = t;
 	record.HitPoint = ray.At(record.t);
 	record.Normal = Normalize(record.HitPoint - Position);
 	record.Primitive = this;
