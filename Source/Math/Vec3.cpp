@@ -90,8 +90,8 @@ vec3 Refract(const vec3& in, const vec3& normal, float IoR)
 		return in;
 	}
 
-	vec3 a = eta * (in + (normal * theta));
-	vec3 b = sqrtf(1.0f - (eta * eta) * (1.0f - theta * theta)) * (normal * -1.0f);
+	vec3 a = eta * (in + (norm * theta));
+	vec3 b = sqrtf(1.0f - (eta * eta) * (1.0f - theta * theta)) * (norm * -1.0f);
 	return a + b;
 }
 

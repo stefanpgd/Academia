@@ -13,7 +13,7 @@
 RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 {
 	// LH system
-	camera = Vec3(0.5, 0.5f, -1.0f);
+	camera = Vec3(0.5, 0.5f, -1.1f);
 	viewDirection = Vec3(0.0f, 0.0f, 1.f);
 
 	screenCenter = camera + viewDirection;
@@ -45,25 +45,34 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	Plane* light = new Plane(vec3(0.4f, 0.999f, 0.6f), vec3(0.6f, 0.999f, 0.6f), vec3(0.4f, 0.999f, 0.4f));
 	light->material.isEmissive = true;
 
-	Sphere* metalBall = new Sphere(vec3(0.3, 0.175f, 0.65), 0.175f);
-	metalBall->material.Specularity = 1.0f;
+	Sphere* glass = new Sphere(vec3(0.5, 0.5f, -0.75f), 0.05f);
+	glass->material.isDielectric = true;
+
+	Sphere* glass2 = new Sphere(vec3(0.88, 0.1f, 0.3f), 0.1f);
+	glass2->material.isDielectric = true;
+
+	Sphere* glass3 = new Sphere(vec3(0.12, 0.1f, 0.7f), 0.1f);
+	glass3->material.isDielectric = true;
 
 	Sphere* gloss = new Sphere(vec3(0.7, 0.1, 0.2), 0.1f);
 
 	Plane* glassTest = new Plane(vec3(0.3f, 0.3f, 0.07f), vec3(0.7f, 0.3f, 0.1f), vec3(0.3f, 0.7f, 0.2f));
+	glassTest->material.isDielectric = true;
 
-	glassTest->material.Translucency = 0.6f;
-	glassTest->material.Specularity = 0.4f;
+	Sphere* gs = new Sphere(vec3(0.3f, 0.5f, 0.5f), 0.15f);
+	//gs->material.isDielectric = true;
 
 	scene.push_back(bottom);
 	scene.push_back(left);
 	scene.push_back(right);
 	scene.push_back(back);
 	scene.push_back(top);
-	scene.push_back(metalBall);
-	scene.push_back(gloss);
 	scene.push_back(light);
-	scene.push_back(glassTest);
+	scene.push_back(glass);
+	scene.push_back(glass2);
+	scene.push_back(glass3);
+	//scene.push_back(gs);
+	//scene.push_back(glassTest);
 
 #else
 	Plane* plane = new Plane(vec3(0.0f, 0.0f, 2.0f), vec3(0.5f, 0.0f, 2.5f), vec3(0.0f, 1.f, 2.0f));
@@ -113,23 +122,24 @@ unsigned int RayTracer::Trace(float xScale, float yScale)
 			return AlbedoToRGB(c.x, c.y, c.z);
 		}
 
-		float diffuse = 1.0f - record.Primitive->material.Specularity - record.Primitive->material.Translucency;
-		float specular = record.Primitive->material.Specularity - record.Primitive->material.Translucency;
-		float translucency = record.Primitive->material.Translucency;
+		float diffuse = 1.0f - record.Primitive->material.Specularity;
+		float specular = record.Primitive->material.Specularity;
 
-		if (diffuse > 0.0f)
+		if (record.Primitive->material.isDielectric)
 		{
-			outputColor += diffuse * DirectIllumination(record);
+			outputColor += RefractionIllumination(record, ray, 1);
 		}
-
-		if (specular > 0.0f)
+		else
 		{
-			outputColor += specular * IndirectIllumination(record, ray, 1);
-		}
+			if (diffuse > 0.0f)
+			{
+				outputColor += diffuse * DirectIllumination(record);
+			}
 
-		if (translucency > 0.0f)
-		{
-			outputColor += translucency * RefractionIllumination(record, ray, 1);
+			if (specular > 0.0f)
+			{
+				outputColor += specular * IndirectIllumination(record, ray, 1);
+			}
 		}
 	}
 	else
@@ -256,7 +266,7 @@ vec3 RayTracer::RefractionIllumination(const HitRecord& record, const Ray& ray, 
 	int currentRayDepth = rayDepth + 1;
 	vec3 materialColor = record.Primitive->material.Color;
 
-	vec3 rf = Refract(ray.Direction, record.Normal, 1.33f);
+	vec3 rf = Refract(ray.Direction, record.Normal, 1.5f);
 	Ray refractedRay = Ray(record.HitPoint, Normalize(rf));
 
 	HitRecord refractRecord;
@@ -271,14 +281,21 @@ vec3 RayTracer::RefractionIllumination(const HitRecord& record, const Ray& ray, 
 		float diffuse = 1.0f - refractRecord.Primitive->material.Specularity;
 		float specular = refractRecord.Primitive->material.Specularity;
 
-		if (diffuse > 0.0f)
+		if (refractRecord.Primitive->material.isDielectric)
 		{
-			illumination += diffuse * materialColor * DirectIllumination(refractRecord);
+			illumination += materialColor * RefractionIllumination(refractRecord, ray, currentRayDepth);
 		}
-
-		if (specular > 0.0f)
+		else
 		{
-			illumination += specular * materialColor * IndirectIllumination(refractRecord, ray, currentRayDepth);
+			if (diffuse > 0.0f)
+			{
+				illumination += diffuse * materialColor * DirectIllumination(refractRecord);
+			}
+
+			if (specular > 0.0f)
+			{
+				illumination += specular * materialColor * IndirectIllumination(refractRecord, ray, currentRayDepth);
+			}
 		}
 
 		// for now we don't step further, do in a minute
