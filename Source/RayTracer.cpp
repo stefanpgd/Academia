@@ -276,6 +276,7 @@ vec3 RayTracer::RefractionIllumination(const HitRecord& record, const Ray& ray, 
 	vec3 materialColor = record.Primitive->material.Color;
 
 	vec3 rf = Refract(ray.Direction, record.Normal, ior);
+	Ray refractedRay = Ray(record.HitPoint, rf);
 
 	HitRecord refractRecord;
 	refractRecord.t = maxT;
