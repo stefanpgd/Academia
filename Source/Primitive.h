@@ -18,6 +18,7 @@ struct HitRecord
 	vec3 HitPoint;
 	vec3 Normal;
 	Primitive* Primitive;
+	bool InsideMedium = false;
 };
 
 class Primitive

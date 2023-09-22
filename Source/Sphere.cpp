@@ -32,10 +32,15 @@ void Sphere::Intersect(const Ray& ray, HitRecord& record)
 	float insideLength = sqrtf(Radius2 - dist * dist);
 	float t = projection - insideLength;
 
-	//if (t < 0.0f)
-	//{
-	//	t = projection * 2.0f;
-	//}
+	if (t < 0.0f && !record.InsideMedium)
+	{
+		t = projection * 2.0f;
+		record.InsideMedium = true;
+	}
+	else
+	{
+		record.InsideMedium = false;
+	}
 
 	record.t = t;
 	record.HitPoint = ray.At(record.t);

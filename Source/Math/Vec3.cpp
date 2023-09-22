@@ -64,34 +64,36 @@ vec3 Reflect(const vec3& in, const vec3& normal)
 
 vec3 Refract(const vec3& in, const vec3& normal, float IoR)
 {
-	float theta = Dot(in, normal);
+	float cosI = Dot(in, normal);
 	float n1 = 1.0f;
 	float n2 = IoR;
 	vec3 norm = normal;
 
-	// Account for being inside of the 2nd medium. If so we need to flip the normal
-	// Otherwise, we only have to flip the theta.
-	if (theta < 0.0f)
+	if (cosI < 0.0f)
 	{
-		theta = -theta;
+		// Going from air into medium
+		cosI = -cosI;
 	}
 	else
 	{
+		// Going from medium back into air
 		float t = n1;
 		n1 = n2;
 		n2 = t;
 		norm = norm * -1.0f;
 	}
 
-	float n = n1 / n2;
-	float k = 1.0f - n * n * (1.0f - theta * theta);
+	float eta = n1 / n2;
+	float k = 1.0f - eta * eta * (1.0f - cosI * cosI);
+
 	if (k < 0.0f)
 	{
 		return Reflect(in, norm);
 	}
 
-	vec3 a = (in + (norm * theta)) * n;
-	vec3 b = sqrtf(k) * (norm * -1.0f);
+	vec3 a = eta * (in + (cosI * norm));
+	vec3 b = (normal * -1.0f) * sqrtf(k);
+
 	return a + b;
 }
 
