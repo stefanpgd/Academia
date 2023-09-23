@@ -88,11 +88,11 @@ vec3 Refract(const vec3& in, const vec3& normal, float IoR)
 
 	if (k < 0.0f)
 	{
-		return Reflect(in, norm);
+		return Reflect(in, normal);
 	}
 
 	vec3 a = eta * (in + (cosI * norm));
-	vec3 b = (normal * -1.0f) * sqrtf(k);
+	vec3 b = (norm * -1.0f) * sqrtf(k);
 
 	return a + b;
 }
@@ -115,21 +115,21 @@ float Fresnel(const vec3& in, const vec3& normal, float IoR)
 	{
 		float t = n1;
 		n1 = n2;
-		n2 = n1;
+		n2 = t;
 	}
 
-	float sinR = n1 / n2 * fmaxf(sqrtf(1.0f - cosI * cosI), 0.0f);
+	float sinR = n1 / n2 * sqrtf(fmaxf(1.0f - cosI * cosI, 0.0f));
 	if (sinR >= 1.0f)
 	{
 		// TIR, aka perfect reflectance, which happens at the exact edges of a surface.
 		return 1.0f;
 	}
 
-	float cosR = sqrtf(fmaxf(sqrtf(1.0f - sinR * sinR), 0.0f));
+	float cosR = sqrtf(fmaxf(1.0f - sinR * sinR, 0.0f));
 	cosI = fabsf(cosI);
 
 	float Fp = (n2 * cosI - n1 * cosR) / (n2 * cosI + n1 * cosR);
 	float Fr = (n1 * cosI - n2 * cosR) / (n1 * cosI + n2 * cosR);
 
-	return (Fp * Fp * Fr * Fr) * 0.5f;
+	return (Fp * Fp + Fr * Fr) * 0.5f;
 }

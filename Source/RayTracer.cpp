@@ -34,8 +34,8 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	Plane* top = new Plane(vec3(0.0f, 1.0f, 1.0f), vec3(1.0f, 1.0f, 1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 	vec3 white = vec3(0.83f);
-	vec3 red = vec3(0.65f, 0.05f, 0.05f);
-	vec3 green = vec3(0.12f, 0.45f, 0.15f);
+	vec3 red = vec3(1, 0.478, 0.067);
+	vec3 green = vec3(0.067, 0.698, 1);
 
 	left->material.Color = red;
 	right->material.Color = green;
@@ -43,27 +43,16 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	back->material.Color = white;
 	top->material.Color = white;
 
-	top->material.Specularity = 1.0f;
+	//top->material.Specularity = 1.0f;
 
 	Plane* light = new Plane(vec3(0.4f, 0.999f, 0.6f), vec3(0.6f, 0.999f, 0.6f), vec3(0.4f, 0.999f, 0.4f));
 	light->material.isEmissive = true;
 
-	Sphere* metal = new Sphere(vec3(0.5, 0.075f, 0.5), 0.075f);
+	Sphere* metal = new Sphere(vec3(0.3, 0.15f, 0.7), 0.15f);
 	metal->material.Specularity = 1.0f;
 
-	Sphere* glass = new Sphere(vec3(0.5, 0.5f, 0.25f), 0.2f);
-	glass->material.isDielectric = true;
-
-	Sphere* glass2 = new Sphere(vec3(0.88, 0.1f, 0.3f), 0.1f);
+	Sphere* glass2 = new Sphere(vec3(0.725, 0.15f, 0.3f), 0.15f);
 	glass2->material.isDielectric = true;
-
-	Sphere* glass3 = new Sphere(vec3(0.12, 0.1f, 0.7f), 0.1f);
-	glass3->material.isDielectric = true;
-
-	Sphere* gloss = new Sphere(vec3(0.7, 0.1, 0.2), 0.1f);
-
-	Plane* glassTest = new Plane(vec3(0.3f, 0.3f, 0.07f), vec3(0.7f, 0.3f, 0.1f), vec3(0.3f, 0.7f, 0.2f));
-	glassTest->material.isDielectric = true;
 
 	scene.push_back(bottom);
 	scene.push_back(left);
@@ -71,12 +60,8 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	scene.push_back(back);
 	scene.push_back(top);
 	scene.push_back(light);
-	//scene.push_back(glass);
 	scene.push_back(glass2);
-	scene.push_back(glass3);
 	scene.push_back(metal);
-	//scene.push_back(gs);
-	//scene.push_back(glassTest);
 
 #else
 	Sphere* sphere = new Sphere(vec3(0.5f, 0.5f, 0.5f), 0.25f);
@@ -121,7 +106,11 @@ unsigned int RayTracer::Trace(float xScale, float yScale)
 
 		if (record.Primitive->material.isDielectric)
 		{
-			outputColor += RefractionIllumination(record, ray, 1);
+			float reflectance = Fresnel(ray.Direction, record.Normal, 1.5f);
+			float transmittance = 1.0f - reflectance;
+
+			outputColor += reflectance * IndirectIllumination(record, ray, 1);
+			outputColor += transmittance * RefractionIllumination(record, ray, 1);
 		}
 		else
 		{
