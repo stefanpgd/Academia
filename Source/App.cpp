@@ -59,6 +59,8 @@ void App::Run()
 	RayTracer rayTracer(screenWidth, screenHeight);
 
 	int iterations = 1;
+	float pixelSizeX = (1.0f / float(screenWidth)) * 0.5f;
+	float pixelSizeY = (1.0f / float(screenHeight)) * 0.5f;
 
 	while (runApp)
 	{
@@ -86,6 +88,9 @@ void App::Run()
 				// determine where on the virtual screen we need to be //
 				float xScale = x / float(screenWidth);
 				float yScale = y / float(screenHeight);
+
+				xScale += RandomInRange(-pixelSizeX, pixelSizeX);
+				yScale += RandomInRange(-pixelSizeY, pixelSizeY);
 
 				colorBuffer[i] += rayTracer.Trace(xScale, yScale);
 				
