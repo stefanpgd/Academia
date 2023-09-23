@@ -34,7 +34,7 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	Plane* top = new Plane(vec3(0.0f, 1.0f, 1.0f), vec3(1.0f, 1.0f, 1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 	vec3 white = vec3(0.83f);
-	vec3 red = vec3(1, 0.478, 0.067);
+	vec3 red = vec3(1, 0.578, 0.067);
 	vec3 green = vec3(0.067, 0.698, 1);
 
 	left->material.Color = red;
@@ -217,19 +217,30 @@ vec3 RayTracer::IndirectIllumination(const HitRecord& record, const Ray& ray, in
 	{
 		vec3 illumination(0.0f);
 
-		float diffuse = 1.0f - reflectRecord.Primitive->material.Specularity;
-		float specular = reflectRecord.Primitive->material.Specularity;
-
-		if (diffuse > 0.0f)
+		if(reflectRecord.Primitive->material.isDielectric)
 		{
-			illumination += diffuse * materialColor * DirectIllumination(reflectRecord);
-		}
+			float reflectance = Fresnel(reflectedRay.Direction, reflectRecord.Normal, 1.5f);
+			float transmittance = 1.0f - reflectance;
 
-		if (specular > 0.0f)
+			illumination += reflectance * IndirectIllumination(reflectRecord, reflectedRay, currentRayDepth);
+			illumination += transmittance * RefractionIllumination(reflectRecord, reflectedRay, currentRayDepth);
+		}
+		else
 		{
-			illumination += specular * materialColor * IndirectIllumination(reflectRecord, reflectedRay, currentRayDepth);
-		}
+			float diffuse = 1.0f - reflectRecord.Primitive->material.Specularity;
+			float specular = reflectRecord.Primitive->material.Specularity;
 
+			if(diffuse > 0.0f)
+			{
+				illumination += diffuse * materialColor * DirectIllumination(reflectRecord);
+			}
+
+			if(specular > 0.0f)
+			{
+				illumination += specular * materialColor * IndirectIllumination(reflectRecord, reflectedRay, currentRayDepth);
+			}
+		}
+		
 		// for now we don't step further, do in a minute
 		return illumination;
 	}
@@ -262,7 +273,7 @@ vec3 RayTracer::RefractionIllumination(const HitRecord& record, const Ray& ray, 
 	vec3 materialColor = record.Primitive->material.Color;
 
 	vec3 rf = Refract(ray.Direction, record.Normal, 1.5f);
-	Ray refractRay = Ray(record.HitPoint + rf * 0.01f, rf);
+	Ray refractRay = Ray(record.HitPoint + rf * EPSILON, rf);
 
 	HitRecord refractRecord;
 	refractRecord.t = maxT;
@@ -276,7 +287,11 @@ vec3 RayTracer::RefractionIllumination(const HitRecord& record, const Ray& ray, 
 
 		if (refractRecord.Primitive->material.isDielectric)
 		{
-			illumination += materialColor * RefractionIllumination(refractRecord, refractRay, currentRayDepth);
+			float reflectance = Fresnel(refractRay.Direction, refractRecord.Normal, 1.5f);
+			float transmittance = 1.0f - reflectance;
+
+			illumination += reflectance * IndirectIllumination(refractRecord, refractRay, currentRayDepth);
+			illumination += transmittance * RefractionIllumination(refractRecord, refractRay, currentRayDepth);
 		}
 		else
 		{

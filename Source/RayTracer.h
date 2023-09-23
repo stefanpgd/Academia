@@ -33,5 +33,5 @@ private:
 
 	// Tracing settings // 
 	float maxT = 1000.0f;
-	int maxRayDepth = 25;
+	int maxRayDepth = 15;
 };
