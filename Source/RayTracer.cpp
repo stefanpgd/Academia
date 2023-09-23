@@ -43,15 +43,13 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	back->material.Color = white;
 	top->material.Color = white;
 
-	//top->material.Specularity = 1.0f;
-
 	Plane* light = new Plane(vec3(0.4f, 0.999f, 0.6f), vec3(0.6f, 0.999f, 0.6f), vec3(0.4f, 0.999f, 0.4f));
 	light->material.isEmissive = true;
 
 	Sphere* metal = new Sphere(vec3(0.3, 0.15f, 0.7), 0.15f);
 	metal->material.Specularity = 1.0f;
 
-	Sphere* glass2 = new Sphere(vec3(0.725, 0.15f, 0.3f), 0.15f);
+	Sphere* glass2 = new Sphere(vec3(0.75, 0.165f, 0.35f), 0.165f);
 	glass2->material.isDielectric = true;
 
 	scene.push_back(bottom);
@@ -156,6 +154,9 @@ void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
 vec3 RayTracer::DirectIllumination(const HitRecord& record)
 {
 	vec3 lightPos = vec3(0.5f, 0.93f, 0.5f); // hardcoded for now
+	lightPos.x += RandomInRange(-0.05f, 0.05f);
+	lightPos.y += RandomInRange(-0.05f, 0.05f);
+
 	vec3 lightColor = vec3(1.0f);
 	vec3 lightDir = lightPos - record.HitPoint;
 	float lightIntensity = 0.5f;
@@ -172,25 +173,16 @@ vec3 RayTracer::DirectIllumination(const HitRecord& record)
 
 	IntersectScene(shadowRay, shadowRecord);
 
-	float decrease = 1.0f;
-
 	if (shadowRecord.t < r)
 	{
-		if (!shadowRecord.Primitive->material.isDielectric)
-		{
-			// Direct light is blocked by another surface
-			return vec3(0.0f);
-		}
-		else
-		{
-			decrease = 0.65f;
-		}
+		// Direct light is blocked by another surface
+		return vec3(0.0f);
 	}
 
 	float diff = max(Dot(record.Normal, lightDir), 0.0);
 	vec3 lightC = lightColor * min((lightIntensity / r2), 1.0f);
 
-	return record.Primitive->material.Color * lightC * diff * decrease;
+	return record.Primitive->material.Color * lightC * diff;
 }
 
 vec3 RayTracer::IndirectIllumination(const HitRecord& record, const Ray& ray, int rayDepth)
@@ -251,9 +243,9 @@ vec3 RayTracer::IndirectIllumination(const HitRecord& record, const Ray& ray, in
 vec3 RayTracer::GetSkyColor(const Ray& ray)
 {
 #if Cornell
-	return vec3(0.0f);
+	//return vec3(0.0f);
 #endif
-	vec3 a = vec3(0.8f, 0.261f, 0.6f);
+	vec3 a = vec3(1, 0.578, 0.067);
 	vec3 b = vec3(0.475f, 0.91f, 1.0f);
 
 	float t = max(ray.Direction.y, 0.0);
