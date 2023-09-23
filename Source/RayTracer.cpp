@@ -81,7 +81,7 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 #endif
 }
 
-unsigned int RayTracer::Trace(float xScale, float yScale)
+vec3 RayTracer::Trace(float xScale, float yScale)
 {
 	vec3 outputColor = vec3(0.0f);
 
@@ -101,7 +101,7 @@ unsigned int RayTracer::Trace(float xScale, float yScale)
 		if (record.Primitive->material.isEmissive)
 		{
 			vec3 c = record.Primitive->material.Color;
-			return AlbedoToRGB(c.x, c.y, c.z);
+			return c;
 		}
 
 		if (record.Primitive->material.isDielectric)
@@ -134,8 +134,7 @@ unsigned int RayTracer::Trace(float xScale, float yScale)
 		outputColor = GetSkyColor(ray);
 	}
 
-	// Do gamma correction?
-	return AlbedoToRGB(outputColor.x, outputColor.y, outputColor.z);
+	return outputColor;
 }
 
 void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)

@@ -8,7 +8,7 @@ class RayTracer
 public:
 	RayTracer(unsigned int screenWidth, unsigned int screenHeight);
 
-	unsigned int Trace(float xScale, float yScale);
+	vec3 Trace(float xScale, float yScale);
 
 private:
 	void IntersectScene(const Ray& ray, HitRecord& record);

@@ -3,6 +3,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "Math/Vec3.h"
 
 class GLFWwindow;
 
@@ -25,5 +26,7 @@ private:
 	unsigned int screenWidth = 720;
 	unsigned int screenHeight = 720;
 	unsigned int bufferSize;
+
+	vec3* colorBuffer;
 	unsigned int* screenBuffer;
 };

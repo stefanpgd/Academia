@@ -16,6 +16,7 @@ App::App()
 {
 	bufferSize = screenWidth * screenHeight;
 	screenBuffer = new unsigned int[bufferSize];
+	colorBuffer = new vec3[bufferSize];
 	ClearBuffer(screenBuffer, 0x00, bufferSize);
 
 	glfwSetErrorCallback(GLFWErrorCallback);
@@ -57,6 +58,8 @@ void App::Run()
 {
 	RayTracer rayTracer(screenWidth, screenHeight);
 
+	int iterations = 1;
+
 	while (runApp)
 	{
 		if (glfwWindowShouldClose(window))
@@ -78,14 +81,22 @@ void App::Run()
 		{
 			for (int y = 0; y < screenHeight; y++)
 			{
+				int i = x + y * screenWidth;
+
 				// determine where on the virtual screen we need to be //
 				float xScale = x / float(screenWidth);
 				float yScale = y / float(screenHeight);
 
-				screenBuffer[x + y * screenWidth] = 0x00;
-				screenBuffer[x + y * screenWidth] = rayTracer.Trace(xScale, yScale);
+				colorBuffer[i] += rayTracer.Trace(xScale, yScale);
+				
+				vec3 output = colorBuffer[i];
+				output = output * (1.0f / (float)iterations);
+				screenBuffer[i] = AlbedoToRGB(output.x, output.y, output.z);
+
 			}
 		}
+
+		iterations++;
 
 		// draw buffer into screen buffer
 		glDrawPixels(screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, screenBuffer);
