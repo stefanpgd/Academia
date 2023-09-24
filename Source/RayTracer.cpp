@@ -243,7 +243,7 @@ vec3 RayTracer::IndirectIllumination(const HitRecord& record, const Ray& ray, in
 vec3 RayTracer::GetSkyColor(const Ray& ray)
 {
 #if Cornell
-	//return vec3(0.0f);
+	return vec3(0.0f);
 #endif
 	vec3 a = vec3(1, 0.578, 0.067);
 	vec3 b = vec3(0.475f, 0.91f, 1.0f);

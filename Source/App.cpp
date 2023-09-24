@@ -96,8 +96,16 @@ void App::Run()
 				
 				vec3 output = colorBuffer[i];
 				output = output * (1.0f / (float)iterations);
-				screenBuffer[i] = AlbedoToRGB(output.x, output.y, output.z);
 
+
+				//float g = Dot(output, vec3(0.2126f, 0.7152f, 0.0722f));
+
+				// Grey-Scale filter
+				//float blackwhite = (output.x + output.y + output.z) * 0.33f;
+				//screenBuffer[i] = AlbedoToRGB(blackwhite, blackwhite, blackwhite);
+				//screenBuffer[i] = AlbedoToRGB(g, g, g);
+
+				screenBuffer[i] = AlbedoToRGB(output.x, output.y, output.z);
 			}
 		}
 
