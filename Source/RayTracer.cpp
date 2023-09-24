@@ -9,9 +9,9 @@
 #include "Utilities/Utilities.h"
 
 #define Cornell true
-#define ior 1.5f
+#define ior 1.51f
 
-RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
+RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight) : screenWidth(screenWidth), screenHeight(screenHeight)
 {
 	// LH system
 	camera = Vec3(0.5, 0.5f, -1.0f);
@@ -25,6 +25,9 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 
 	screenU = screenP1 - screenP0;
 	screenV = screenP2 - screenP0;
+
+	pixelSizeX = (1.0f / float(screenWidth)) * 0.5f;
+	pixelSizeY = (1.0f / float(screenHeight)) * 0.5f;
 
 #if Cornell
 	Plane* bottom = new Plane(vec3(0.0f, 0.0f, 0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
@@ -79,9 +82,16 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 #endif
 }
 
-vec3 RayTracer::Trace(float xScale, float yScale)
+vec3 RayTracer::Trace(int pixelX, int pixelY)
 {
 	vec3 outputColor = vec3(0.0f);
+
+	// determine where on the virtual screen we need to be //
+	float xScale = pixelX / float(screenWidth);
+	float yScale = pixelY / float(screenHeight);
+
+	xScale += RandomInRange(-pixelSizeX, pixelSizeX);
+	yScale += RandomInRange(-pixelSizeY, pixelSizeY);
 
 	vec3 screenPoint = screenP0 + (screenU * xScale) + (screenV * yScale);
 	vec3 rayDirection = Normalize(screenPoint - camera);
@@ -104,7 +114,7 @@ vec3 RayTracer::Trace(float xScale, float yScale)
 
 		if (record.Primitive->material.isDielectric)
 		{
-			float reflectance = Fresnel(ray.Direction, record.Normal, 1.5f);
+			float reflectance = Fresnel(ray.Direction, record.Normal, ior);
 			float transmittance = 1.0f - reflectance;
 
 			outputColor += reflectance * IndirectIllumination(record, ray, 1);
@@ -210,7 +220,7 @@ vec3 RayTracer::IndirectIllumination(const HitRecord& record, const Ray& ray, in
 
 		if(reflectRecord.Primitive->material.isDielectric)
 		{
-			float reflectance = Fresnel(reflectedRay.Direction, reflectRecord.Normal, 1.5f);
+			float reflectance = Fresnel(reflectedRay.Direction, reflectRecord.Normal, ior);
 			float transmittance = 1.0f - reflectance;
 
 			illumination += reflectance * IndirectIllumination(reflectRecord, reflectedRay, currentRayDepth);
@@ -263,7 +273,7 @@ vec3 RayTracer::RefractionIllumination(const HitRecord& record, const Ray& ray, 
 	int currentRayDepth = rayDepth + 1;
 	vec3 materialColor = record.Primitive->material.Color;
 
-	vec3 rf = Refract(ray.Direction, record.Normal, 1.5f);
+	vec3 rf = Refract(ray.Direction, record.Normal, ior);
 	Ray refractRay = Ray(record.HitPoint + rf * EPSILON, rf);
 
 	HitRecord refractRecord;
@@ -278,7 +288,7 @@ vec3 RayTracer::RefractionIllumination(const HitRecord& record, const Ray& ray, 
 
 		if (refractRecord.Primitive->material.isDielectric)
 		{
-			float reflectance = Fresnel(refractRay.Direction, refractRecord.Normal, 1.5f);
+			float reflectance = Fresnel(refractRay.Direction, refractRecord.Normal, ior);
 			float transmittance = 1.0f - reflectance;
 
 			illumination += reflectance * IndirectIllumination(refractRecord, refractRay, currentRayDepth);

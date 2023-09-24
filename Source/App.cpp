@@ -37,7 +37,7 @@ App::App()
 		assert(false);
 	}
 
-	LOG("Succesfully created a window");
+	LOG("Succesfully created a window.");
 	glfwMakeContextCurrent(window);
 
 	IMGUI_CHECKVERSION();
@@ -46,80 +46,83 @@ App::App()
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-	// Setup Dear ImGui style
+	// Setup Dear ImGui style //
 	ImGui::StyleColorsDark();
 
-	// Setup Platform/Renderer backends
+	// Setup Platform/Renderer backends //
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
+
+	// Start initializing custom components //
+	rayTracer = new RayTracer(screenWidth, screenHeight);
+
+	LOG("'Academia' has succesfully initialized!");
+}
+
+App::~App()
+{
+	// Destroy tracer enc. enc.
+
+	glfwDestroyWindow(window);
 }
 
 void App::Run()
 {
-	RayTracer rayTracer(screenWidth, screenHeight);
-
-	int iterations = 1;
-	float pixelSizeX = (1.0f / float(screenWidth)) * 0.5f;
-	float pixelSizeY = (1.0f / float(screenHeight)) * 0.5f;
-
 	while (runApp)
 	{
-		if (glfwWindowShouldClose(window))
+		Start();
+		Update();
+		Render();
+
+		glfwPollEvents();
+		if(glfwWindowShouldClose(window))
 		{
 			runApp = false;
 		}
 
 		frameCount++;
+	}
+}
 
-		glClear(GL_COLOR_BUFFER_BIT);
+void App::Start()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
 
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+}
 
-		ImGui::ShowDemoWindow();
-		
-		for (int x = 0; x < screenWidth; x++)
+void App::Update()
+{
+	// Process input
+	// Process editor & Scene stuff...
+	// Update components like camera
+
+	// Potentially reset buffers like colorBuffer incase scene got updated
+}
+
+void App::Render()
+{
+	for(int x = 0; x < screenWidth; x++)
+	{
+		for(int y = 0; y < screenHeight; y++)
 		{
-			for (int y = 0; y < screenHeight; y++)
-			{
-				int i = x + y * screenWidth;
+			int i = x + y * screenWidth;
+			colorBuffer[i] += rayTracer->Trace(x, y);
 
-				// determine where on the virtual screen we need to be //
-				float xScale = x / float(screenWidth);
-				float yScale = y / float(screenHeight);
+			vec3 output = colorBuffer[i];
+			output = output * (1.0f / (float)frameCount);
 
-				xScale += RandomInRange(-pixelSizeX, pixelSizeX);
-				yScale += RandomInRange(-pixelSizeY, pixelSizeY);
-
-				colorBuffer[i] += rayTracer.Trace(xScale, yScale);
-				
-				vec3 output = colorBuffer[i];
-				output = output * (1.0f / (float)iterations);
-
-
-				//float g = Dot(output, vec3(0.2126f, 0.7152f, 0.0722f));
-
-				// Grey-Scale filter
-				//float blackwhite = (output.x + output.y + output.z) * 0.33f;
-				//screenBuffer[i] = AlbedoToRGB(blackwhite, blackwhite, blackwhite);
-				//screenBuffer[i] = AlbedoToRGB(g, g, g);
-
-				screenBuffer[i] = AlbedoToRGB(output.x, output.y, output.z);
-			}
+			screenBuffer[i] = AlbedoToRGB(output.x, output.y, output.z);
 		}
-
-		iterations++;
-
-		// draw buffer into screen buffer
-		glDrawPixels(screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, screenBuffer);
-
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		glfwSwapBuffers(window);
-		glfwPollEvents();
 	}
 
-	glfwDestroyWindow(window);
+	// Copy screen-buffer data over to the Window's buffer.
+	glDrawPixels(screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, screenBuffer);
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	glfwSwapBuffers(window);
 }

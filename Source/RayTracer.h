@@ -8,7 +8,7 @@ class RayTracer
 public:
 	RayTracer(unsigned int screenWidth, unsigned int screenHeight);
 
-	vec3 Trace(float xScale, float yScale);
+	vec3 Trace(int pixelX, int pixelY);
 
 private:
 	void IntersectScene(const Ray& ray, HitRecord& record);
@@ -28,10 +28,12 @@ private:
 	vec3 screenCenter;
 	vec3 screenP0, screenP1, screenP2;
 	vec3 screenU, screenV;
+	unsigned int screenWidth, screenHeight;
+	float pixelSizeX, pixelSizeY;
 
 	std::vector<Primitive*> scene;
 
 	// Tracing settings // 
-	float maxT = 1000.0f;
+	float maxT = 100.0f;
 	int maxRayDepth = 15;
 };
