@@ -5,6 +5,8 @@
 #include <cassert>
 #include <vector>
 
+#include "Input.h"
+
 #include "RayTracer.h"
 
 void GLFWErrorCallback(int, const char* err_str)
@@ -52,7 +54,8 @@ App::App()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
-	// Start initializing custom components //
+	// Start initializing custom systems  //
+	Input::Initialize(window);
 	rayTracer = new RayTracer(screenWidth, screenHeight);
 
 	LOG("'Academia' has succesfully initialized!");
@@ -94,6 +97,11 @@ void App::Start()
 
 void App::Update()
 {
+	if(Input::GetKey(KeyCode::L))
+	{
+		LOG("Hello Input!");
+	}
+
 	// Process input
 	// Process editor & Scene stuff...
 	// Update components like camera
