@@ -40,16 +40,15 @@ App::App()
 	LOG("Succesfully created a window.");
 	glfwMakeContextCurrent(window);
 
+	// Setup ImGui  //
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
-	// Setup Dear ImGui style //
 	ImGui::StyleColorsDark();
 
-	// Setup Platform/Renderer backends //
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
@@ -109,7 +108,7 @@ void App::Render()
 		for(int y = 0; y < screenHeight; y++)
 		{
 			int i = x + y * screenWidth;
-			colorBuffer[i] += rayTracer->Trace(x, y);
+			colorBuffer[i] += rayTracer->Trace(x, y, maxRayDepth);
 
 			vec3 output = colorBuffer[i];
 			output = output * (1.0f / (float)frameCount);

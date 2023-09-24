@@ -9,7 +9,7 @@
 #include "Utilities/Utilities.h"
 
 #define Cornell true
-#define ior 1.51f
+#define ior 1.50f
 
 RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight) : screenWidth(screenWidth), screenHeight(screenHeight)
 {
@@ -82,7 +82,7 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight) : scre
 #endif
 }
 
-vec3 RayTracer::Trace(int pixelX, int pixelY)
+vec3 RayTracer::Trace(int pixelX, int pixelY, int currentDepth)
 {
 	vec3 outputColor = vec3(0.0f);
 
@@ -90,6 +90,7 @@ vec3 RayTracer::Trace(int pixelX, int pixelY)
 	float xScale = pixelX / float(screenWidth);
 	float yScale = pixelY / float(screenHeight);
 
+	// Anti-Aliasing (Monte-Carlo? - Double check the lecture)
 	xScale += RandomInRange(-pixelSizeX, pixelSizeX);
 	yScale += RandomInRange(-pixelSizeY, pixelSizeY);
 
@@ -97,52 +98,88 @@ vec3 RayTracer::Trace(int pixelX, int pixelY)
 	vec3 rayDirection = Normalize(screenPoint - camera);
 
 	Ray ray = Ray(camera, rayDirection);
+	HitRecord record;
+
+	outputColor = TraverseScene(ray, currentDepth, record);
+
+	return outputColor;
+}
+
+vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& lastRecord)
+{
+	if(rayDepth <= 0)
+	{
+		// Exceeded bounce limit
+		return vec3(0.0f);
+	}
+
+	int depth = rayDepth - 1;
 
 	HitRecord record;
 	record.t = maxT;
+	record.InsideMedium = lastRecord.InsideMedium;
 
-	// Primary Ray //
 	IntersectScene(ray, record);
 
-	if (record.t != maxT)
+	vec3 illumination = vec3(0.0f);
+
+	if(record.t < maxT)
 	{
-		if (record.Primitive->material.isEmissive)
+		vec3 materialColor = record.Primitive->material.Color;
+
+		if(record.Primitive->material.isEmissive)
 		{
-			vec3 c = record.Primitive->material.Color;
-			return c;
+			// Emissive materials don't receive shading or bounce
+			// They are considered to be lights.
+			return record.Primitive->material.Color;
 		}
 
-		if (record.Primitive->material.isDielectric)
+		if(record.Primitive->material.isDielectric)
 		{
 			float reflectance = Fresnel(ray.Direction, record.Normal, ior);
 			float transmittance = 1.0f - reflectance;
 
-			outputColor += reflectance * IndirectIllumination(record, ray, 1);
-			outputColor += transmittance * RefractionIllumination(record, ray, 1);
+			if(reflectance > 0.0f)
+			{
+				vec3 reflected = Reflect(ray.Direction, Normalize(record.Normal));
+				Ray reflectedRay = Ray(record.HitPoint, reflected);
+
+				illumination += reflectance * materialColor * TraverseScene(reflectedRay, depth, record);
+			}
+
+			if(transmittance > 0.0f)
+			{
+				vec3 rf = Refract(ray.Direction, record.Normal, ior);
+				Ray refractRay = Ray(record.HitPoint + rf * EPSILON, rf);
+
+				illumination += transmittance * materialColor * TraverseScene(refractRay, depth, record);
+			}
 		}
 		else
 		{
 			float diffuse = 1.0f - record.Primitive->material.Specularity;
 			float specular = record.Primitive->material.Specularity;
 
-			if (diffuse > 0.0f)
+			if(diffuse > 0.0f)
 			{
-				outputColor += diffuse * DirectIllumination(record);
+				illumination += diffuse * CalculateDiffuseShading(record);
 			}
 
-			if (specular > 0.0f)
+			if(specular > 0.0f)
 			{
-				outputColor += specular * IndirectIllumination(record, ray, 1);
+				vec3 reflected = Reflect(ray.Direction, Normalize(record.Normal));
+				Ray reflectedRay = Ray(record.HitPoint, reflected);
+
+				illumination += specular * materialColor * TraverseScene(reflectedRay, depth, record);
 			}
 		}
 	}
 	else
 	{
-		// sky
-		outputColor = GetSkyColor(ray);
+		illumination += GetSkyColor(ray);
 	}
 
-	return outputColor;
+	return illumination;
 }
 
 void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
@@ -161,7 +198,7 @@ void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
 	}
 }
 
-vec3 RayTracer::DirectIllumination(const HitRecord& record)
+vec3 RayTracer::CalculateDiffuseShading(const HitRecord& record)
 {
 	vec3 lightPos = vec3(0.5f, 0.93f, 0.5f); // hardcoded for now
 	lightPos.x += RandomInRange(-0.05f, 0.05f);
@@ -183,7 +220,7 @@ vec3 RayTracer::DirectIllumination(const HitRecord& record)
 
 	IntersectScene(shadowRay, shadowRecord);
 
-	if (shadowRecord.t < r)
+	if(shadowRecord.t < r)
 	{
 		// Direct light is blocked by another surface
 		return vec3(0.0f);
@@ -193,61 +230,6 @@ vec3 RayTracer::DirectIllumination(const HitRecord& record)
 	vec3 lightC = lightColor * min((lightIntensity / r2), 1.0f);
 
 	return record.Primitive->material.Color * lightC * diff;
-}
-
-vec3 RayTracer::IndirectIllumination(const HitRecord& record, const Ray& ray, int rayDepth)
-{
-	if (rayDepth >= maxRayDepth)
-	{
-		// Max recursion depth exceeded
-		return vec3(0.0f);
-	}
-
-	int currentRayDepth = rayDepth + 1;
-	vec3 materialColor = record.Primitive->material.Color;
-
-	vec3 reflected = Reflect(ray.Direction, Normalize(record.Normal));
-	Ray reflectedRay = Ray(record.HitPoint, reflected);
-
-	HitRecord reflectRecord;
-	reflectRecord.t = maxT;
-
-	IntersectScene(reflectedRay, reflectRecord);
-
-	if (reflectRecord.t < maxT)
-	{
-		vec3 illumination(0.0f);
-
-		if(reflectRecord.Primitive->material.isDielectric)
-		{
-			float reflectance = Fresnel(reflectedRay.Direction, reflectRecord.Normal, ior);
-			float transmittance = 1.0f - reflectance;
-
-			illumination += reflectance * IndirectIllumination(reflectRecord, reflectedRay, currentRayDepth);
-			illumination += transmittance * RefractionIllumination(reflectRecord, reflectedRay, currentRayDepth);
-		}
-		else
-		{
-			float diffuse = 1.0f - reflectRecord.Primitive->material.Specularity;
-			float specular = reflectRecord.Primitive->material.Specularity;
-
-			if(diffuse > 0.0f)
-			{
-				illumination += diffuse * materialColor * DirectIllumination(reflectRecord);
-			}
-
-			if(specular > 0.0f)
-			{
-				illumination += specular * materialColor * IndirectIllumination(reflectRecord, reflectedRay, currentRayDepth);
-			}
-		}
-		
-		// for now we don't step further, do in a minute
-		return illumination;
-	}
-
-	// Return skybox
-	return materialColor * GetSkyColor(reflectedRay);
 }
 
 vec3 RayTracer::GetSkyColor(const Ray& ray)
@@ -261,58 +243,4 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 	float t = max(ray.Direction.y, 0.0);
 
 	return (1.0f - t) * a + b * t;
-}
-
-vec3 RayTracer::RefractionIllumination(const HitRecord& record, const Ray& ray, int rayDepth)
-{
-	if (rayDepth >= maxRayDepth)
-	{
-		return vec3(0.0f);
-	}
-
-	int currentRayDepth = rayDepth + 1;
-	vec3 materialColor = record.Primitive->material.Color;
-
-	vec3 rf = Refract(ray.Direction, record.Normal, ior);
-	Ray refractRay = Ray(record.HitPoint + rf * EPSILON, rf);
-
-	HitRecord refractRecord;
-	refractRecord.t = maxT;
-	refractRecord.InsideMedium = record.InsideMedium;
-
-	IntersectScene(refractRay, refractRecord);
-
-	if (refractRecord.t < maxT)
-	{
-		vec3 illumination(0.0f);
-
-		if (refractRecord.Primitive->material.isDielectric)
-		{
-			float reflectance = Fresnel(refractRay.Direction, refractRecord.Normal, ior);
-			float transmittance = 1.0f - reflectance;
-
-			illumination += reflectance * IndirectIllumination(refractRecord, refractRay, currentRayDepth);
-			illumination += transmittance * RefractionIllumination(refractRecord, refractRay, currentRayDepth);
-		}
-		else
-		{
-			float diffuse = 1.0f - refractRecord.Primitive->material.Specularity;
-			float specular = refractRecord.Primitive->material.Specularity;
-
-			if (diffuse > 0.0f)
-			{
-				illumination += diffuse * materialColor * DirectIllumination(refractRecord);
-			}
-
-			if (specular > 0.0f)
-			{
-				illumination += specular * materialColor * IndirectIllumination(refractRecord, refractRay, currentRayDepth);
-			}
-		}
-
-		// for now we don't step further, do in a minute
-		return illumination;
-	}
-
-	return materialColor * GetSkyColor(refractRay);
 }
