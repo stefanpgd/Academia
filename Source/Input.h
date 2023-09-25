@@ -28,7 +28,9 @@ enum class KeyCode
 	W = GLFW_KEY_W,
 	X = GLFW_KEY_X,
 	Y = GLFW_KEY_Y,
-	Z = GLFW_KEY_Z
+	Z = GLFW_KEY_Z,
+	LeftShift = GLFW_KEY_LEFT_SHIFT,
+	LeftCtrl = GLFW_KEY_LEFT_CONTROL
 };
 
 class Input

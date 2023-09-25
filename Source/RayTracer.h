@@ -9,7 +9,7 @@ class RayTracer
 public:
 	RayTracer(unsigned int screenWidth, unsigned int screenHeight);
 
-	bool Update();
+	bool Update(float deltaTime);
 	vec3 Trace(int pixelX, int pixelY, int maxDepth);
 
 private:

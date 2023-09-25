@@ -68,10 +68,10 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 #endif
 }
 
-bool RayTracer::Update()
+bool RayTracer::Update(float deltaTime)
 {
 	// Maybe in the future, let the scene manager own Camera and update it
-	return camera->Update();
+	return camera->Update(deltaTime);
 }
 
 vec3 RayTracer::Trace(int pixelX, int pixelY, int currentDepth)

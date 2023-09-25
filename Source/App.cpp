@@ -4,9 +4,9 @@
 #include <GLFW/glfw3.h>
 #include <cassert>
 #include <vector>
+#include <chrono>
 
 #include "Input.h"
-
 #include "RayTracer.h"
 
 void GLFWErrorCallback(int, const char* err_str)
@@ -69,10 +69,18 @@ App::~App()
 
 void App::Run()
 {
+	static float deltaTime = 0.0f;
+	static std::chrono::high_resolution_clock clock;
+	static auto t0 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock.now())).time_since_epoch();
+
 	while (runApp)
 	{
+		auto t1 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock.now())).time_since_epoch();
+		deltaTime = (t1 - t0).count() * .001;
+		t0 = t1;
+
 		Start();
-		Update();
+		Update(deltaTime);
 		Render();
 
 		glfwPollEvents();
@@ -94,11 +102,11 @@ void App::Start()
 	ImGui::NewFrame();
 }
 
-void App::Update()
+void App::Update(float deltaTime)
 {
 	bool sceneUpdated = false;
 
-	sceneUpdated = rayTracer->Update();
+	sceneUpdated = rayTracer->Update(deltaTime);
 
 	if(sceneUpdated)
 	{

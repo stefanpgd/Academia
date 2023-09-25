@@ -11,15 +11,26 @@ Camera::Camera(unsigned int screenWidth, unsigned int screenHeight) : screenWidt
 	SetupVirtualPlane(screenWidth, screenHeight);
 }
 
-bool Camera::Update()
+bool Camera::Update(float deltaTime)
 {
 	bool cameraUpdated = false;
+	float speed = Speed * deltaTime;
+
+	if(Input::GetKey(KeyCode::LeftShift))
+	{
+		speed *= BoostMultiplier;
+	}
+
+	if(Input::GetKey(KeyCode::LeftCtrl))
+	{
+		speed *= SlowMultilplier;
+	}
 
 	int forward = Input::GetKey(KeyCode::W) - Input::GetKey(KeyCode::S);
 	if(forward != 0.0)
 	{
 		// in the need of delta time...
-		Position.z += Speed * forward;
+		Position.z += speed * forward;
 		cameraUpdated = true;
 	}
 
@@ -27,7 +38,7 @@ bool Camera::Update()
 	if(sideward != 0.0)
 	{
 		// in the need of delta time...
-		Position.x += Speed * sideward;
+		Position.x += speed * sideward;
 		cameraUpdated = true;
 	}
 

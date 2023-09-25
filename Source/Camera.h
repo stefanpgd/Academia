@@ -6,7 +6,7 @@ class Camera
 public:
 	Camera(unsigned int screenWidth, unsigned int screenHeight);
 
-	bool Update();
+	bool Update(float deltaTime);
 	void SetupVirtualPlane(unsigned int screenWidth, unsigned int screenHeight);
 
 	Ray GetRay(int pixelX, int pixelY);
@@ -16,7 +16,9 @@ public:
 	vec3 Position;
 	vec3 ViewDirection;
 
-	float Speed = 0.025f;
+	float Speed = 0.25f;
+	float BoostMultiplier = 2.5f; // Holding Shift
+	float SlowMultilplier = 0.15f; // Holding Ctrl
 
 private:
 	// Screen virtual plane //
