@@ -9,6 +9,8 @@
 #include "Input.h"
 #include "RayTracer.h"
 
+#include "Utilities/Timer.h"
+
 void GLFWErrorCallback(int, const char* err_str)
 {
 	LOG(Log::MessageType::Error, err_str);
@@ -73,6 +75,9 @@ void App::Run()
 	static std::chrono::high_resolution_clock clock;
 	static auto t0 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock.now())).time_since_epoch();
 
+	Timer timer(5, "FPS");
+	timer.Start(true, true);
+
 	while (runApp)
 	{
 		auto t1 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock.now())).time_since_epoch();
@@ -90,6 +95,7 @@ void App::Run()
 		}
 
 		frameCount++;
+		timer.Log();
 	}
 }
 
