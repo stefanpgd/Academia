@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Dependencies\ImGUI\source\imgui.cpp" />
     <ClCompile Include="Dependencies\ImGUI\source\imgui_demo.cpp" />
     <ClCompile Include="Dependencies\ImGUI\source\imgui_draw.cpp" />
@@ -166,6 +167,7 @@
     <ClCompile Include="Source\Utilities\Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\Input.h" />
     <ClInclude Include="Source\RayTracer.h" />
     <ClInclude Include="Source\Plane.h" />

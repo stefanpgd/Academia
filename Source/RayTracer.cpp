@@ -11,23 +11,9 @@
 #define Cornell true
 #define ior 1.50f
 
-RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight) : screenWidth(screenWidth), screenHeight(screenHeight)
+RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight) 
 {
-	// LH system
-	camera = Vec3(0.5, 0.5f, -1.0f);
-	viewDirection = Vec3(0.0f, 0.0f, 1.f);
-
-	screenCenter = camera + viewDirection;
-
-	screenP0 = screenCenter + vec3(-0.5f, -0.5f, 0.0f);		// Bottom Left
-	screenP1 = screenCenter + vec3(0.5, -0.5, 0.0f);		// Bottom Right
-	screenP2 = screenCenter + vec3(-0.5f, 0.5f, 0.0f);		// Top left
-
-	screenU = screenP1 - screenP0;
-	screenV = screenP2 - screenP0;
-
-	pixelSizeX = (1.0f / float(screenWidth)) * 0.5f;
-	pixelSizeY = (1.0f / float(screenHeight)) * 0.5f;
+	camera = new Camera(screenWidth, screenHeight);
 
 #if Cornell
 	Plane* bottom = new Plane(vec3(0.0f, 0.0f, 0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
@@ -82,22 +68,17 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight) : scre
 #endif
 }
 
+bool RayTracer::Update()
+{
+	// Maybe in the future, let the scene manager own Camera and update it
+	return camera->Update();
+}
+
 vec3 RayTracer::Trace(int pixelX, int pixelY, int currentDepth)
 {
 	vec3 outputColor = vec3(0.0f);
-
-	// determine where on the virtual screen we need to be //
-	float xScale = pixelX / float(screenWidth);
-	float yScale = pixelY / float(screenHeight);
-
-	// Anti-Aliasing (Monte-Carlo? - Double check the lecture)
-	xScale += RandomInRange(-pixelSizeX, pixelSizeX);
-	yScale += RandomInRange(-pixelSizeY, pixelSizeY);
-
-	vec3 screenPoint = screenP0 + (screenU * xScale) + (screenV * yScale);
-	vec3 rayDirection = Normalize(screenPoint - camera);
-
-	Ray ray = Ray(camera, rayDirection);
+	
+	Ray ray = camera->GetRay(pixelX, pixelY);
 	HitRecord record;
 
 	outputColor = TraverseScene(ray, currentDepth, record);

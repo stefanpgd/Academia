@@ -64,7 +64,6 @@ App::App()
 App::~App()
 {
 	// Destroy tracer enc. enc.
-
 	glfwDestroyWindow(window);
 }
 
@@ -97,9 +96,13 @@ void App::Start()
 
 void App::Update()
 {
-	if(Input::GetKey(KeyCode::L))
+	bool sceneUpdated = false;
+
+	sceneUpdated = rayTracer->Update();
+
+	if(sceneUpdated)
 	{
-		LOG("Hello Input!");
+		ClearScreenbuffers();
 	}
 
 	// Process input
@@ -132,4 +135,11 @@ void App::Render()
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 	glfwSwapBuffers(window);
+}
+
+void App::ClearScreenbuffers()
+{
+	frameCount = 1;
+	ClearBuffer(screenBuffer, 0x00, bufferSize);
+	memset(colorBuffer, 0.0f, sizeof(vec3) * bufferSize);
 }

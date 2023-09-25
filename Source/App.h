@@ -21,6 +21,8 @@ private:
 	void Update();
 	void Render();
 
+	void ClearScreenbuffers();
+
 private:
 	bool runApp = true;
 	std::string appName = "Academia";
