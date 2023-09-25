@@ -32,6 +32,8 @@ vec3 Refract(const vec3& in, const vec3& normal, float IoR);
 vec3 Normalize(const vec3& n);
 float Fresnel(const vec3& in, const vec3& normal, float IoR);
 
+vec3 RandomUnitVector();
+
 // To do:
 // Operator overloading
 // union

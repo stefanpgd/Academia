@@ -8,6 +8,8 @@ struct Material
 {
 	vec3 Color = vec3(1.0f);
 	float Specularity = 0.0f;
+	float SpecularGloss = 1.0f;
+
 	bool isEmissive = false;
 	bool isDielectric = false;
 };

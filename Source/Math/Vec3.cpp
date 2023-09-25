@@ -1,5 +1,6 @@
 #include "Vec3.h"
 #include <iostream>
+#include "../Utilities/Utilities.h"
 
 Vec3::Vec3() : x(0.0f), y(0.0f), z(0.0f) {}
 Vec3::Vec3(float v) : x(v), y(v), z(v) {}
@@ -132,4 +133,18 @@ float Fresnel(const vec3& in, const vec3& normal, float IoR)
 	float Fr = (n1 * cosI - n2 * cosR) / (n1 * cosI + n2 * cosR);
 
 	return (Fp * Fp + Fr * Fr) * 0.5f;
+}
+
+vec3 RandomUnitVector()
+{
+	while(true)
+	{
+		vec3 v = vec3(RandomInRange(-1.0f, 1.0f), RandomInRange(-1.0f, 1.0f), RandomInRange(-1.0f, 1.0f));
+		
+		// ensures there is no bias for the corners
+		if(v.MagnitudeSquared() < 1)
+		{
+			return Normalize(v);
+		}
+	}
 }

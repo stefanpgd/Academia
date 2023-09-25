@@ -23,23 +23,27 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	Plane* top = new Plane(vec3(0.0f, 1.0f, 1.0f), vec3(1.0f, 1.0f, 1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 	vec3 white = vec3(0.83f);
-	vec3 red = vec3(1, 0.578, 0.067);
-	vec3 green = vec3(0.067, 0.698, 1);
+	vec3 orange = vec3(1, 0.578, 0.067);
+	vec3 blue = vec3(0.067, 0.698, 1);
 
-	left->material.Color = red;
-	right->material.Color = green;
+	left->material.Color = orange;
+	right->material.Color = blue;
 	bottom->material.Color = white;
 	back->material.Color = white;
 	top->material.Color = white;
 
-	Plane* light = new Plane(vec3(0.4f, 0.999f, 0.6f), vec3(0.6f, 0.999f, 0.6f), vec3(0.4f, 0.999f, 0.4f));
+	Plane* light = new Plane(vec3(0.35f, 0.999f, 0.65f), vec3(0.65f, 0.999f, 0.65f), vec3(0.35f, 0.999f, 0.35f));
 	light->material.isEmissive = true;
 
+
 	Sphere* metal = new Sphere(vec3(0.3, 0.15f, 0.7), 0.15f);
+	metal->material.Color = vec3(0.95f, 0.92f, 0.96f);
 	metal->material.Specularity = 1.0f;
+	metal->material.SpecularGloss = 0.925f;
 
 	Sphere* glass2 = new Sphere(vec3(0.75, 0.165f, 0.35f), 0.165f);
 	glass2->material.isDielectric = true;
+	glass2->material.SpecularGloss = 0.92f;
 
 	scene.push_back(bottom);
 	scene.push_back(left);
@@ -123,6 +127,13 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 			if(reflectance > 0.0f)
 			{
 				vec3 reflected = Reflect(ray.Direction, Normalize(record.Normal));
+				
+				if(record.Primitive->material.SpecularGloss < 1.0f)
+				{
+					reflected += (1.0f - record.Primitive->material.SpecularGloss) * RandomUnitVector();
+					reflected.Normalize();
+				}
+
 				Ray reflectedRay = Ray(record.HitPoint, reflected);
 
 				illumination += reflectance * materialColor * TraverseScene(reflectedRay, depth, record);
@@ -149,6 +160,13 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 			if(specular > 0.0f)
 			{
 				vec3 reflected = Reflect(ray.Direction, Normalize(record.Normal));
+
+				if(record.Primitive->material.SpecularGloss < 1.0f)
+				{
+					reflected += (1.0f - record.Primitive->material.SpecularGloss) * RandomUnitVector();
+					reflected.Normalize();
+				}
+
 				Ray reflectedRay = Ray(record.HitPoint, reflected);
 
 				illumination += specular * materialColor * TraverseScene(reflectedRay, depth, record);
@@ -182,8 +200,8 @@ void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
 vec3 RayTracer::CalculateDiffuseShading(const HitRecord& record)
 {
 	vec3 lightPos = vec3(0.5f, 0.93f, 0.5f); // hardcoded for now
-	lightPos.x += RandomInRange(-0.05f, 0.05f);
-	lightPos.y += RandomInRange(-0.05f, 0.05f);
+	lightPos.x += RandomInRange(-0.075f, 0.075f);
+	lightPos.y += RandomInRange(-0.075f, 0.075f);
 
 	vec3 lightColor = vec3(1.0f);
 	vec3 lightDir = lightPos - record.HitPoint;

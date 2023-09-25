@@ -75,9 +75,6 @@ void App::Run()
 	static std::chrono::high_resolution_clock clock;
 	static auto t0 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock.now())).time_since_epoch();
 
-	Timer timer(5, "FPS");
-	timer.Start(true, true);
-
 	while (runApp)
 	{
 		auto t1 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock.now())).time_since_epoch();
@@ -95,7 +92,6 @@ void App::Run()
 		}
 
 		frameCount++;
-		timer.Log();
 	}
 }
 
