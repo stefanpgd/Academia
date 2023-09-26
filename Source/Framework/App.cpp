@@ -1,14 +1,14 @@
 #include "App.h"
 #include "Utilities/Utilities.h"
 
-#include <GLFW/glfw3.h>
 #include <cassert>
 #include <vector>
 #include <chrono>
 
 #include "Input.h"
-#include "RayTracer.h"
+#include "Editor.h"
 
+#include "Graphics/RayTracer.h"
 #include "Utilities/Timer.h"
 
 void GLFWErrorCallback(int, const char* err_str)
@@ -44,20 +44,10 @@ App::App()
 	LOG("Succesfully created a window.");
 	glfwMakeContextCurrent(window);
 
-	// Setup ImGui  //
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-	ImGui::StyleColorsDark();
-
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
-
 	// Start initializing custom systems  //
 	Input::Initialize(window);
+	Editor::Initialize(window);
+
 	rayTracer = new RayTracer(screenWidth, screenHeight);
 
 	LOG("'Academia' has succesfully initialized!");
@@ -99,9 +89,7 @@ void App::Start()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
+	Editor::Start();
 }
 
 void App::Update(float deltaTime)
@@ -109,6 +97,8 @@ void App::Update(float deltaTime)
 	bool sceneUpdated = false;
 
 	sceneUpdated = rayTracer->Update(deltaTime);
+
+	Editor::Update();
 
 	if(sceneUpdated)
 	{
@@ -141,9 +131,7 @@ void App::Render()
 	// Copy screen-buffer data over to the Window's buffer.
 	glDrawPixels(screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, screenBuffer);
 
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+	Editor::Render();
 	glfwSwapBuffers(window);
 }
 

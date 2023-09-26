@@ -48,22 +48,22 @@
     <ClCompile Include="Source\Math\Ray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RayTracing\Primitive.cpp">
+    <ClCompile Include="Source\Graphics\Primitive.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RayTracing\Sphere.cpp">
+    <ClCompile Include="Source\Graphics\Sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RayTracing\PlaneInfinite.cpp">
+    <ClCompile Include="Source\Graphics\PlaneInfinite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RayTracing\Triangle.cpp">
+    <ClCompile Include="Source\Graphics\Triangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RayTracing\Plane.cpp">
+    <ClCompile Include="Source\Graphics\Plane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RayTracing\RayTracer.cpp">
+    <ClCompile Include="Source\Graphics\RayTracer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Utilities\Utilities.cpp">
@@ -72,7 +72,7 @@
     <ClCompile Include="Source\Framework\Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\RayTracing\Camera.cpp">
+    <ClCompile Include="Source\Graphics\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Utilities\Timer.cpp">
@@ -101,28 +101,28 @@
     <ClInclude Include="Source\Math\Ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RayTracing\Primitive.h">
+    <ClInclude Include="Source\Graphics\Primitive.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RayTracing\Sphere.h">
+    <ClInclude Include="Source\Graphics\Sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RayTracing\PlaneInfinite.h">
+    <ClInclude Include="Source\Graphics\PlaneInfinite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RayTracing\Triangle.h">
+    <ClInclude Include="Source\Graphics\Triangle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RayTracing\Plane.h">
+    <ClInclude Include="Source\Graphics\Plane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RayTracing\RayTracer.h">
+    <ClInclude Include="Source\Graphics\RayTracer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Framework\Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\RayTracing\Camera.h">
+    <ClInclude Include="Source\Graphics\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Utilities\Timer.h">

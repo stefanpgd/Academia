@@ -1,6 +1,6 @@
 #include "Camera.h"
 #include "Utilities/Utilities.h"
-#include "Input.h"
+#include "Framework/Input.h"
 
 Camera::Camera(unsigned int screenWidth, unsigned int screenHeight) : screenWidth(screenWidth), screenHeight(screenHeight)
 {
