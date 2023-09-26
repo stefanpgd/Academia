@@ -12,12 +12,14 @@ class GLFWwindow;
 class Editor
 {
 public:
-	static void Start();
-	static void Update();
-	static void Render();
+	Editor(GLFWwindow* window);
+
+	void Start();
+	void Update();
+	void Render();
 
 private:
-	static void Initialize(GLFWwindow* window);
+	bool renderEditor = true;
 
 	friend class App;
 };

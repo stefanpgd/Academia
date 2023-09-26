@@ -5,6 +5,7 @@
 
 class GLFWwindow;
 class RayTracer;
+class Editor;
 
 class App
 {
@@ -25,6 +26,8 @@ private:
 	bool runApp = true;
 	std::string appName = "Academia";
 	GLFWwindow* window;
+
+	Editor* editor;
 
 	// Ray Tracer //
 	RayTracer* rayTracer;

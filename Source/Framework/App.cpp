@@ -46,8 +46,8 @@ App::App()
 
 	// Start initializing custom systems  //
 	Input::Initialize(window);
-	Editor::Initialize(window);
 
+	editor = new Editor(window);
 	rayTracer = new RayTracer(screenWidth, screenHeight);
 
 	LOG("'Academia' has succesfully initialized!");
@@ -89,7 +89,7 @@ void App::Start()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	Editor::Start();
+	editor->Start();
 }
 
 void App::Update(float deltaTime)
@@ -98,7 +98,7 @@ void App::Update(float deltaTime)
 
 	sceneUpdated = rayTracer->Update(deltaTime);
 
-	Editor::Update();
+	editor->Update();
 
 	if(sceneUpdated)
 	{
@@ -131,7 +131,8 @@ void App::Render()
 	// Copy screen-buffer data over to the Window's buffer.
 	glDrawPixels(screenWidth, screenHeight, GL_RGBA, GL_UNSIGNED_BYTE, screenBuffer);
 
-	Editor::Render();
+	editor->Render();
+
 	glfwSwapBuffers(window);
 }
 
