@@ -112,7 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\ImGui\include;$(SolutionDir)Dependencies\GLFW3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(SolutionDir)Source;$(SolutionDir)Dependencies\ImGui\include;$(SolutionDir)Dependencies\GLFW3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -131,7 +131,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\ImGui\include;$(SolutionDir)Dependencies\GLFW3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(SolutionDir)Source;$(SolutionDir)Dependencies\ImGui\include;$(SolutionDir)Dependencies\GLFW3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -145,7 +145,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Camera.cpp" />
+    <ClCompile Include="Source\Framework\Editor.cpp" />
+    <ClCompile Include="Source\RayTracing\Camera.cpp" />
     <ClCompile Include="Dependencies\ImGUI\source\imgui.cpp" />
     <ClCompile Include="Dependencies\ImGUI\source\imgui_demo.cpp" />
     <ClCompile Include="Dependencies\ImGUI\source\imgui_draw.cpp" />
@@ -153,35 +154,36 @@
     <ClCompile Include="Dependencies\ImGUI\source\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Dependencies\ImGUI\source\imgui_tables.cpp" />
     <ClCompile Include="Dependencies\ImGUI\source\imgui_widgets.cpp" />
-    <ClCompile Include="Source\Input.cpp" />
-    <ClCompile Include="Source\RayTracer.cpp" />
-    <ClCompile Include="Source\Plane.cpp" />
-    <ClCompile Include="Source\PlaneInfinite.cpp" />
-    <ClCompile Include="Source\Primitive.cpp" />
+    <ClCompile Include="Source\Framework\Input.cpp" />
+    <ClCompile Include="Source\RayTracing\RayTracer.cpp" />
+    <ClCompile Include="Source\RayTracing\Plane.cpp" />
+    <ClCompile Include="Source\RayTracing\PlaneInfinite.cpp" />
+    <ClCompile Include="Source\RayTracing\Primitive.cpp" />
     <ClCompile Include="Source\Math\Ray.cpp" />
-    <ClCompile Include="Source\App.cpp" />
+    <ClCompile Include="Source\Framework\App.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Math\Vec3.cpp" />
-    <ClCompile Include="Source\Sphere.cpp" />
-    <ClCompile Include="Source\Triangle.cpp" />
+    <ClCompile Include="Source\RayTracing\Sphere.cpp" />
+    <ClCompile Include="Source\RayTracing\Triangle.cpp" />
     <ClCompile Include="Source\Utilities\Utilities.cpp" />
     <ClCompile Include="Source\Utilities\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Camera.h" />
-    <ClInclude Include="Source\Input.h" />
-    <ClInclude Include="Source\RayTracer.h" />
-    <ClInclude Include="Source\Plane.h" />
-    <ClInclude Include="Source\PlaneInfinite.h" />
-    <ClInclude Include="Source\Primitive.h" />
+    <ClInclude Include="Source\Framework\Editor.h" />
+    <ClInclude Include="Source\RayTracing\Camera.h" />
+    <ClInclude Include="Source\Framework\Input.h" />
+    <ClInclude Include="Source\RayTracing\RayTracer.h" />
+    <ClInclude Include="Source\RayTracing\Plane.h" />
+    <ClInclude Include="Source\RayTracing\PlaneInfinite.h" />
+    <ClInclude Include="Source\RayTracing\Primitive.h" />
     <ClInclude Include="Source\Math\Ray.h" />
-    <ClInclude Include="Source\App.h" />
+    <ClInclude Include="Source\Framework\App.h" />
     <ClInclude Include="Source\Math\MathCommon.h" />
     <ClInclude Include="Source\Utilities\LogHelper.h" />
     <ClInclude Include="Source\Utilities\Utilities.h" />
     <ClInclude Include="Source\Math\Vec3.h" />
-    <ClInclude Include="Source\Sphere.h" />
-    <ClInclude Include="Source\Triangle.h" />
+    <ClInclude Include="Source\RayTracing\Sphere.h" />
+    <ClInclude Include="Source\RayTracing\Triangle.h" />
     <ClInclude Include="Source\Utilities\Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -9,7 +9,7 @@
 #include "Utilities/Utilities.h"
 
 #define Cornell true
-#define ior 1.50f
+#define ior 1.5f
 
 RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight) 
 {
@@ -35,15 +35,14 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	Plane* light = new Plane(vec3(0.35f, 0.999f, 0.65f), vec3(0.65f, 0.999f, 0.65f), vec3(0.35f, 0.999f, 0.35f));
 	light->material.isEmissive = true;
 
-
 	Sphere* metal = new Sphere(vec3(0.3, 0.15f, 0.7), 0.15f);
 	metal->material.Color = vec3(0.95f, 0.92f, 0.96f);
 	metal->material.Specularity = 1.0f;
-	metal->material.SpecularGloss = 0.925f;
+	metal->material.SpecularGloss = 0.98f;
 
 	Sphere* glass2 = new Sphere(vec3(0.75, 0.165f, 0.35f), 0.165f);
 	glass2->material.isDielectric = true;
-	glass2->material.SpecularGloss = 0.92f;
+	glass2->material.SpecularGloss = 0.8f;
 
 	scene.push_back(bottom);
 	scene.push_back(left);
