@@ -55,11 +55,14 @@ void Camera::SetupVirtualPlane(unsigned int screenWidth, unsigned int screenHeig
 	this->screenWidth = screenWidth;
 	this->screenHeight = screenHeight;
 
+	float aspectRatio = float(screenWidth) / float(screenHeight);
+	float xOffset = (aspectRatio - 1.0f) * 0.5f;
+
 	screenCenter = Position + ViewDirection;
 
-	screenP0 = screenCenter + vec3(-0.5f, -0.5f, 0.0f);		// Bottom Left
-	screenP1 = screenCenter + vec3(0.5, -0.5, 0.0f);		// Bottom Right
-	screenP2 = screenCenter + vec3(-0.5f, 0.5f, 0.0f);		// Top left
+	screenP0 = screenCenter + vec3(-0.5f - xOffset, -0.5f, 0.0f);		// Bottom Left
+	screenP1 = screenCenter + vec3(0.5f	 + xOffset, -0.5, 0.0f);		// Bottom Right
+	screenP2 = screenCenter + vec3(-0.5f - xOffset, 0.5f, 0.0f);		// Top left
 
 	screenU = screenP1 - screenP0;
 	screenV = screenP2 - screenP0;
