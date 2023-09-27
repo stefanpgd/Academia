@@ -14,6 +14,16 @@ struct Material
 	bool isDielectric = false;
 };
 
+struct Light
+{
+	vec3 Color = vec3(1.0f);
+	vec3 Position = vec3(0.0f);
+	float Intensity = 1.0f;
+
+	bool HasArea = false;
+	vec3 Scale = vec3(0.0f);
+};
+
 struct HitRecord
 {
 	float t;

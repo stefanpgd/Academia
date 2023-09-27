@@ -23,6 +23,7 @@ private:
 
 private:
 	std::vector<Primitive*> scene;
+	std::vector<Light*> lights;
 
 	Camera* camera;
 

@@ -32,13 +32,16 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	back->material.Color = white;
 	top->material.Color = white;
 
+	bottom->material.Specularity = 0.25f;
+	bottom->material.SpecularGloss = 0.92f;
+
 	Plane* light = new Plane(vec3(0.35f, 0.999f, 0.65f), vec3(0.65f, 0.999f, 0.65f), vec3(0.35f, 0.999f, 0.35f));
 	light->material.isEmissive = true;
 
 	Sphere* metal = new Sphere(vec3(0.3, 0.15f, 0.7), 0.15f);
 	metal->material.Color = vec3(0.95f, 0.92f, 0.96f);
 	metal->material.Specularity = 1.0f;
-	metal->material.SpecularGloss = 0.98f;
+	metal->material.SpecularGloss = 0.955f;
 
 	Sphere* glass2 = new Sphere(vec3(0.75, 0.165f, 0.35f), 0.165f);
 	glass2->material.isDielectric = true;
@@ -52,6 +55,46 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight)
 	scene.push_back(light);
 	scene.push_back(glass2);
 	scene.push_back(metal);
+
+	Light* l1 = new Light();
+	l1->Position = vec3(0.5f, 0.93f, 0.5f);
+	l1->Intensity = 0.5f;
+	l1->Color = vec3(1.0f);
+
+	l1->HasArea = true;
+	l1->Scale = vec3(0.1f, 0.1f, 0.1f);
+
+	//lights.push_back(l1);
+
+	Light* l2 = new Light();
+	l2->Position = vec3(0.5f, 0.1f, 0.5f);
+	l2->Intensity = 0.1f;
+	l2->Color = orange;
+
+	l2->HasArea = true;
+	l2->Scale = vec3(0.1f, 0.1f, 0.1f);
+
+	lights.push_back(l2);
+
+	Light* l3 = new Light();
+	l3->Position = vec3(0.1f, 0.4f, 0.9f);
+	l3->Intensity = 0.1f;
+	l3->Color = blue;
+	
+	l3->HasArea = true;
+	l3->Scale = vec3(0.1f, 0.1f, 0.1f);
+
+	lights.push_back(l3);
+
+	Light* l4 = new Light();
+	l4->Position = vec3(0.9f, 0.4f, 0.9f);
+	l4->Intensity = 0.1f;
+	l4->Color = vec3(1.0f);
+
+	l4->HasArea = true;
+	l4->Scale = vec3(0.1f, 0.1f, 0.1f);
+
+	lights.push_back(l4);
 
 #else
 	Sphere* sphere = new Sphere(vec3(0.5f, 0.5f, 0.5f), 0.25f);
@@ -84,6 +127,7 @@ vec3 RayTracer::Trace(int pixelX, int pixelY, int currentDepth)
 	Ray ray = camera->GetRay(pixelX, pixelY);
 	HitRecord record;
 
+	// Randomly sample a single light from the scene every frame for a pixel //
 	outputColor = TraverseScene(ray, currentDepth, record);
 
 	return outputColor;
@@ -203,36 +247,49 @@ void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
 
 vec3 RayTracer::CalculateDiffuseShading(const HitRecord& record)
 {
-	vec3 lightPos = vec3(0.5f, 0.93f, 0.5f); // hardcoded for now
-	lightPos.x += RandomInRange(-0.075f, 0.075f);
-	lightPos.y += RandomInRange(-0.075f, 0.075f);
+	vec3 accumaltedLight = vec3(0.0f);
 
-	vec3 lightColor = vec3(1.0f);
-	vec3 lightDir = lightPos - record.HitPoint;
-	float lightIntensity = 0.5f;
-
-	float r = lightDir.Magnitude();
-	float r2 = r * r;
-
-	lightDir.Normalize();
-
-	Ray shadowRay = Ray(record.HitPoint, lightDir);
-
-	HitRecord shadowRecord;
-	shadowRecord.t = r;
-
-	IntersectScene(shadowRay, shadowRecord);
-
-	if(shadowRecord.t < r)
+	for(Light* light : lights)
 	{
-		// Direct light is blocked by another surface
-		return vec3(0.0f);
+		vec3 lightPosition = light->Position;
+
+		if(light->HasArea)
+		{
+			vec3 offset;
+			offset.x = RandomInRange(-light->Scale.x, light->Scale.x);
+			offset.y = RandomInRange(-light->Scale.y, light->Scale.y);
+			offset.z = RandomInRange(-light->Scale.z, light->Scale.z);
+
+			lightPosition += offset;
+		}
+		vec3 lightDir = lightPosition - record.HitPoint;
+
+		float r = lightDir.Magnitude();
+		float r2 = r * r;
+
+		lightDir.Normalize();
+
+		Ray shadowRay = Ray(record.HitPoint, lightDir);
+
+		HitRecord shadowRecord;
+		shadowRecord.t = r;
+
+		IntersectScene(shadowRay, shadowRecord);
+
+		// No intersection between hitpoint & light
+		if(shadowRecord.t == r)
+		{
+			float cosI = max(Dot(record.Normal, lightDir), 0.0);
+			accumaltedLight += light->Color * min((light->Intensity / r2), 1.0f) * cosI;
+		}
 	}
 
-	float diff = max(Dot(record.Normal, lightDir), 0.0);
-	vec3 lightC = lightColor * min((lightIntensity / r2), 1.0f);
+	// TO DO: Add clamp util for vec3
+	accumaltedLight.x = min(accumaltedLight.x, 1.0f);
+	accumaltedLight.y = min(accumaltedLight.y, 1.0f);
+	accumaltedLight.z = min(accumaltedLight.z, 1.0f);
 
-	return record.Primitive->material.Color * lightC * diff;
+	return record.Primitive->material.Color * accumaltedLight;
 }
 
 vec3 RayTracer::GetSkyColor(const Ray& ray)
