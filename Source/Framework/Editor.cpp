@@ -1,6 +1,8 @@
 #include "Editor.h"
 #include "Input.h"
 
+#include <string>
+
 Editor::Editor(GLFWwindow* window)
 {
 	// Setup ImGui  //
@@ -23,7 +25,7 @@ void Editor::Start()
 	ImGui::NewFrame();
 }
 
-void Editor::Update()
+void Editor::Update(float deltaTime)
 {
 	if (Input::GetKey(KeyCode::H))
 	{
@@ -42,6 +44,10 @@ void Editor::Update()
 
 	if (ImGui::BeginMainMenuBar())
 	{
+		ImGui::Text("FPS: ");
+		std::string fps = std::to_string(int(1.0f / deltaTime));
+		ImGui::Text(fps.c_str());
+
 		ImGui::EndMainMenuBar();
 	}
 }

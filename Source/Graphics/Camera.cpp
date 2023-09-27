@@ -2,7 +2,7 @@
 #include "Utilities/Utilities.h"
 #include "Framework/Input.h"
 
-Camera::Camera(unsigned int screenWidth, unsigned int screenHeight) : screenWidth(screenWidth), screenHeight(screenHeight)
+Camera::Camera(unsigned int screenWidth, unsigned int screenHeight)
 {
 	// LH system
 	Position = Vec3(0.5, 0.5f, -1.0f);
@@ -52,6 +52,9 @@ bool Camera::Update(float deltaTime)
 
 void Camera::SetupVirtualPlane(unsigned int screenWidth, unsigned int screenHeight)
 {
+	this->screenWidth = screenWidth;
+	this->screenHeight = screenHeight;
+
 	screenCenter = Position + ViewDirection;
 
 	screenP0 = screenCenter + vec3(-0.5f, -0.5f, 0.0f);		// Bottom Left

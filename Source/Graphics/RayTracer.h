@@ -11,10 +11,11 @@ public:
 
 	bool Update(float deltaTime);
 	vec3 Trace(int pixelX, int pixelY, int maxDepth);
+	
+	void Resize(int width, int height);
 
 private:
 	vec3 TraverseScene(const Ray& ray, int rayDepth, const HitRecord& lastRecord);
-
 	void IntersectScene(const Ray& ray, HitRecord& record);
 
 	vec3 CalculateDiffuseShading(const HitRecord& record);

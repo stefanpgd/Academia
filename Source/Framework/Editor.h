@@ -15,7 +15,7 @@ public:
 	Editor(GLFWwindow* window);
 
 	void Start();
-	void Update();
+	void Update(float deltaTime);
 	void Render();
 
 private:

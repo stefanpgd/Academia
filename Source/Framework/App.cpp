@@ -7,13 +7,17 @@
 
 #include "Input.h"
 #include "Editor.h"
-
 #include "Graphics/RayTracer.h"
 #include "Utilities/Timer.h"
 
 void GLFWErrorCallback(int, const char* err_str)
 {
 	LOG(Log::MessageType::Error, err_str);
+}
+
+void GLFWWindowResize(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
 }
 
 App::App()
@@ -43,6 +47,7 @@ App::App()
 
 	LOG("Succesfully created a window.");
 	glfwMakeContextCurrent(window);
+	glfwSetWindowSizeCallback(window, GLFWWindowResize);
 
 	// Start initializing custom systems  //
 	Input::Initialize(window);
@@ -90,6 +95,14 @@ void App::Start()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	editor->Start();
+
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
+
+	if(width != screenWidth || height != screenHeight)
+	{
+		ResizeBuffers(width, height);
+	}
 }
 
 void App::Update(float deltaTime)
@@ -98,7 +111,7 @@ void App::Update(float deltaTime)
 
 	sceneUpdated = rayTracer->Update(deltaTime);
 
-	editor->Update();
+	editor->Update(deltaTime);
 
 	if(sceneUpdated)
 	{
@@ -134,6 +147,23 @@ void App::Render()
 	editor->Render();
 
 	glfwSwapBuffers(window);
+}
+
+void App::ResizeBuffers(int width, int height)
+{
+	screenWidth = width;
+	screenHeight = height;
+
+	bufferSize = screenWidth * screenHeight;
+	delete screenBuffer;
+	delete colorBuffer;
+
+	screenBuffer = new unsigned int[bufferSize];
+	colorBuffer = new vec3[bufferSize];
+	ClearScreenbuffers();
+
+	// Update rendering side //
+	rayTracer->Resize(width, height);
 }
 
 void App::ClearScreenbuffers()

@@ -20,6 +20,7 @@ private:
 	void Update(float deltaTime);
 	void Render();
 
+	void ResizeBuffers(int width, int height);
 	void ClearScreenbuffers();
 
 private:

@@ -89,6 +89,11 @@ vec3 RayTracer::Trace(int pixelX, int pixelY, int currentDepth)
 	return outputColor;
 }
 
+void RayTracer::Resize(int width, int height)
+{
+	camera->SetupVirtualPlane(width, height);
+}
+
 vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& lastRecord)
 {
 	if(rayDepth <= 0)
