@@ -4,10 +4,12 @@
 #include "Math/MathCommon.h"
 #include "Camera.h"
 
+struct Scene;
+
 class RayTracer
 {
 public:
-	RayTracer(unsigned int screenWidth, unsigned int screenHeight);
+	RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene* scene);
 
 	bool Update(float deltaTime);
 	vec3 Trace(int pixelX, int pixelY, int maxDepth);
@@ -22,9 +24,7 @@ private:
 	vec3 GetSkyColor(const Ray& ray);
 
 private:
-	std::vector<Primitive*> scene;
-	std::vector<Light*> lights;
-
+	Scene* scene;
 	Camera* camera;
 
 	// Tracing settings // 

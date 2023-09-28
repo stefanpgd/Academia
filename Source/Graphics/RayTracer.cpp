@@ -1,117 +1,12 @@
 #include "RayTracer.h"
-
-// Primitives //
-#include "Sphere.h"
-#include "Plane.h"
-#include "PlaneInfinite.h"
-#include "Triangle.h"
-
 #include "Utilities/Utilities.h"
+#include "Framework/SceneManager.h"
 
-#define Cornell true
 #define ior 1.5f
 
-RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight) 
+RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene* scene) : scene(scene)
 {
 	camera = new Camera(screenWidth, screenHeight);
-
-#if Cornell
-	Plane* bottom = new Plane(vec3(0.0f, 0.0f, 0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
-	Plane* left = new Plane(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, 1.0f, 0.0f));
-	Plane* right = new Plane(vec3(1.0f, 0.0f, 1.0f), vec3(1.0f, 0.0f, 0.0f), vec3(1.0f, 1.0f, 1.0f));
-	Plane* back = new Plane(vec3(0.0f, 0.0f, 1.0f), vec3(1.0f, 0.0f, 1.0f), vec3(0.0f, 1.0f, 1.0f));
-	Plane* top = new Plane(vec3(0.0f, 1.0f, 1.0f), vec3(1.0f, 1.0f, 1.0f), vec3(0.0f, 1.0f, 0.0f));
-
-	vec3 white = vec3(0.83f);
-	vec3 orange = vec3(1, 0.578, 0.067);
-	vec3 blue = vec3(0.067, 0.698, 1);
-
-	left->material.Color = orange;
-	right->material.Color = blue;
-	bottom->material.Color = white;
-	back->material.Color = white;
-	top->material.Color = white;
-
-	bottom->material.Specularity = 0.25f;
-	bottom->material.SpecularGloss = 0.92f;
-
-	Plane* light = new Plane(vec3(0.35f, 0.999f, 0.65f), vec3(0.65f, 0.999f, 0.65f), vec3(0.35f, 0.999f, 0.35f));
-	light->material.isEmissive = true;
-
-	Sphere* metal = new Sphere(vec3(0.3, 0.15f, 0.7), 0.15f);
-	metal->material.Color = vec3(0.95f, 0.92f, 0.96f);
-	metal->material.Specularity = 1.0f;
-	metal->material.SpecularGloss = 0.955f;
-
-	Sphere* glass2 = new Sphere(vec3(0.75, 0.165f, 0.35f), 0.165f);
-	glass2->material.isDielectric = true;
-	glass2->material.SpecularGloss = 0.8f;
-
-	scene.push_back(bottom);
-	scene.push_back(left);
-	scene.push_back(right);
-	scene.push_back(back);
-	scene.push_back(top);
-	scene.push_back(light);
-	scene.push_back(glass2);
-	scene.push_back(metal);
-
-	Light* l1 = new Light();
-	l1->Position = vec3(0.5f, 0.93f, 0.5f);
-	l1->Intensity = 0.5f;
-	l1->Color = vec3(1.0f);
-
-	l1->HasArea = true;
-	l1->Scale = vec3(0.1f, 0.1f, 0.1f);
-
-	//lights.push_back(l1);
-
-	Light* l2 = new Light();
-	l2->Position = vec3(0.5f, 0.1f, 0.5f);
-	l2->Intensity = 0.1f;
-	l2->Color = orange;
-
-	l2->HasArea = true;
-	l2->Scale = vec3(0.1f, 0.1f, 0.1f);
-
-	lights.push_back(l2);
-
-	Light* l3 = new Light();
-	l3->Position = vec3(0.1f, 0.4f, 0.9f);
-	l3->Intensity = 0.1f;
-	l3->Color = blue;
-	
-	l3->HasArea = true;
-	l3->Scale = vec3(0.1f, 0.1f, 0.1f);
-
-	lights.push_back(l3);
-
-	Light* l4 = new Light();
-	l4->Position = vec3(0.9f, 0.4f, 0.9f);
-	l4->Intensity = 0.1f;
-	l4->Color = vec3(1.0f);
-
-	l4->HasArea = true;
-	l4->Scale = vec3(0.1f, 0.1f, 0.1f);
-
-	lights.push_back(l4);
-
-#else
-	Sphere* sphere = new Sphere(vec3(0.5f, 0.5f, 0.5f), 0.25f);
-	sphere->material.Color = vec3(1.0f, 1.0f, 1.0f);
-	sphere->material.isDielectric = true;
-
-	//Sphere* sphere2 = new Sphere(vec3(0.5f, 0.5f, 6.5f), 0.25f);
-	//sphere2->material.Color = vec3(1.0f, 1.0f, 1.0f);
-	//sphere2->material.isDielectric = true;
-
-	PlaneInfinite* plane = new PlaneInfinite(vec3(0.0f, 0.25f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
-	plane->material.Specularity = 0.1f;
-
-	scene.push_back(sphere);
-	//scene.push_back(sphere2);
-	//scene.push_back(plane);
-#endif
 }
 
 bool RayTracer::Update(float deltaTime)
@@ -234,7 +129,7 @@ void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
 	HitRecord tempRecord;
 	tempRecord.InsideMedium = record.InsideMedium;
 
-	for (Primitive* primitive : scene)
+	for (Primitive* primitive : scene->primitives)
 	{
 		primitive->Intersect(ray, tempRecord);
 
@@ -249,7 +144,7 @@ vec3 RayTracer::CalculateDiffuseShading(const HitRecord& record)
 {
 	vec3 accumaltedLight = vec3(0.0f);
 
-	for(Light* light : lights)
+	for(Light* light : scene->lights)
 	{
 		vec3 lightPosition = light->Position;
 
@@ -294,9 +189,8 @@ vec3 RayTracer::CalculateDiffuseShading(const HitRecord& record)
 
 vec3 RayTracer::GetSkyColor(const Ray& ray)
 {
-#if Cornell
 	return vec3(0.0f);
-#endif
+	
 	vec3 a = vec3(1, 0.578, 0.067);
 	vec3 b = vec3(0.475f, 0.91f, 1.0f);
 

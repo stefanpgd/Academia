@@ -7,6 +7,7 @@
 
 #include "Input.h"
 #include "Editor.h"
+#include "SceneManager.h"
 #include "Graphics/RayTracer.h"
 #include "Utilities/Timer.h"
 
@@ -52,8 +53,11 @@ App::App()
 	// Start initializing custom systems  //
 	Input::Initialize(window);
 
+	sceneManager = new SceneManager();
 	editor = new Editor(window);
-	rayTracer = new RayTracer(screenWidth, screenHeight);
+	editor->SetActiveScene(sceneManager->GetActiveScene());
+
+	rayTracer = new RayTracer(screenWidth, screenHeight, sceneManager->GetActiveScene());
 
 	LOG("'Academia' has succesfully initialized!");
 }
@@ -107,13 +111,13 @@ void App::Start()
 
 void App::Update(float deltaTime)
 {
+	bool cameraUpdated = false;
 	bool sceneUpdated = false;
 
-	sceneUpdated = rayTracer->Update(deltaTime);
+	cameraUpdated = rayTracer->Update(deltaTime);
+	sceneUpdated = editor->Update(deltaTime);
 
-	editor->Update(deltaTime);
-
-	if(sceneUpdated)
+	if(sceneUpdated || cameraUpdated)
 	{
 		ClearScreenbuffers();
 	}

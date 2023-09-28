@@ -6,6 +6,7 @@
 class GLFWwindow;
 class RayTracer;
 class Editor;
+class SceneManager;
 
 class App
 {
@@ -29,6 +30,7 @@ private:
 	GLFWwindow* window;
 
 	Editor* editor;
+	SceneManager* sceneManager;
 
 	// Ray Tracer //
 	RayTracer* rayTracer;

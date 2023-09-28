@@ -4,6 +4,7 @@
 #include "imgui_impl_opengl3.h"
 
 class GLFWwindow;
+struct Scene;
 
 /// <summary>
 /// Responsible for managing everything related to the Editor/UI.
@@ -15,11 +16,14 @@ public:
 	Editor(GLFWwindow* window);
 
 	void Start();
-	void Update(float deltaTime);
+	bool Update(float deltaTime);
 	void Render();
+
+	void SetActiveScene(Scene* scene);
 
 private:
 	bool renderEditor = true;
+	Scene* activeScene;
 
 	friend class App;
 };

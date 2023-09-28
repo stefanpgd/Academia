@@ -2,6 +2,7 @@
 #include "Input.h"
 
 #include <string>
+#include "Framework/SceneManager.h"
 
 Editor::Editor(GLFWwindow* window)
 {
@@ -25,24 +26,23 @@ void Editor::Start()
 	ImGui::NewFrame();
 }
 
-void Editor::Update(float deltaTime)
+bool Editor::Update(float deltaTime)
 {
-	if (Input::GetKey(KeyCode::H))
+	if(Input::GetKey(KeyCode::H))
 	{
 		// implement GetKeyDown... 
 		renderEditor = !renderEditor;
 	}
 
-	if (!renderEditor)
+	if(!renderEditor)
 	{
-		return;
+		return false;
 	}
 
 	// For now, hardcode editor elements in here.
 	// in the future, having EditorElements that can be customized and just
 	// added to a vector of elements that need to be renderered, might be more clean
-
-	if (ImGui::BeginMainMenuBar())
+	if(ImGui::BeginMainMenuBar())
 	{
 		ImGui::Text("FPS: ");
 		std::string fps = std::to_string(int(1.0f / deltaTime));
@@ -50,6 +50,27 @@ void Editor::Update(float deltaTime)
 
 		ImGui::EndMainMenuBar();
 	}
+
+	bool sceneChanged = false;
+
+	ImGui::Begin("Lights");
+
+	for(int i = 0; i < activeScene->lights.size(); i++)
+	{
+		ImGui::PushID(i);
+		Light* light = activeScene->lights[i];
+		std::string name = "Light " + std::to_string(i);
+		ImGui::Text(name.c_str());
+		
+		if(ImGui::ColorEdit3("Color", &light->Color.x))
+		{
+			sceneChanged = true;
+		}
+	}
+
+	ImGui::End();
+
+	return sceneChanged;
 }
 
 void Editor::Render()
@@ -61,4 +82,9 @@ void Editor::Render()
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Editor::SetActiveScene(Scene* scene)
+{
+	activeScene = scene;
 }
