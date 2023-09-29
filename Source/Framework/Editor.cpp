@@ -67,6 +67,18 @@ bool Editor::Update(float deltaTime)
 	}
 	ImGui::End();
 
+	ImGui::Begin("Primitives");
+	for (int i = 0; i < activeScene->primitives.size(); i++)
+	{
+		ImGui::PushID(i);
+		Primitive* primitive = activeScene->primitives[i];
+		std::string name = "Primitive " + std::to_string(i);
+		ImGui::Text(name.c_str());
+
+		if (ImGui::DragFloat3("Position", &primitive->Position.x, 0.01f)) { sceneChanged = true; }
+	}
+	ImGui::End();
+
 	return sceneChanged;
 }
 

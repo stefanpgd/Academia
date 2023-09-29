@@ -28,7 +28,7 @@ float Timer::Log(bool printResult)
 	if(!running)
 	{
 		LOG(Log::MessageType::Debug, "Trying to Log a timer that hasn't started yet")
-			return -1.0f;
+		return -1.0f;
 	}
 
 	if(stopped)
