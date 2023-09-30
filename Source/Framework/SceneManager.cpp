@@ -27,10 +27,10 @@ SceneManager::SceneManager()
 	back->material.Color = white;
 	top->material.Color = white;
 
-	bottom->material.Specularity = 0.25f;
-	bottom->material.SpecularGloss = 0.92f;
+	left->material.Specularity = 0.25f;
+	right->material.Specularity = 0.25f;
 
-	Plane* light = new Plane(vec3(0.35f, 0.999f, 0.65f), vec3(0.65f, 0.999f, 0.65f), vec3(0.35f, 0.999f, 0.35f));
+	Plane* light = new Plane(vec3(0.25f, 0.999f, 0.75f), vec3(0.75f, 0.999f, 0.75f), vec3(0.25f, 0.999f, 0.25f));
 	light->material.isEmissive = true;
 
 	Sphere* metal = new Sphere(vec3(0.3, 0.15f, 0.7), 0.15f);

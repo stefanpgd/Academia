@@ -62,64 +62,27 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 			return record.Primitive->material.Color;
 		}
 
-		if(record.Primitive->material.isDielectric)
+		vec3 bounceDir = RandomUnitVector();
+		if(Dot(bounceDir, record.Normal) < 0.0f)
 		{
-			float reflectance = Fresnel(ray.Direction, record.Normal, ior);
-			float transmittance = 1.0f - reflectance;
-
-			if(reflectance > 0.0f)
-			{
-				vec3 reflected = Reflect(ray.Direction, Normalize(record.Normal));
-				
-				if(record.Primitive->material.SpecularGloss < 1.0f)
-				{
-					reflected += (1.0f - record.Primitive->material.SpecularGloss) * RandomUnitVector();
-					reflected.Normalize();
-				}
-
-				Ray reflectedRay = Ray(record.HitPoint, reflected);
-
-				illumination += reflectance * materialColor * TraverseScene(reflectedRay, depth, record);
-			}
-
-			if(transmittance > 0.0f)
-			{
-				vec3 rf = Refract(ray.Direction, record.Normal, ior);
-				Ray refractRay = Ray(record.HitPoint + rf * EPSILON, rf);
-
-				illumination += transmittance * materialColor * TraverseScene(refractRay, depth, record);
-			}
+			bounceDir = bounceDir * -1.0f;
 		}
-		else
-		{
-			float diffuse = 1.0f - record.Primitive->material.Specularity;
-			float specular = record.Primitive->material.Specularity;
 
-			if(diffuse > 0.0f)
-			{
-				illumination += diffuse * CalculateDiffuseShading(record);
-			}
+		Ray bounceRay = Ray(record.HitPoint, bounceDir);
+		vec3 BRDF = vec3(materialColor.x * INVPI, materialColor.y * INVPI, materialColor.z * INVPI);
+		float cosI = Dot(record.Normal, bounceDir);
+		vec3 irradiance = TraverseScene(bounceRay, depth, record) * cosI;
 
-			if(specular > 0.0f)
-			{
-				vec3 reflected = Reflect(ray.Direction, Normalize(record.Normal));
-
-				if(record.Primitive->material.SpecularGloss < 1.0f)
-				{
-					reflected += (1.0f - record.Primitive->material.SpecularGloss) * RandomUnitVector();
-					reflected.Normalize();
-				}
-
-				Ray reflectedRay = Ray(record.HitPoint, reflected);
-
-				illumination += specular * materialColor * TraverseScene(reflectedRay, depth, record);
-			}
-		}
+		illumination += PI * 2.0f * BRDF * irradiance;
 	}
 	else
 	{
 		illumination += GetSkyColor(ray);
 	}
+
+	illumination.x = min(illumination.x, 1.0f);
+	illumination.y = min(illumination.y, 1.0f);
+	illumination.z = min(illumination.z, 1.0f);
 
 	return illumination;
 }
@@ -189,7 +152,7 @@ vec3 RayTracer::CalculateDiffuseShading(const HitRecord& record)
 
 vec3 RayTracer::GetSkyColor(const Ray& ray)
 {
-	return vec3(0.0f);
+	return vec3(0.5f);
 	
 	vec3 a = vec3(1, 0.578, 0.067);
 	vec3 b = vec3(0.475f, 0.91f, 1.0f);
