@@ -30,7 +30,7 @@ SceneManager::SceneManager()
 	left->material.Specularity = 0.25f;
 	right->material.Specularity = 0.25f;
 
-	Plane* light = new Plane(vec3(0.25f, 0.999f, 0.75f), vec3(0.75f, 0.999f, 0.75f), vec3(0.25f, 0.999f, 0.25f));
+	Plane* light = new Plane(vec3(0.05f, 0.999f, 0.95f), vec3(0.95f, 0.999f, 0.95f), vec3(0.05f, 0.999f, 0.05f));
 	light->material.isEmissive = true;
 
 	Sphere* metal = new Sphere(vec3(0.3, 0.15f, 0.7), 0.15f);

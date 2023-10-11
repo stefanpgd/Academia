@@ -2,6 +2,8 @@
 #include "Utilities/Utilities.h"
 #include "Framework/SceneManager.h"
 
+#include <imgui.h>
+
 #define ior 1.5f
 
 RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene* scene) : scene(scene)
@@ -11,8 +13,14 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene*
 
 bool RayTracer::Update(float deltaTime)
 {
+	bool updated = false;
+	ImGui::Begin("Skybox");
+	if(ImGui::ColorEdit3("Sky A", &skyColorA.x)) { updated = true; }
+	if(ImGui::ColorEdit3("Sky B", &skyColorB.x)) { updated = true; }
+	ImGui::End();
+
 	// Maybe in the future, let the scene manager own Camera and update it
-	return camera->Update(deltaTime);
+	return camera->Update(deltaTime) || updated;
 }
 
 vec3 RayTracer::Trace(int pixelX, int pixelY, int currentDepth)
@@ -69,7 +77,7 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 		}
 
 		Ray bounceRay = Ray(record.HitPoint, bounceDir);
-		vec3 BRDF = vec3(materialColor.x * INVPI, materialColor.y * INVPI, materialColor.z * INVPI);
+		vec3 BRDF = materialColor * INVPI;
 		float cosI = Dot(record.Normal, bounceDir);
 		vec3 irradiance = TraverseScene(bounceRay, depth, record) * cosI;
 
@@ -103,61 +111,10 @@ void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
 	}
 }
 
-vec3 RayTracer::CalculateDiffuseShading(const HitRecord& record)
-{
-	vec3 accumaltedLight = vec3(0.0f);
-
-	for(Light* light : scene->lights)
-	{
-		vec3 lightPosition = light->Position;
-
-		if(light->HasArea)
-		{
-			vec3 offset;
-			offset.x = RandomInRange(-light->Scale.x, light->Scale.x);
-			offset.y = RandomInRange(-light->Scale.y, light->Scale.y);
-			offset.z = RandomInRange(-light->Scale.z, light->Scale.z);
-
-			lightPosition += offset;
-		}
-		vec3 lightDir = lightPosition - record.HitPoint;
-
-		float r = lightDir.Magnitude();
-		float r2 = r * r;
-
-		lightDir.Normalize();
-
-		Ray shadowRay = Ray(record.HitPoint, lightDir);
-
-		HitRecord shadowRecord;
-		shadowRecord.t = r;
-
-		IntersectScene(shadowRay, shadowRecord);
-
-		// No intersection between hitpoint & light
-		if(shadowRecord.t == r)
-		{
-			float cosI = max(Dot(record.Normal, lightDir), 0.0);
-			accumaltedLight += light->Color * min((light->Intensity / r2), 1.0f) * cosI;
-		}
-	}
-
-	// TO DO: Add clamp util for vec3
-	accumaltedLight.x = min(accumaltedLight.x, 1.0f);
-	accumaltedLight.y = min(accumaltedLight.y, 1.0f);
-	accumaltedLight.z = min(accumaltedLight.z, 1.0f);
-
-	return record.Primitive->material.Color * accumaltedLight;
-}
-
 vec3 RayTracer::GetSkyColor(const Ray& ray)
 {
-	return vec3(0.5f);
-	
-	vec3 a = vec3(1, 0.578, 0.067);
-	vec3 b = vec3(0.475f, 0.91f, 1.0f);
+	//return vec3(0.0f);
 
 	float t = max(ray.Direction.y, 0.0);
-
-	return (1.0f - t) * a + b * t;
+	return (1.0f - t) * skyColorA + skyColorB * t;
 }
