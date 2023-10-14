@@ -54,14 +54,52 @@ bool Editor::Update(float deltaTime)
 	bool sceneChanged = false;
 
 	ImGui::Begin("Primitives");
-	for (int i = 0; i < activeScene->primitives.size(); i++)
+	for(int i = 0; i < activeScene->primitives.size(); i++)
 	{
 		ImGui::PushID(i);
+		ImGui::Separator();
 		Primitive* primitive = activeScene->primitives[i];
 		std::string name = "Primitive " + std::to_string(i);
 		ImGui::Text(name.c_str());
 
-		if (ImGui::DragFloat3("Position", &primitive->Position.x, 0.01f)) { sceneChanged = true; }
+		if(ImGui::DragFloat3("Position", &primitive->Position.x, 0.01f)) { sceneChanged = true; }
+
+		// Material Properties // 
+		Material* material = &activeScene->primitives[i]->material;
+
+		ImGui::Text("Material Properties:");
+
+		// In future, use a dropdown menu to define between:
+		// 1. Opaque
+		// 2. Dielectric
+		// 3. Emissive
+
+		if(material->isDielectric) 
+		{
+			if(ImGui::ColorEdit3("Color", &material->Color.x, 0.01f)) { sceneChanged = true; }
+			if(ImGui::DragFloat("IoR", &material->IoR, 0.002f, 1.0f, 3.0f)) { sceneChanged = true; }
+
+			if(ImGui::Checkbox("Is Dielectric", &material->isDielectric)) { sceneChanged = true; }
+		}
+		else if(material->isEmissive)
+		{
+			if(ImGui::ColorEdit3("Color", &material->Color.x, 0.01f)) { sceneChanged = true; }
+			if(ImGui::DragFloat("Emissive Strength", &material->EmissiveStrength, 0.02f, 0.0f, 100.0f)) { sceneChanged = true; }
+
+			if(ImGui::Checkbox("Is Emissive", &material->isEmissive)) { sceneChanged = true; }
+		}
+		else // then material is Opaque model
+		{
+			if(ImGui::ColorEdit3("Color", &material->Color.x, 0.01f)) { sceneChanged = true; }
+			if(ImGui::DragFloat("Specularity", &material->Specularity, 0.002f, 0.0f, 1.0f)) { sceneChanged = true; }
+			if(ImGui::DragFloat("Fuzz", &material->Fuzz, 0.002f, 0.0f, 1.0f)) { sceneChanged = true; }
+			if(ImGui::DragFloat("IoR", &material->IoR, 0.002f, 1.0f, 3.0f)) { sceneChanged = true; }
+
+			if(ImGui::Checkbox("Is Dielectric", &material->isDielectric)) { sceneChanged = true; }
+			if(ImGui::Checkbox("Is Emissive", &material->isEmissive)) { sceneChanged = true; }
+		}
+
+		ImGui::Separator();
 		ImGui::PopID();
 	}
 	ImGui::End();
