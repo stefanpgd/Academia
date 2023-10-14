@@ -62,6 +62,7 @@ bool Editor::Update(float deltaTime)
 		ImGui::Text(name.c_str());
 
 		if (ImGui::DragFloat3("Position", &primitive->Position.x, 0.01f)) { sceneChanged = true; }
+		ImGui::PopID();
 	}
 	ImGui::End();
 

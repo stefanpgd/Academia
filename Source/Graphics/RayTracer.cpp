@@ -79,8 +79,21 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 		Ray bounceRay = Ray(record.HitPoint, bounceDir);
 
 		vec3 BRDF = vec3(0.0f);
-		float diff = 1.0f - record.Primitive->material.Specularity;
-		float spec = record.Primitive->material.Specularity;
+		float diff = 0.0f;                 
+		float spec = 0.0f;
+
+		// Is mirror
+		if(record.Primitive->material.Specularity >= 0.99f)
+		{
+			diff = 0.0f;
+			spec = 1.0f;
+		}
+		else // Exhibits diffuse & specular behaviour, include fresnel
+		{
+			float fresnel = Fresnel(ray.Direction, record.Normal, record.Primitive->material.IoR);
+			spec = min(record.Primitive->material.Specularity + fresnel, 1.0f);
+			diff = 1.0f - spec;
+		}
 
 		if (diff > 0.0f)
 		{
