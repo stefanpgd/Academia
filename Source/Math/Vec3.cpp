@@ -105,7 +105,7 @@ vec3 Normalize(const vec3& n)
 }
 
 // Returns the amount of Reflectance from fresnel
-// using this value, compute the refractivity by doing: '1.0 - Reflectance'
+// using this value, compute the transmitance by doing: '1.0 - Reflectance'
 float Fresnel(const vec3& in, const vec3& normal, float IoR)
 {
 	float cosI = Dot(in, normal);

@@ -4,6 +4,11 @@
 class Ray;
 class Primitive;
 
+// Material models?
+// 1. Opaque
+// 2. Dielectric?
+// 3. Emissive
+
 struct Material
 {
 	vec3 Color = vec3(1.0f);
@@ -11,7 +16,9 @@ struct Material
 	float Fuzz = 0.0f;
 	float IoR = 1.0f;
 
+	float EmissiveStrength = 1.0f;
 	bool isEmissive = false;
+
 	bool isDielectric = false;
 };
 
