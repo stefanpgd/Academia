@@ -53,20 +53,6 @@ bool Editor::Update(float deltaTime)
 
 	bool sceneChanged = false;
 
-	ImGui::Begin("Lights");
-	for(int i = 0; i < activeScene->lights.size(); i++)
-	{
-		ImGui::PushID(i);
-		Light* light = activeScene->lights[i];
-		std::string name = "Light " + std::to_string(i);
-		ImGui::Text(name.c_str());
-
-		if(ImGui::DragFloat3("Position", &light->Position.x, 0.01f)) { sceneChanged = true; }
-		if(ImGui::ColorEdit3("Color", &light->Color.x)) { sceneChanged = true; }
-		if(ImGui::DragFloat("Intensity", &light->Intensity, 0.01f, 0.0f, 100.0f)) { sceneChanged = true;  }
-	}
-	ImGui::End();
-
 	ImGui::Begin("Primitives");
 	for (int i = 0; i < activeScene->primitives.size(); i++)
 	{

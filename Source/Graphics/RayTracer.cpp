@@ -77,11 +77,42 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 		}
 
 		Ray bounceRay = Ray(record.HitPoint, bounceDir);
-		vec3 BRDF = materialColor * INVPI;
+
+		vec3 BRDF = vec3(0.0f);
+		float diff = 1.0f - record.Primitive->material.Specularity;
+		float spec = record.Primitive->material.Specularity;
+
+		if (diff > 0.0f)
+		{
+			BRDF += diff * (materialColor * INVPI);
+		}
+
+		if (spec > 0.0f)
+		{
+			Ray reflectRay;
+
+			if (record.Primitive->material.Fuzz > 0.0f)
+			{
+				vec3 offset = RandomUnitVector() * record.Primitive->material.Fuzz;
+				reflectRay = Ray(record.HitPoint, Reflect(Normalize(ray.Direction + offset), record.Normal));
+			}
+			else
+			{
+				reflectRay = Ray(record.HitPoint, Reflect(ray.Direction, record.Normal));
+			}
+
+			BRDF += spec * TraverseScene(reflectRay, depth, record);
+		}
+
 		float cosI = Dot(record.Normal, bounceDir);
 		vec3 irradiance = TraverseScene(bounceRay, depth, record) * cosI;
-
 		illumination += PI * 2.0f * BRDF * irradiance;
+
+
+		/*vec3 BRDF = materialColor * INVPI;
+		float cosI = Dot(record.Normal, bounceDir);
+		vec3 irradiance = TraverseScene(bounceRay, depth, record) * cosI;
+		illumination += PI * 2.0f * BRDF * irradiance;*/
 	}
 	else
 	{

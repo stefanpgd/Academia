@@ -35,7 +35,7 @@ private:
 	// Ray Tracer //
 	RayTracer* rayTracer;
 	int frameCount = 1;
-	int maxRayDepth = 15;
+	int maxRayDepth = 10;
 
 	// In future, save this to a text file and load in last settings.
 	unsigned int screenWidth = 720;

@@ -5,7 +5,6 @@
 struct Scene
 {
 	std::vector<Primitive*> primitives;
-	std::vector<Light*> lights;
 };
 
 class SceneManager
