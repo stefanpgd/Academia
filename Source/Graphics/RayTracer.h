@@ -12,7 +12,7 @@ public:
 	RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene* scene);
 
 	bool Update(float deltaTime);
-	vec3 Trace(int pixelX, int pixelY, int maxDepth);
+	vec3 Trace(int pixelX, int pixelY);
 	
 	void Resize(int width, int height);
 
@@ -28,6 +28,7 @@ private:
 
 	// Tracing settings // 
 	float maxT = 100.0f;
+	int maxRayDepth = 6;
 
 	bool useSkydomeTexture = true;
 	float skydomeStrength = 1.0f;

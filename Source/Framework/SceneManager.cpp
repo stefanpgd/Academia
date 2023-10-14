@@ -32,21 +32,23 @@ SceneManager::SceneManager()
 
 	Sphere* glass = new Sphere(vec3(0.0f, 0.125f, 0.35f), 0.125f);
 	glass->material.isDielectric = true;
-	glass->material.Color = vec3(0.92f, 0.94f, 0.95f);
+	glass->material.Color = vec3(0.985, 0.710, 0.401f);
 	glass->material.IoR = 1.52f;
 
 	Sphere* lambert = new Sphere(vec3(0.333f, 0.125f, 0.35f), 0.125f);
-	lambert->material.Color = orange;
-	lambert->material.IoR = 1.0f;
+	lambert->material.Color = vec3(1.0f);
+	lambert->material.IoR = 1.225f;
 
-	Sphere* mirror = new Sphere(vec3(0.666f, 0.125f, 0.35), 0.125f);
-	mirror->material.Specularity = 1.0f;
-	mirror->material.Color = vec3(0.998, 0.981, 0.751f);
+	Sphere* metal = new Sphere(vec3(0.666f, 0.125f, 0.35), 0.125f);
+	metal->material.Specularity = 1.0f;
+	metal->material.Metalness = 1.0f;
+	metal->material.Roughness = 0.025f;
+	metal->material.Color = vec3(0.716f);
 
 	Sphere* gloss = new Sphere(vec3(1.0f, 0.125f, 0.35f), 0.125f);
 	gloss->material.Color = blue;
 	gloss->material.Specularity = 0.25f;
-	gloss->material.Fuzz = 0.25f;
+	gloss->material.Roughness = 0.375f;
 	gloss->material.IoR = 1.531f;
 
 	activeScene->primitives.push_back(bottom);
@@ -57,7 +59,7 @@ SceneManager::SceneManager()
 	//activeScene->primitives.push_back(light);
 	activeScene->primitives.push_back(glass);
 	activeScene->primitives.push_back(lambert);
-	activeScene->primitives.push_back(mirror);
+	activeScene->primitives.push_back(metal);
 	activeScene->primitives.push_back(gloss);
 }
 

@@ -92,7 +92,8 @@ bool Editor::Update(float deltaTime)
 		{
 			if(ImGui::ColorEdit3("Color", &material->Color.x, 0.01f)) { sceneChanged = true; }
 			if(ImGui::DragFloat("Specularity", &material->Specularity, 0.002f, 0.0f, 1.0f)) { sceneChanged = true; }
-			if(ImGui::DragFloat("Fuzz", &material->Fuzz, 0.002f, 0.0f, 1.0f)) { sceneChanged = true; }
+			if(ImGui::DragFloat("Roughness", &material->Roughness, 0.002f, 0.0f, 1.0f)) { sceneChanged = true; }
+			if(ImGui::DragFloat("Metalness", &material->Metalness, 0.002f, 0.0f, 1.0f)) { sceneChanged = true; }
 			if(ImGui::DragFloat("IoR", &material->IoR, 0.002f, 1.0f, 3.0f)) { sceneChanged = true; }
 
 			if(ImGui::Checkbox("Is Dielectric", &material->isDielectric)) { sceneChanged = true; }

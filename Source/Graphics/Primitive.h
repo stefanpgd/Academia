@@ -13,7 +13,8 @@ struct Material
 {
 	vec3 Color = vec3(1.0f);
 	float Specularity = 0.0f;
-	float Fuzz = 0.0f;
+	float Roughness = 0.0f;
+	float Metalness = 0.0f;
 	float IoR = 1.0f;
 
 	float EmissiveStrength = 1.0f;

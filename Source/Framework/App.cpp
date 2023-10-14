@@ -136,7 +136,7 @@ void App::Render()
 		for(int y = 0; y < screenHeight; y++)
 		{
 			int i = x + y * screenWidth;
-			colorBuffer[i] += rayTracer->Trace(x, y, maxRayDepth);
+			colorBuffer[i] += rayTracer->Trace(x, y);
 
 			vec3 output = colorBuffer[i];
 			output = output * (1.0f / (float)frameCount);

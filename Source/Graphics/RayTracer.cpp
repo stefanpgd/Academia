@@ -23,13 +23,14 @@ bool RayTracer::Update(float deltaTime)
 	ImGui::Begin("Skybox");
 	if(ImGui::ColorEdit3("Sky A", &skyColorA.x)) { updated = true; }
 	if(ImGui::ColorEdit3("Sky B", &skyColorB.x)) { updated = true; }
+	if(ImGui::DragFloat("Sky Emission", &skydomeStrength, 0.01f)) { updated = true; }
 	ImGui::End();
 
 	// Maybe in the future, let the scene manager own Camera and update it
 	return camera->Update(deltaTime) || updated;
 }
 
-vec3 RayTracer::Trace(int pixelX, int pixelY, int currentDepth)
+vec3 RayTracer::Trace(int pixelX, int pixelY)
 {
 	vec3 outputColor = vec3(0.0f);
 	
@@ -37,7 +38,7 @@ vec3 RayTracer::Trace(int pixelX, int pixelY, int currentDepth)
 	HitRecord record;
 
 	// Randomly sample a single light from the scene every frame for a pixel //
-	outputColor = TraverseScene(ray, currentDepth, record);
+	outputColor = TraverseScene(ray, maxRayDepth, record);
 
 	outputColor.x = max(min(outputColor.x, 1.0f), 0.0);
 	outputColor.y = max(min(outputColor.y, 1.0f), 0.0);
@@ -129,9 +130,9 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 			{
 				Ray reflectRay;
 
-				if(material.Fuzz > 0.0f)
+				if(material.Roughness > 0.0f)
 				{
-					vec3 offset = RandomUnitVector() * material.Fuzz;
+					vec3 offset = RandomUnitVector() * material.Roughness;
 					reflectRay = Ray(record.HitPoint, Reflect(Normalize(ray.Direction + offset), record.Normal));
 				}
 				else
@@ -139,7 +140,16 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 					reflectRay = Ray(record.HitPoint, Reflect(ray.Direction, record.Normal));
 				}
 
-				BRDF += spec * TraverseScene(reflectRay, depth, record);
+				if(material.Metalness > 0.0f)
+				{
+					vec3 radiance = TraverseScene(reflectRay, depth, record);
+					BRDF += radiance * material.Color * material.Metalness;
+					BRDF += radiance * (1.0f - material.Metalness);
+				}
+				else
+				{
+					BRDF += spec * TraverseScene(reflectRay, depth, record);
+				}
 			}
 
 			float cosI = Dot(record.Normal, bounceDir);
@@ -149,7 +159,7 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 	}
 	else
 	{
-		if(lastRecord.t == 0.0f)
+		if(depth == maxRayDepth - 1)
 		{
 			illumination += GetSkyColor(ray);
 		}
