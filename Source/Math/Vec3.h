@@ -33,6 +33,7 @@ vec3 Normalize(const vec3& n);
 float Fresnel(const vec3& in, const vec3& normal, float IoR);
 
 vec3 RandomUnitVector();
+vec3 SphericalToCartesian(float theta, float phi);
 
 // To do:
 // Operator overloading

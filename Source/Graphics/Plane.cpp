@@ -19,40 +19,37 @@ void Plane::Intersect(const Ray& ray, HitRecord& record)
 {
 	float denom = Dot(Normal, ray.Direction);
 
-	if (abs(denom) > 1e-6)
+	if(abs(denom) > 1e-6)
 	{
 		vec3 pToIntersect = Position - ray.Origin;
 		float d = Dot(pToIntersect, Normal);
 		float t = d / denom;
 
-		if (t >= 0.0f)
+		if(t >= 0.0f)
 		{
 			vec3 i = ray.At(t);
 			vec3 v0ToI = i - v0;
 
 			float dU = Dot(v0ToI, u);
-			if (dU < 0.0f || dU > 1.0f)
+			if(dU < 0.0f || dU > w)
 			{
 				record.t = -1.0f;
 				return;
 			}
 
 			float dV = Dot(v0ToI, v);
-			if (dV < 0.0f || dV > 1.0f)
+			if(dV < 0.0f || dV > h)
 			{
 				record.t = -1.0f;
 				return;
 			}
 
-			if (abs(dU) < w && abs(dV) < h)
-			{
-				// We are inside of the boundaries of the plane
-				record.t = t;
-				record.HitPoint = i;
-				record.Normal = Normal;
-				record.Primitive = this;
-				return;
-			}
+			// We are inside of the boundaries of the plane
+			record.t = t;
+			record.HitPoint = i;
+			record.Normal = Normal;
+			record.Primitive = this;
+			return;
 		}
 	}
 

@@ -13,7 +13,7 @@ public:
 
 public:
 	// Orientation //
-	vec3 Position;
+	vec3 Position = vec3(0.0f, 0.4f, 0.0f);
 	vec3 ViewDirection;
 
 	float Speed = 0.25f;

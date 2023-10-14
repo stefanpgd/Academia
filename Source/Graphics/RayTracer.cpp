@@ -3,12 +3,18 @@
 #include "Framework/SceneManager.h"
 
 #include <imgui.h>
+#include <stb_image.h>
 
 #define ior 1.5f
 
 RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene* scene) : scene(scene)
 {
 	camera = new Camera(screenWidth, screenHeight);
+
+	if(useSkydomeTexture)
+	{
+		image = stbi_load("Assets/seaDome.jpg", &width, &height, &comp, STBI_rgb);
+	}
 }
 
 bool RayTracer::Update(float deltaTime)
@@ -143,7 +149,14 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 	}
 	else
 	{
-		illumination += GetSkyColor(ray);
+		if(lastRecord.t == 0.0f)
+		{
+			illumination += GetSkyColor(ray);
+		}
+		else
+		{
+			illumination += GetSkyColor(ray) * skydomeStrength;
+		}
 	}
 
 	return illumination;
@@ -167,8 +180,30 @@ void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
 
 vec3 RayTracer::GetSkyColor(const Ray& ray)
 {
-	//return vec3(0.0f);
+	if(useSkydomeTexture)
+	{
+		float theta = acosf(-ray.Direction.y);
+		float phi = atan2f(ray.Direction.z, ray.Direction.x) + PI;
 
-	float t = max(ray.Direction.y, 0.0);
-	return (1.0f - t) * skyColorA + skyColorB * t;
+		float u = phi / (2 * PI);
+		float v = theta / PI;
+
+		u = Clamp(u, 0.0f, 1.0f);
+		v = 1.0f - Clamp(v, 0.0f, 1.0f);
+
+		int i = (int)(u * width);
+		int j = (int)(v * height);
+
+		if(i >= width) i = width - 1;
+		if(j >= width) j = height - 1;
+
+		int index = (i + j * width) * comp;
+		return vec3(image[index] / 255.0f, image[index + 1] / 255.0f, image[index + 2] / 255.0f);
+
+	}
+	else
+	{
+		float t = max(ray.Direction.y, 0.0);
+		return (1.0f - t) * skyColorA + skyColorB * t;
+	}
 }

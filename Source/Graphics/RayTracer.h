@@ -29,6 +29,12 @@ private:
 	// Tracing settings // 
 	float maxT = 100.0f;
 
+	bool useSkydomeTexture = true;
+	float skydomeStrength = 1.0f;
 	vec3 skyColorA = vec3(0.0f);
 	vec3 skyColorB = vec3(0.84f, 0.72f, 1.0f);
+
+	// temp image //
+	int width, height, comp;
+	unsigned char* image;
 };

@@ -6,7 +6,7 @@ Camera::Camera(unsigned int screenWidth, unsigned int screenHeight)
 {
 	// LH system
 	Position = Vec3(0.5, 0.5f, -1.0f);
-	ViewDirection = Vec3(0.0f, 0.0f, 1.f);
+	ViewDirection = Vec3(0.0f, 0.0f, 1.0f);
 
 	SetupVirtualPlane(screenWidth, screenHeight);
 }

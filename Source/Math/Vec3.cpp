@@ -148,3 +148,8 @@ vec3 RandomUnitVector()
 		}
 	}
 }
+
+vec3 SphericalToCartesian(float theta, float phi)
+{
+	return vec3(cos(phi) * sin(theta), sin(phi) * sin(theta), cos(theta));
+}

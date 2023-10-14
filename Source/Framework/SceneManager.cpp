@@ -11,13 +11,13 @@ SceneManager::SceneManager()
 {
 	activeScene = new Scene();
 
-	Plane* bottom = new Plane(vec3(0.0f, 0.0f, 0.0f), vec3(1.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f));
+	Plane* bottom = new Plane(vec3(-0.35f, 0.0f, 0.0f), vec3(1.35f, 0.0f, 0.0f), vec3(-0.35f, 0.0f, 1.0f));
 	Plane* left = new Plane(vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 0.0f, 1.0f), vec3(0.0f, 1.0f, 0.0f));
 	Plane* right = new Plane(vec3(1.0f, 0.0f, 1.0f), vec3(1.0f, 0.0f, 0.0f), vec3(1.0f, 1.0f, 1.0f));
 	Plane* back = new Plane(vec3(0.0f, 0.0f, 1.0f), vec3(1.0f, 0.0f, 1.0f), vec3(0.0f, 1.0f, 1.0f));
 	Plane* top = new Plane(vec3(0.0f, 1.0f, 1.0f), vec3(1.0f, 1.0f, 1.0f), vec3(0.0f, 1.0f, 0.0f));
 
-	vec3 white = vec3(0.73f);
+	vec3 white = vec3(1.0f);
 	vec3 orange = vec3(1, 0.578, 0.067);
 	vec3 blue = vec3(0.067, 0.698, 1);
 
@@ -30,28 +30,34 @@ SceneManager::SceneManager()
 	Plane* light = new Plane(vec3(0.05f, 0.999f, 0.95f), vec3(0.95f, 0.999f, 0.95f), vec3(0.05f, 0.999f, 0.05f));
 	light->material.isEmissive = true;
 
-	Sphere* mirror = new Sphere(vec3(0.25, 0.1f, 0.35), 0.1f);
-	mirror->material.Color = vec3(0.95f, 0.92f, 0.96f);
-	mirror->material.Specularity = 1.0f;
+	Sphere* glass = new Sphere(vec3(0.0f, 0.125f, 0.35f), 0.125f);
+	glass->material.isDielectric = true;
+	glass->material.Color = vec3(0.92f, 0.94f, 0.95f);
+	glass->material.IoR = 1.52f;
 
-	Sphere* lambert = new Sphere(vec3(0.5, 0.1f, 0.35f), 0.1f);
+	Sphere* lambert = new Sphere(vec3(0.333f, 0.125f, 0.35f), 0.125f);
 	lambert->material.Color = orange;
-	lambert->material.IoR = 1.25f;
+	lambert->material.IoR = 1.0f;
 
-	Sphere* gloss = new Sphere(vec3(0.75, 0.1f, 0.35f), 0.1f);
+	Sphere* mirror = new Sphere(vec3(0.666f, 0.125f, 0.35), 0.125f);
+	mirror->material.Specularity = 1.0f;
+	mirror->material.Color = vec3(0.998, 0.981, 0.751f);
+
+	Sphere* gloss = new Sphere(vec3(1.0f, 0.125f, 0.35f), 0.125f);
 	gloss->material.Color = blue;
-	gloss->material.Specularity = 0.15f;
+	gloss->material.Specularity = 0.25f;
 	gloss->material.Fuzz = 0.25f;
-	gloss->material.IoR = 1.53f;
+	gloss->material.IoR = 1.531f;
 
 	activeScene->primitives.push_back(bottom);
 	//activeScene->primitives.push_back(left);
 	//activeScene->primitives.push_back(right);
-	activeScene->primitives.push_back(back);
+	//activeScene->primitives.push_back(back);
 	//activeScene->primitives.push_back(top);
-	activeScene->primitives.push_back(light);
-	activeScene->primitives.push_back(mirror);
+	//activeScene->primitives.push_back(light);
+	activeScene->primitives.push_back(glass);
 	activeScene->primitives.push_back(lambert);
+	activeScene->primitives.push_back(mirror);
 	activeScene->primitives.push_back(gloss);
 }
 
