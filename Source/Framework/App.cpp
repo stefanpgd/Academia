@@ -122,6 +122,10 @@ void App::Update(float deltaTime)
 		ClearScreenbuffers();
 	}
 
+	ImGui::Begin("Post Process");
+	ImGui::DragFloat("Exposure", &exposure, 0.02f, 0.0f, 5.0f);
+	ImGui::End();
+
 	// Process input
 	// Process editor & Scene stuff...
 	// Update components like camera
@@ -140,6 +144,23 @@ void App::Render()
 
 			vec3 output = colorBuffer[i];
 			output = output * (1.0f / (float)frameCount);
+
+			vec3 temp = output * exposure;
+
+			const float a = 2.51f;
+			const float b = 0.03f;
+			const float c = 2.43f;
+			const float d = 0.59f;
+			const float e = 0.14f;
+			vec3 a1 = (temp * (a * temp + b));
+			vec3 b1 = (temp * (c * temp + d) + e);
+			temp.x = a1.x / b1.x;
+			temp.y = a1.y / b1.y;
+			temp.z = a1.z / b1.z;
+			temp.x = Clamp(temp.x, 0.0f, 1.0f);
+			temp.y = Clamp(temp.y, 0.0f, 1.0f);
+			temp.z = Clamp(temp.z, 0.0f, 1.0f);
+			output = temp;
 
 			screenBuffer[i] = AlbedoToRGB(output.x, output.y, output.z);
 		}

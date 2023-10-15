@@ -37,5 +37,5 @@ private:
 
 	// temp image //
 	int width, height, comp;
-	unsigned char* image;
+	float* image;
 };

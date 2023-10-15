@@ -4,6 +4,7 @@
 
 #include <imgui.h>
 #include <stb_image.h>
+#include <tinyexr.h>
 
 #define ior 1.5f
 
@@ -13,7 +14,16 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene*
 
 	if(useSkydomeTexture)
 	{
-		image = stbi_load("Assets/seaDome.jpg", &width, &height, &comp, STBI_rgb);
+		const char* err = nullptr;
+		int result = LoadEXR(&image, &width, &height, "Assets/field.exr", &err);
+
+		if(result != TINYEXR_SUCCESS)
+		{
+			fprintf(stderr, "ERR : %s\n", err);
+			FreeEXRErrorMessage(err);
+		}
+
+		comp = sizeof(float);
 	}
 }
 
@@ -33,7 +43,7 @@ bool RayTracer::Update(float deltaTime)
 vec3 RayTracer::Trace(int pixelX, int pixelY)
 {
 	vec3 outputColor = vec3(0.0f);
-	
+
 	Ray ray = camera->GetRay(pixelX, pixelY);
 	HitRecord record;
 
@@ -159,14 +169,7 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 	}
 	else
 	{
-		if(depth == maxRayDepth - 1)
-		{
-			illumination += GetSkyColor(ray);
-		}
-		else
-		{
-			illumination += GetSkyColor(ray) * skydomeStrength;
-		}
+		illumination += GetSkyColor(ray) * skydomeStrength;
 	}
 
 	return illumination;
@@ -177,11 +180,11 @@ void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
 	HitRecord tempRecord;
 	tempRecord.InsideMedium = record.InsideMedium;
 
-	for (Primitive* primitive : scene->primitives)
+	for(Primitive* primitive : scene->primitives)
 	{
 		primitive->Intersect(ray, tempRecord);
 
-		if (tempRecord.t > EPSILON && tempRecord.t < record.t)
+		if(tempRecord.t > EPSILON && tempRecord.t < record.t)
 		{
 			record = tempRecord;
 		}
@@ -208,8 +211,7 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 		if(j >= width) j = height - 1;
 
 		int index = (i + j * width) * comp;
-		return vec3(image[index] / 255.0f, image[index + 1] / 255.0f, image[index + 2] / 255.0f);
-
+		return vec3(image[index], image[index + 1], image[index + 2]) * image[index + 3];
 	}
 	else
 	{

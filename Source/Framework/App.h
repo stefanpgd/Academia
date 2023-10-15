@@ -36,6 +36,8 @@ private:
 	RayTracer* rayTracer;
 	int frameCount = 1;
 
+	float exposure = 1.0f;
+
 	// In future, save this to a text file and load in last settings.
 	unsigned int screenWidth = 720;
 	unsigned int screenHeight = 720;
