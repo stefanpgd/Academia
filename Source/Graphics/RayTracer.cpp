@@ -34,6 +34,7 @@ bool RayTracer::Update(float deltaTime)
 	if(ImGui::ColorEdit3("Sky A", &skyColorA.x)) { updated = true; }
 	if(ImGui::ColorEdit3("Sky B", &skyColorB.x)) { updated = true; }
 	if(ImGui::DragFloat("Sky Emission", &skydomeStrength, 0.01f)) { updated = true; }
+	if(ImGui::DragFloat("Sky Offset", &skyDomeOffset, 0.01f, 0.0f, PI * 0.5f)) { updated = true; }
 	ImGui::End();
 
 	// Maybe in the future, let the scene manager own Camera and update it
@@ -201,7 +202,7 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 		float u = phi / (2 * PI);
 		float v = theta / PI;
 
-		u = Clamp(u, 0.0f, 1.0f);
+		u = fabsf(Clamp(u, 0.0f, 1.0f) - skyDomeOffset);
 		v = 1.0f - Clamp(v, 0.0f, 1.0f);
 
 		int i = (int)(u * width);
