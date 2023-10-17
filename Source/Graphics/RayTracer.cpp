@@ -6,8 +6,6 @@
 #include <stb_image.h>
 #include <tinyexr.h>
 
-#define ior 1.5f
-
 RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene* scene) : scene(scene)
 {
 	camera = new Camera(screenWidth, screenHeight);
@@ -15,7 +13,7 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene*
 	if(useSkydomeTexture)
 	{
 		const char* err = nullptr;
-		int result = LoadEXR(&image, &width, &height, "Assets/field.exr", &err);
+		int result = LoadEXR(&image, &width, &height, "Assets/studio.exr", &err);
 
 		if(result != TINYEXR_SUCCESS)
 		{
@@ -170,7 +168,14 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 	}
 	else
 	{
-		illumination += GetSkyColor(ray) * skydomeStrength;
+		if(depth == maxRayDepth - 1)
+		{
+			illumination += GetSkyColor(ray);
+		}
+		else
+		{
+			illumination += GetSkyColor(ray) * skydomeStrength;
+		}
 	}
 
 	return illumination;
@@ -212,7 +217,7 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 		if(j >= width) j = height - 1;
 
 		int index = (i + j * width) * comp;
-		return vec3(image[index], image[index + 1], image[index + 2]) * image[index + 3];
+		return vec3(&image[index]);
 	}
 	else
 	{

@@ -12,11 +12,13 @@ SceneManager::SceneManager()
 	activeScene = new Scene();
 
 	Plane* ground = new Plane(vec3(-0.35f, 0.0f, 0.0f), vec3(1.35f, 0.0f, 0.0f), vec3(-0.35f, 0.0f, 1.0f));
+	PlaneInfinite* ground2 = new PlaneInfinite(vec3(0.0f), vec3(0.0f, 1.0f, 0.0f));
 
 	vec3 orange = vec3(1, 0.578, 0.067);
 	vec3 blue = vec3(0.333, 0.785, 1);
 
 	ground->material.Color = vec3(0.5f);
+	ground2->material.Color = vec3(0.5f);
 
 	Plane* light = new Plane(vec3(0.05f, 0.999f, 0.95f), vec3(0.95f, 0.999f, 0.95f), vec3(0.05f, 0.999f, 0.05f));
 	light->material.isEmissive = true;
@@ -26,7 +28,7 @@ SceneManager::SceneManager()
 	glass->material.IoR = 1.52f;
 
 	Sphere* lambert = new Sphere(vec3(0.333f, 0.125f, 0.35f), 0.125f);
-	lambert->material.IoR = 1.125f;
+	lambert->material.IoR = 1.025f;
 
 	Sphere* metal = new Sphere(vec3(0.666f, 0.125f, 0.35), 0.125f);
 	metal->material.Specularity = 1.0f;
@@ -36,9 +38,9 @@ SceneManager::SceneManager()
 	gloss->material.Color = blue;
 	gloss->material.Specularity = 0.0f;
 	gloss->material.Roughness = 0.1f;
-	gloss->material.IoR = 1.531f;
+	gloss->material.IoR = 1.351f;
 
-	activeScene->primitives.push_back(ground);
+	activeScene->primitives.push_back(ground2);
 	activeScene->primitives.push_back(glass);
 	activeScene->primitives.push_back(lambert);
 	activeScene->primitives.push_back(metal);

@@ -2,8 +2,9 @@
 #include <iostream>
 #include "../Utilities/Utilities.h"
 
-Vec3::Vec3() : x(0.0f), y(0.0f), z(0.0f) {}
+Vec3::Vec3() : x(0.0f), y(0.0f), z(0.0f), dummy(0.0f) {}
 Vec3::Vec3(float v) : x(v), y(v), z(v) {}
+Vec3::Vec3(float* v) { memcpy(&data[0], v, sizeof(float) * 3); }
 Vec3::Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
 Vec3::Vec3(const Vec3& rh) : x(rh.x), y(rh.y), z(rh.z) {}
 
@@ -35,7 +36,7 @@ float Vec3::MagnitudeSquared() const
 
 void Vec3::Normalize()
 {
-	float InvMag = 1.0 / Magnitude();
+	float InvMag = 1.0f / Magnitude();
 
 	x *= InvMag;
 	y *= InvMag;
@@ -89,7 +90,7 @@ vec3 Refract(const vec3& in, const vec3& normal, float IoR)
 
 	if (k < 0.0f)
 	{
-		return Reflect(in, normal);
+		return Reflect(in, norm);
 	}
 
 	vec3 a = eta * (in + (cosI * norm));

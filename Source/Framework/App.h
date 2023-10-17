@@ -1,12 +1,36 @@
 #pragma once
 #include <string>
+#include <vector>
 #include <GLFW/glfw3.h>
 #include "Math/Vec3.h"
+
+// Multi-threading //
+#include <thread>
+#include <atomic>
+#include <mutex>
+#include <condition_variable>
 
 class GLFWwindow;
 class RayTracer;
 class Editor;
 class SceneManager;
+
+enum class TileState
+{
+	ToDo,
+	Processing,
+	Done
+};
+
+struct JobTile
+{
+	TileState State = TileState::ToDo;
+
+	unsigned int x;
+	unsigned int y;
+	unsigned int xMax;
+	unsigned int yMax;
+};
 
 class App
 {
@@ -24,6 +48,9 @@ private:
 	void ResizeBuffers(int width, int height);
 	void ClearScreenbuffers();
 
+	void TraceTile();
+	void ResizeJobTiles();
+
 private:
 	bool runApp = true;
 	std::string appName = "Academia";
@@ -36,7 +63,18 @@ private:
 	RayTracer* rayTracer;
 	int frameCount = 1;
 
-	float exposure = 1.0f;
+	// Multi-threading //
+	int threadsAvailable;
+	unsigned int tileSize = 16;
+	std::thread* threads;
+	std::vector<JobTile> jobTiles;
+	std::atomic<int> workIndex;
+	std::condition_variable iterationLock;
+	std::mutex rayLock;
+
+	bool updateScreenBuffer = false;
+	bool clearScreenBuffers = false;
+	bool resizeScreenBuffers = false;
 
 	// In future, save this to a text file and load in last settings.
 	unsigned int screenWidth = 720;

@@ -5,6 +5,7 @@ struct Vec3
 public:
 	Vec3();
 	Vec3(float v);
+	Vec3(float* v);
 	Vec3(float x, float y, float z);
 
 	Vec3(const Vec3& rh);
@@ -15,7 +16,10 @@ public:
 	float MagnitudeSquared() const;
 	void Normalize();
 
-	float x, y, z;
+#pragma warning (push)
+#pragma warning (disable:4201)
+	union { struct { float x, y, z, dummy; }; float data[4]; };
+#pragma warning (pop)
 };
 
 typedef Vec3 vec3;
