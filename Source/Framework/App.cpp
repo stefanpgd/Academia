@@ -194,9 +194,11 @@ void App::Render()
 			resizeScreenBuffers = false;
 		}
 
-		if(clearScreenBuffers && frameCount > 6)
+		if(clearScreenBuffers)
 		{
-			ClearScreenbuffers();
+			frameCount = 1;
+
+			memset(colorBuffer, 0.0f, sizeof(vec3) * bufferSize);
 			clearScreenBuffers = false;
 		}
 

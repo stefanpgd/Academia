@@ -213,8 +213,8 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 		int i = (int)(u * width);
 		int j = (int)(v * height);
 
-		if(i >= width) i = width - 1;
-		if(j >= width) j = height - 1;
+		if(i >= width) i = i % width;
+		if(j >= width) j = j % height;
 
 		int index = (i + j * width) * comp;
 		return vec3(&image[index]);
