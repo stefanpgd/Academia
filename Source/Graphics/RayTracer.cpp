@@ -32,7 +32,7 @@ bool RayTracer::Update(float deltaTime)
 	if(ImGui::ColorEdit3("Sky A", &skyColorA.x)) { updated = true; }
 	if(ImGui::ColorEdit3("Sky B", &skyColorB.x)) { updated = true; }
 	if(ImGui::DragFloat("Sky Emission", &skydomeStrength, 0.01f)) { updated = true; }
-	if(ImGui::DragFloat("Sky Offset", &skyDomeOffset, 0.01f, 0.0f, PI * 0.5f)) { updated = true; }
+	if(ImGui::DragFloat("Sky Offset", &skyDomeOffset, 0.01f, 0.0f, 1.0f)) { updated = true; }
 	ImGui::End();
 
 	// Maybe in the future, let the scene manager own Camera and update it
@@ -201,23 +201,32 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 {
 	if(useSkydomeTexture)
 	{
-		float theta = acosf(-ray.Direction.y);
+		float theta = acosf(ray.Direction.y);
 		float phi = atan2f(ray.Direction.z, ray.Direction.x) + PI;
 
 		float u = phi / (2 * PI);
 		float v = theta / PI;
 
-		u = fabsf(Clamp(u, 0.0f, 1.0f) - skyDomeOffset);
-		v = 1.0f - Clamp(v, 0.0f, 1.0f);
+		u -= skyDomeOffset;
+		
+		if(u > 1.0f)
+		{
+			u -= 1.0f;
+		}
+
+		if(u < 0.0f)
+		{
+			u += 1.0f;
+		}
 
 		int i = (int)(u * width);
 		int j = (int)(v * height);
 
-		if(i >= width) i = i % width;
-		if(j >= width) j = j % height;
+		i = i % width;
+		j = j % height;
 
 		int index = (i + j * width) * comp;
-		return vec3(&image[index]);
+		return vec3(&image[index]) * image[index + 3];
 	}
 	else
 	{

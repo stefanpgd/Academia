@@ -9,6 +9,7 @@
 void ClearBuffer(unsigned int* buffer, unsigned int color, unsigned int elementCount);
 unsigned int AlbedoToRGB(float r, float g, float b);
 
+int Clamp(int v, int min, int max);
 float Clamp(float v, float min, float max);
 
 inline float Random01()
