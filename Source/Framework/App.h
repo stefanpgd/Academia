@@ -51,9 +51,13 @@ private:
 	void TraceTile();
 	void ResizeJobTiles();
 
+	void LoadApplicationSettings();
+	void SaveApplicationSettings();
+
 private:
 	bool runApp = true;
 	std::string appName = "Academia";
+	std::string appSettingsFile = "Settings/appSettings.txt";
 	GLFWwindow* window;
 
 	Editor* editor;

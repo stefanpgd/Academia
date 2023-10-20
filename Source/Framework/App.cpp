@@ -5,6 +5,7 @@
 #include <vector>
 #include <chrono>
 #include <cmath>
+#include <fstream>
 
 #include "Input.h"
 #include "Editor.h"
@@ -24,6 +25,8 @@ void GLFWWindowResize(GLFWwindow* window, int width, int height)
 
 App::App()
 {
+	LoadApplicationSettings();
+
 	bufferSize = screenWidth * screenHeight;
 	screenBuffer = new unsigned int[bufferSize];
 	colorBuffer = new vec3[bufferSize];
@@ -43,7 +46,7 @@ App::App()
 
 	if (!window)
 	{
-		LOG(Log::MessageType::Error, "Failed to create a GLFW window");
+		LOG(Log::MessageType::Error, "Failed to create a GLFW window!");
 		assert(false);
 	}
 
@@ -60,8 +63,6 @@ App::App()
 
 	rayTracer = new RayTracer(screenWidth, screenHeight, sceneManager->GetActiveScene());
 
-	LOG("'Academia' has succesfully initialized!");
-
 	LOG("Retrieving thread count...");
 	threadsAvailable = std::thread::hardware_concurrency();
 	threads = new std::thread[threadsAvailable];
@@ -75,11 +76,14 @@ App::App()
 		threads[i] = std::thread([this] {TraceTile(); });
 	}
 	LOG("Multi-threading succesfully started.");
+
+	LOG("'Academia' has succesfully initialized!");
 }
 
 App::~App()
 {
-	// Destroy tracer enc. enc.
+	SaveApplicationSettings();
+
 	glfwDestroyWindow(window);
 }
 
@@ -300,4 +304,44 @@ void App::ResizeJobTiles()
 			jobTiles.push_back(tile);
 		}
 	}
+}
+
+void App::LoadApplicationSettings()
+{
+	LOG("Loading Application Settings...");
+
+	std::string line;
+	std::ifstream appSettings(appSettingsFile);
+
+	if(appSettings.is_open())
+	{
+		// TO-DO: Replace with Json in the future
+		LOG("Found application settings, loading previously used settings.");
+
+		// Screen Width & Screen Height // 
+		std::getline(appSettings, line);
+		screenWidth = std::stof(line);
+
+		std::getline(appSettings, line);
+		screenHeight = std::stof(line);
+
+		LOG("Application settings succesfully loaded!");
+	}
+	else
+	{
+		LOG(Log::MessageType::Debug, "No application settings found, using default settings.");
+	}
+}
+
+void App::SaveApplicationSettings()
+{
+	LOG("Saving application settings...");
+	std::ofstream appSettings;
+	appSettings.open(appSettingsFile, std::fstream::out);
+	appSettings.clear();
+
+	appSettings << screenWidth << "\n";
+	appSettings << screenHeight << "\n";
+
+	LOG("Application settings succesfully saved!");
 }

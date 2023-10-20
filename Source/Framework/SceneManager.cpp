@@ -7,8 +7,11 @@
 #include "Graphics/PlaneInfinite.h"
 #include "Graphics/Triangle.h"
 
+#include "Utilities/LogHelper.h"
+
 SceneManager::SceneManager()
 {
+	LOG("Loading Scene...");
 	activeScene = new Scene();
 
 	Plane* ground = new Plane(vec3(-0.35f, 0.0f, 0.0f), vec3(1.35f, 0.0f, 0.0f), vec3(-0.35f, 0.0f, 1.0f));
@@ -45,6 +48,8 @@ SceneManager::SceneManager()
 	activeScene->primitives.push_back(lambert);
 	activeScene->primitives.push_back(metal);
 	activeScene->primitives.push_back(gloss);
+
+	LOG("Scene succesfully loaded!");
 }
 
 Scene* SceneManager::GetActiveScene()
