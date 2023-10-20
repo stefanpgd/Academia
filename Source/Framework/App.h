@@ -57,7 +57,7 @@ private:
 private:
 	bool runApp = true;
 	std::string appName = "Academia";
-	std::string appSettingsFile = "Settings/appSettings.txt";
+	std::string appSettingsFile = "Settings/app.settings";
 	GLFWwindow* window;
 
 	Editor* editor;

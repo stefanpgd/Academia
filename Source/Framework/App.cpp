@@ -84,6 +84,8 @@ App::~App()
 {
 	SaveApplicationSettings();
 
+	delete sceneManager;
+
 	glfwDestroyWindow(window);
 }
 

@@ -1,6 +1,6 @@
 #include "SceneManager.h"
+#include <fstream>
 
-// Temporary until we've scene loading
 // Primitives //
 #include "Graphics/Sphere.h"
 #include "Graphics/Plane.h"
@@ -11,45 +11,137 @@
 
 SceneManager::SceneManager()
 {
-	LOG("Loading Scene...");
-	activeScene = new Scene();
+	LOG("Checking for last used scene...");
 
-	Plane* ground = new Plane(vec3(-0.35f, 0.0f, 0.0f), vec3(1.35f, 0.0f, 0.0f), vec3(-0.35f, 0.0f, 1.0f));
-	PlaneInfinite* ground2 = new PlaneInfinite(vec3(0.0f), vec3(0.0f, 1.0f, 0.0f));
+	std::ifstream lastScene(lastSceneSettings);
 
-	vec3 orange = vec3(1, 0.578, 0.067);
-	vec3 blue = vec3(0.333, 0.785, 1);
+	// Grab info about the last open scene
+	if(lastScene.is_open())
+	{
+		LOG("Last used scene found!");
+		
+		std::string path;
+		std::getline(lastScene, path);
+		LoadScene(path);
+	}
+	else
+	{
+		LOG(Log::MessageType::Debug, "No last used scene found, loading default scene...");
 
-	ground->material.Color = vec3(0.5f);
-	ground2->material.Color = vec3(0.5f);
+		// TO-DO: catch the issue with no objects in the scene to intersect
+		activeScene = new Scene();
+		activeScene->Name = "Default";
 
-	Plane* light = new Plane(vec3(0.05f, 0.999f, 0.95f), vec3(0.95f, 0.999f, 0.95f), vec3(0.05f, 0.999f, 0.05f));
-	light->material.isEmissive = true;
-
-	Sphere* glass = new Sphere(vec3(0.0f, 0.125f, 0.35f), 0.125f);
-	glass->material.isDielectric = true;
-	glass->material.IoR = 1.52f;
-
-	Sphere* lambert = new Sphere(vec3(0.333f, 0.125f, 0.35f), 0.125f);
-	lambert->material.IoR = 1.025f;
-
-	Sphere* metal = new Sphere(vec3(0.666f, 0.125f, 0.35), 0.125f);
-	metal->material.Specularity = 1.0f;
-	metal->material.Metalness = 1.0f;
-
-	Sphere* gloss = new Sphere(vec3(1.0f, 0.125f, 0.35f), 0.125f);
-	gloss->material.Color = blue;
-	gloss->material.Specularity = 0.0f;
-	gloss->material.Roughness = 0.1f;
-	gloss->material.IoR = 1.351f;
-
-	activeScene->primitives.push_back(ground2);
-	activeScene->primitives.push_back(glass);
-	activeScene->primitives.push_back(lambert);
-	activeScene->primitives.push_back(metal);
-	activeScene->primitives.push_back(gloss);
+		Sphere* sphere = new Sphere(vec3(0.0f), 0.25f);
+		activeScene->primitives.push_back(sphere);
+	}
 
 	LOG("Scene succesfully loaded!");
+}
+
+SceneManager::~SceneManager()
+{
+	SaveScene();
+
+	std::ofstream lastScene;
+	lastScene.open(lastSceneSettings, std::fstream::out);
+	lastScene.clear();
+
+	std::string activeScenePath = "Scenes/" + activeScene->Name + ".scene";
+	lastScene << activeScenePath;
+}
+
+void SceneManager::LoadScene(const std::string& sceneName)
+{
+	LOG("Loading Scene: '" + sceneName + "'");
+
+	std::string line;
+	std::ifstream scene(sceneName);
+
+	if(scene.is_open())
+	{
+		activeScene = new Scene();
+		std::getline(scene, line);
+
+		activeScene->Name = line;
+
+		vec3 position;
+		for(int i = 0; i < 3; i++)
+		{
+			std::getline(scene, line);
+			position.data[i] = std::stof(line);
+		}
+		
+		Sphere* sphere = new Sphere(position, 0.25f);
+
+		vec3 color;
+		for(int i = 0; i < 3; i++)
+		{
+			std::getline(scene, line);
+			color.data[i] = std::stof(line);
+		}
+		sphere->material.Color = color;
+
+		std::getline(scene, line);
+		sphere->material.Specularity = std::stof(line);
+
+		std::getline(scene, line);
+		sphere->material.Roughness = std::stof(line);
+
+		std::getline(scene, line);
+		sphere->material.Metalness = std::stof(line);
+
+		std::getline(scene, line);
+		sphere->material.IoR = std::stof(line);
+
+		std::getline(scene, line);
+		sphere->material.EmissiveStrength = std::stof(line);
+
+		std::getline(scene, line);
+		sphere->material.isEmissive = std::stof(line);
+
+		std::getline(scene, line);
+		sphere->material.isDielectric = std::stof(line);
+
+		activeScene->primitives.push_back(sphere);
+	}
+	else
+	{
+		LOG(Log::MessageType::Error, "Tried loading a scene that doesn't exist!");
+	}
+}
+
+void SceneManager::SaveScene()
+{
+	LOG("Saving Scene: '" + activeScene->Name + "'");
+
+	std::ofstream sceneFile;
+	std::string path = "Scenes/" + activeScene->Name + ".scene";
+	sceneFile.open(path, std::fstream::out);
+	sceneFile.clear();
+
+	sceneFile << activeScene->Name << "\n";
+
+	// For now, writing the data of just a sphere
+	for(int i = 0; i < 3; i++)
+	{
+		sceneFile << activeScene->primitives[0]->Position.data[i] << "\n";
+	}
+
+	for(int i = 0; i < 3; i++)
+	{
+		sceneFile << activeScene->primitives[0]->material.Color.data[i] << "\n";
+	}
+
+	sceneFile << activeScene->primitives[0]->material.Specularity << "\n";
+	sceneFile << activeScene->primitives[0]->material.Roughness << "\n";
+	sceneFile << activeScene->primitives[0]->material.Metalness << "\n";
+	sceneFile << activeScene->primitives[0]->material.IoR << "\n";
+	sceneFile << activeScene->primitives[0]->material.EmissiveStrength << "\n";
+	sceneFile << activeScene->primitives[0]->material.isEmissive << "\n";
+	sceneFile << activeScene->primitives[0]->material.isDielectric << "\n";
+
+	LOG("Scene succesfully saved!");
 }
 
 Scene* SceneManager::GetActiveScene()
