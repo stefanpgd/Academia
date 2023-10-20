@@ -89,7 +89,6 @@ bool Editor::Update(float deltaTime)
 		// 1. Opaque
 		// 2. Dielectric
 		// 3. Emissive
-
 		if(material->isDielectric) 
 		{
 			if(ImGui::ColorEdit3("Color", &material->Color.x, 0.01f)) { sceneChanged = true; }

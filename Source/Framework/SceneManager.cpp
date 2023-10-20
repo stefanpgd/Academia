@@ -32,8 +32,12 @@ SceneManager::SceneManager()
 		activeScene = new Scene();
 		activeScene->Name = "Default";
 
+
 		Sphere* sphere = new Sphere(vec3(0.0f), 0.25f);
+		Sphere* sphere2 = new Sphere(vec3(1.0f), 0.15f);
+
 		activeScene->primitives.push_back(sphere);
+		activeScene->primitives.push_back(sphere2);
 	}
 
 	LOG("Scene succesfully loaded!");
@@ -58,17 +62,28 @@ void SceneManager::LoadScene(const std::string& sceneName)
 	std::string line;
 	std::ifstream scene(sceneName);
 
-	if(scene.is_open())
+	if(!scene.is_open())
 	{
-		activeScene = new Scene();
-		std::getline(scene, line);
+		LOG(Log::MessageType::Error, "Tried loading a scene that doesn't exist!");
+		return;
+	}
+		
+	activeScene = new Scene();
+	
+	// Scene Info //
+	std::getline(scene, line);
+	activeScene->Name = line;
 
-		activeScene->Name = line;
+	std::getline(scene, line);
+	int amountOfPrimitives = std::stoi(line);
 
+	for(int i = 0; i < amountOfPrimitives; i++)
+	{
 		Primitive* primitive;
 
+		// Primitive Type info //
 		std::getline(scene, line);
-		PrimitiveType type = PrimitiveType(std::stof(line));
+		PrimitiveType type = PrimitiveType(std::stoi(line));
 
 		switch(type)
 		{
@@ -93,6 +108,7 @@ void SceneManager::LoadScene(const std::string& sceneName)
 			primitive = new Sphere(vec3(0.0f), 0.1f);
 		}
 
+		// Material Properties //
 		vec3 color;
 		for(int i = 0; i < 3; i++)
 		{
@@ -117,16 +133,12 @@ void SceneManager::LoadScene(const std::string& sceneName)
 		primitive->Material.EmissiveStrength = std::stof(line);
 
 		std::getline(scene, line);
-		primitive->Material.isEmissive = std::stof(line);
+		primitive->Material.isEmissive = std::stoi(line);
 
 		std::getline(scene, line);
-		primitive->Material.isDielectric = std::stof(line);
+		primitive->Material.isDielectric = std::stoi(line);
 
 		activeScene->primitives.push_back(primitive);
-	}
-	else
-	{
-		LOG(Log::MessageType::Error, "Tried loading a scene that doesn't exist!");
 	}
 }
 
@@ -140,37 +152,40 @@ void SceneManager::SaveScene()
 	sceneFile.clear();
 
 	sceneFile << activeScene->Name << "\n";
+	sceneFile << activeScene->primitives.size() << "\n";
 
-	sceneFile << int(activeScene->primitives[0]->Type) << "\n";
-
-	// Check primitive type, based on the type, save unique data //
-	switch(activeScene->primitives[0]->Type)
+	for(int i = 0; i < activeScene->primitives.size(); i++)
 	{
-	case PrimitiveType::Sphere:
-		for(int i = 0; i < 3; i++)
+		sceneFile << int(activeScene->primitives[i]->Type) << "\n";
+
+		// Primitive specific data // 
+		switch(activeScene->primitives[i]->Type)
 		{
-			sceneFile << activeScene->primitives[0]->Position.data[i] << "\n";
+		case PrimitiveType::Sphere:
+			for(int j = 0; j < 3; j++)
+			{
+				sceneFile << activeScene->primitives[i]->Position.data[j] << "\n";
+			}
+
+			Sphere* sphere = dynamic_cast<Sphere*>(activeScene->primitives[i]);
+			sceneFile << sphere->Radius << "\n";
+			break;
 		}
 
-		Sphere* sphere = dynamic_cast<Sphere*>(activeScene->primitives[0]);
-		sceneFile << sphere->Radius << "\n";
-		break;
+		// Material Properties // 
+		for(int j = 0; j < 3; j++)
+		{
+			sceneFile << activeScene->primitives[i]->Material.Color.data[j] << "\n";
+		}
+
+		sceneFile << activeScene->primitives[i]->Material.Specularity << "\n";
+		sceneFile << activeScene->primitives[i]->Material.Roughness << "\n";
+		sceneFile << activeScene->primitives[i]->Material.Metalness << "\n";
+		sceneFile << activeScene->primitives[i]->Material.IoR << "\n";
+		sceneFile << activeScene->primitives[i]->Material.EmissiveStrength << "\n";
+		sceneFile << activeScene->primitives[i]->Material.isEmissive << "\n";
+		sceneFile << activeScene->primitives[i]->Material.isDielectric << "\n";
 	}
-
-	for(int i = 0; i < 3; i++)
-	{
-		sceneFile << activeScene->primitives[0]->Material.Color.data[i] << "\n";
-	}
-
-	sceneFile << activeScene->primitives[0]->Material.Specularity << "\n";
-	sceneFile << activeScene->primitives[0]->Material.Roughness << "\n";
-	sceneFile << activeScene->primitives[0]->Material.Metalness << "\n";
-	sceneFile << activeScene->primitives[0]->Material.IoR << "\n";
-	sceneFile << activeScene->primitives[0]->Material.EmissiveStrength << "\n";
-	sceneFile << activeScene->primitives[0]->Material.isEmissive << "\n";
-	sceneFile << activeScene->primitives[0]->Material.isDielectric << "\n";
-
-
 
 	LOG("Scene succesfully saved!");
 }
