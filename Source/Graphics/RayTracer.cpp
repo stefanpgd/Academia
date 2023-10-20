@@ -33,6 +33,7 @@ bool RayTracer::Update(float deltaTime)
 	if(ImGui::ColorEdit3("Sky B", &skyColorB.x)) { updated = true; }
 	if(ImGui::DragFloat("Sky Emission", &skydomeStrength, 0.01f)) { updated = true; }
 	if(ImGui::DragFloat("Sky Offset", &skyDomeOffset, 0.01f, 0.0f, 1.0f)) { updated = true; }
+	if(ImGui::DragFloat("Density", &density, 0.1f, 0.0f, 100.0f)) { updated = true; }
 	ImGui::End();
 
 	// Maybe in the future, let the scene manager own Camera and update it
@@ -97,11 +98,21 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 
 			// Reflection //
 			Ray reflectedRay = Ray(record.HitPoint, Reflect(ray.Direction, record.Normal));
-			illumination += reflectance * TraverseScene(reflectedRay, depth, record);
+			illumination += TraverseScene(reflectedRay, depth, record) * reflectance;
 
 			// Refraction // 
-			Ray refractedRay = Ray(record.HitPoint, Refract(ray.Direction, record.Normal, material.IoR));
-			illumination += transmittance * material.Color * TraverseScene(refractedRay, depth, record);
+			vec3 Rf = Refract(ray.Direction, record.Normal, material.IoR);
+			Ray refractedRay = Ray(record.HitPoint + Rf * EPSILONSMALL, Rf);
+
+			vec3 c = material.Color;
+			if(record.InsideMedium)
+			{
+				float transmittedDistance = (record.HitPoint - lastRecord.HitPoint).Magnitude();
+				float beer = expf(-density * transmittedDistance);
+				c = c * beer;
+			}
+
+			illumination += (c * transmittance) * TraverseScene(refractedRay, depth, record) ;
 		}
 		else
 		{

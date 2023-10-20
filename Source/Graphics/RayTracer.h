@@ -28,13 +28,14 @@ private:
 
 	// Tracing settings // 
 	float maxT = 100.0f;
-	int maxRayDepth = 12;
+	int maxRayDepth = 15;
 
 	bool useSkydomeTexture = true;
 	float skydomeStrength = 1.0f;
 	vec3 skyColorA = vec3(0.0f);
 	vec3 skyColorB = vec3(0.84f, 0.72f, 1.0f);
 
+	float density = 10.0f;
 	float skyDomeOffset = 0.0f;
 
 	// temp image //

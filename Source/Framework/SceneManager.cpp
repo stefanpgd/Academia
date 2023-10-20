@@ -32,12 +32,8 @@ SceneManager::SceneManager()
 		activeScene = new Scene();
 		activeScene->Name = "Default";
 
-
 		Sphere* sphere = new Sphere(vec3(0.0f), 0.25f);
-		Sphere* sphere2 = new Sphere(vec3(1.0f), 0.15f);
-
 		activeScene->primitives.push_back(sphere);
-		activeScene->primitives.push_back(sphere2);
 	}
 
 	LOG("Scene succesfully loaded!");
