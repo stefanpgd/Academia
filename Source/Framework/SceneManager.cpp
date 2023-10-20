@@ -65,14 +65,33 @@ void SceneManager::LoadScene(const std::string& sceneName)
 
 		activeScene->Name = line;
 
-		vec3 position;
-		for(int i = 0; i < 3; i++)
+		Primitive* primitive;
+
+		std::getline(scene, line);
+		PrimitiveType type = PrimitiveType(std::stof(line));
+
+		switch(type)
 		{
+		case PrimitiveType::Sphere:
+		{
+			vec3 position;
+			for(int i = 0; i < 3; i++)
+			{
+				std::getline(scene, line);
+				position.data[i] = std::stof(line);
+			}
+
 			std::getline(scene, line);
-			position.data[i] = std::stof(line);
+			float radius = std::stof(line);
+
+			Sphere* sphere = new Sphere(position, radius);
+			primitive = sphere;
+			break;
 		}
-		
-		Sphere* sphere = new Sphere(position, 0.25f);
+
+		default:
+			primitive = new Sphere(vec3(0.0f), 0.1f);
+		}
 
 		vec3 color;
 		for(int i = 0; i < 3; i++)
@@ -80,30 +99,30 @@ void SceneManager::LoadScene(const std::string& sceneName)
 			std::getline(scene, line);
 			color.data[i] = std::stof(line);
 		}
-		sphere->material.Color = color;
+		primitive->Material.Color = color;
 
 		std::getline(scene, line);
-		sphere->material.Specularity = std::stof(line);
+		primitive->Material.Specularity = std::stof(line);
 
 		std::getline(scene, line);
-		sphere->material.Roughness = std::stof(line);
+		primitive->Material.Roughness = std::stof(line);
 
 		std::getline(scene, line);
-		sphere->material.Metalness = std::stof(line);
+		primitive->Material.Metalness = std::stof(line);
 
 		std::getline(scene, line);
-		sphere->material.IoR = std::stof(line);
+		primitive->Material.IoR = std::stof(line);
 
 		std::getline(scene, line);
-		sphere->material.EmissiveStrength = std::stof(line);
+		primitive->Material.EmissiveStrength = std::stof(line);
 
 		std::getline(scene, line);
-		sphere->material.isEmissive = std::stof(line);
+		primitive->Material.isEmissive = std::stof(line);
 
 		std::getline(scene, line);
-		sphere->material.isDielectric = std::stof(line);
+		primitive->Material.isDielectric = std::stof(line);
 
-		activeScene->primitives.push_back(sphere);
+		activeScene->primitives.push_back(primitive);
 	}
 	else
 	{
@@ -122,24 +141,36 @@ void SceneManager::SaveScene()
 
 	sceneFile << activeScene->Name << "\n";
 
-	// For now, writing the data of just a sphere
-	for(int i = 0; i < 3; i++)
+	sceneFile << int(activeScene->primitives[0]->Type) << "\n";
+
+	// Check primitive type, based on the type, save unique data //
+	switch(activeScene->primitives[0]->Type)
 	{
-		sceneFile << activeScene->primitives[0]->Position.data[i] << "\n";
+	case PrimitiveType::Sphere:
+		for(int i = 0; i < 3; i++)
+		{
+			sceneFile << activeScene->primitives[0]->Position.data[i] << "\n";
+		}
+
+		Sphere* sphere = dynamic_cast<Sphere*>(activeScene->primitives[0]);
+		sceneFile << sphere->Radius << "\n";
+		break;
 	}
 
 	for(int i = 0; i < 3; i++)
 	{
-		sceneFile << activeScene->primitives[0]->material.Color.data[i] << "\n";
+		sceneFile << activeScene->primitives[0]->Material.Color.data[i] << "\n";
 	}
 
-	sceneFile << activeScene->primitives[0]->material.Specularity << "\n";
-	sceneFile << activeScene->primitives[0]->material.Roughness << "\n";
-	sceneFile << activeScene->primitives[0]->material.Metalness << "\n";
-	sceneFile << activeScene->primitives[0]->material.IoR << "\n";
-	sceneFile << activeScene->primitives[0]->material.EmissiveStrength << "\n";
-	sceneFile << activeScene->primitives[0]->material.isEmissive << "\n";
-	sceneFile << activeScene->primitives[0]->material.isDielectric << "\n";
+	sceneFile << activeScene->primitives[0]->Material.Specularity << "\n";
+	sceneFile << activeScene->primitives[0]->Material.Roughness << "\n";
+	sceneFile << activeScene->primitives[0]->Material.Metalness << "\n";
+	sceneFile << activeScene->primitives[0]->Material.IoR << "\n";
+	sceneFile << activeScene->primitives[0]->Material.EmissiveStrength << "\n";
+	sceneFile << activeScene->primitives[0]->Material.isEmissive << "\n";
+	sceneFile << activeScene->primitives[0]->Material.isDielectric << "\n";
+
+
 
 	LOG("Scene succesfully saved!");
 }

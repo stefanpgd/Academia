@@ -3,14 +3,16 @@
 
 Sphere::Sphere(vec3 position, float radius) : Radius(radius), Radius2(radius * radius) 
 {
+	Type = PrimitiveType::Sphere;
 	Position = position;
-	material.Color = vec3(1.0f);
+	Material.Color = vec3(1.0f);
 }
 
 Sphere::Sphere(vec3 position, float radius, vec3 color) : Radius(radius), Radius2(radius * radius)
 {
+	Type = PrimitiveType::Sphere;
 	Position = position;
-	material.Color = color;
+	Material.Color = color;
 }
 
 void Sphere::Intersect(const Ray& ray, HitRecord& record)

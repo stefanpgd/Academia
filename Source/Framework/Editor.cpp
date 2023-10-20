@@ -4,6 +4,8 @@
 #include <string>
 #include "Framework/SceneManager.h"
 
+#include "Graphics/Sphere.h"
+
 Editor::Editor(GLFWwindow* window)
 {
 	// Setup ImGui  //
@@ -64,8 +66,22 @@ bool Editor::Update(float deltaTime)
 
 		if(ImGui::DragFloat3("Position", &primitive->Position.x, 0.01f)) { sceneChanged = true; }
 
+		// Primitive specific editor options // 
+		switch(primitive->Type)
+		{
+		case PrimitiveType::Sphere:
+			Sphere* sphere = dynamic_cast<Sphere*>(primitive);
+
+			if(ImGui::InputFloat("Scale", &sphere->Radius, 0.1f, 0.5f)) 
+			{ 
+				sphere->Radius2 = sphere->Radius * sphere->Radius;
+				sceneChanged = true; 
+			}
+			break;
+		}
+
 		// Material Properties // 
-		Material* material = &activeScene->primitives[i]->material;
+		Material* material = &activeScene->primitives[i]->Material;
 
 		ImGui::Text("Material Properties:");
 

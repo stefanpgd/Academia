@@ -42,11 +42,21 @@ struct HitRecord
 	bool InsideMedium = false;
 };
 
+
+enum class PrimitiveType
+{
+	Sphere,
+	Plane,
+	PlaneInfinite,
+	Triangle 
+};
+
 class Primitive
 {
 public:
 	virtual void Intersect(const Ray& ray, HitRecord& record) = 0;
 
 	vec3 Position;
-	Material material;
+	Material Material;
+	PrimitiveType Type;
 };

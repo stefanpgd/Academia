@@ -81,7 +81,7 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 
 	if(record.t < maxT)
 	{
-		const Material& material = record.Primitive->material;
+		const Material& material = record.Primitive->Material;
 
 		if(material.isEmissive)
 		{
