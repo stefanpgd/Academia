@@ -28,7 +28,7 @@ private:
 
 	// Tracing settings // 
 	float maxT = 100.0f;
-	int maxRayDepth = 15;
+	int maxRayDepth = 4;
 
 	bool useSkydomeTexture = true;
 	float skydomeStrength = 1.0f;

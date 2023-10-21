@@ -101,8 +101,8 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 			illumination += TraverseScene(reflectedRay, depth, record) * reflectance;
 
 			// Refraction // 
-			vec3 Rf = Refract(ray.Direction, record.Normal, material.IoR);
-			Ray refractedRay = Ray(record.HitPoint + Rf * EPSILONSMALL, Rf);
+			vec3 Rt = Refract(ray.Direction, record.Normal, material.IoR);
+			Ray refractedRay = Ray(record.HitPoint + Rt * EPSILONSMALL, Rt);
 
 			vec3 c = material.Color;
 			if(record.InsideMedium)
@@ -112,7 +112,7 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 				c = c * beer;
 			}
 
-			illumination += (c * transmittance) * TraverseScene(refractedRay, depth, record) ;
+			illumination += c * TraverseScene(refractedRay, depth, record) * transmittance;
 		}
 		else
 		{
