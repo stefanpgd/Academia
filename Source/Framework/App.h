@@ -90,7 +90,7 @@ private:
 	unsigned int* screenBuffer;
 	unsigned int bufferSize;
 
-	// Delta-time //
+	// deltaTime //
 	float deltaTime = 0.0f;
 	std::chrono::high_resolution_clock* clock;
 	std::chrono::milliseconds t0;

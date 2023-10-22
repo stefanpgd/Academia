@@ -5,6 +5,7 @@ class Camera
 {
 public:
 	Camera(unsigned int screenWidth, unsigned int screenHeight);
+	Camera(vec3 position, unsigned int screenWidth, unsigned int screenHeight);
 
 	bool Update(float deltaTime);
 	void SetupVirtualPlane(unsigned int screenWidth, unsigned int screenHeight);

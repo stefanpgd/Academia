@@ -1,6 +1,7 @@
 #include "SceneManager.h"
 #include <fstream>
-#include <algorithm>
+
+#include "Graphics/Camera.h"
 
 // Primitives //
 #include "Graphics/Sphere.h"
@@ -10,20 +11,18 @@
 
 #include "Utilities/LogHelper.h"
 
-SceneManager::SceneManager()
+SceneManager::SceneManager(unsigned int screenWidth, unsigned int screenHeight)
 {
 	LOG("Checking for last used scene...");
-
 	std::ifstream lastScene(lastSceneSettings);
 
-	// Grab info about the last open scene
 	if(lastScene.is_open())
 	{
 		LOG("Last used scene found!");
 		
 		std::string path;
 		std::getline(lastScene, path);
-		LoadScene(path);
+		LoadScene(path, screenWidth, screenHeight);
 	}
 	else
 	{
@@ -31,6 +30,7 @@ SceneManager::SceneManager()
 
 		activeScene = new Scene();
 		activeScene->Name = "Default";
+		activeScene->Camera = new Camera(screenWidth, screenHeight);
 	}
 
 	LOG("Scene succesfully loaded!");
@@ -48,7 +48,7 @@ SceneManager::~SceneManager()
 	lastScene << activeScenePath;
 }
 
-void SceneManager::LoadScene(const std::string& sceneName)
+void SceneManager::LoadScene(const std::string& sceneName, unsigned int screenWidth, unsigned int screenHeight)
 {
 	LOG("Loading Scene: '" + sceneName + "'");
 
@@ -66,6 +66,15 @@ void SceneManager::LoadScene(const std::string& sceneName)
 	// Scene Info //
 	std::getline(scene, line);
 	activeScene->Name = line;
+
+	// Camera Information //
+	vec3 cameraPosition;
+	for(int i = 0; i < 3; i++)
+	{
+		std::getline(scene, line);
+		cameraPosition.data[i] = std::stof(line);
+	}
+	activeScene->Camera = new Camera(cameraPosition, screenWidth, screenHeight);
 
 	std::getline(scene, line);
 	int amountOfPrimitives = std::stoi(line);
@@ -148,8 +157,14 @@ void SceneManager::SaveScene()
 	sceneFile.clear();
 
 	sceneFile << activeScene->Name << "\n";
-	sceneFile << activeScene->primitives.size() << "\n";
 
+	// Camera Information //
+	for(int i = 0; i < 3; i++)
+	{
+		sceneFile << activeScene->Camera->Position.data[i] << "\n";
+	}
+
+	sceneFile << activeScene->primitives.size() << "\n";
 	for(int i = 0; i < activeScene->primitives.size(); i++)
 	{
 		sceneFile << int(activeScene->primitives[i]->Type) << "\n";
@@ -198,7 +213,7 @@ void SceneManager::AddPrimitiveToScene(Primitive* primitive)
 }
 
 /// <summary>
-/// Adds new primitves that where in the back buffer into the scene.
+/// Adds new primitives that where in the back buffer into the scene.
 /// Also removes all primitves that have been marked for delete.
 /// </summary>
 void SceneManager::UpdateScene()

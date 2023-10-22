@@ -4,20 +4,24 @@
 #include <vector>
 #include <string>
 
+class Camera;
+
 struct Scene
 {
 	std::string Name;
 	std::vector<Primitive*> primitives;
+
+	Camera* Camera;
 };
 
 class SceneManager
 {
 public:
-	SceneManager();
+	SceneManager(unsigned int screenWidth, unsigned int screenHeight);
 	~SceneManager();
 
 	// Scene Serialization //
-	void LoadScene(const std::string& sceneName);
+	void LoadScene(const std::string& sceneName, unsigned int screenWidth, unsigned int screenHeight);
 	void SaveScene();
 
 	// Scene Management //

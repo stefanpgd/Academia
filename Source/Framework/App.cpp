@@ -56,7 +56,7 @@ App::App()
 	// Start initializing custom systems  //
 	Input::Initialize(window);
 
-	sceneManager = new SceneManager();
+	sceneManager = new SceneManager(screenWidth, screenHeight);
 	editor = new Editor(window, sceneManager);
 	editor->SetActiveScene(sceneManager->GetActiveScene());
 

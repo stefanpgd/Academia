@@ -8,7 +8,7 @@
 
 RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene* scene) : scene(scene)
 {
-	camera = new Camera(screenWidth, screenHeight);
+	camera = scene->Camera;
 
 	if(useSkydomeTexture)
 	{
