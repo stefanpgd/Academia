@@ -3,7 +3,6 @@
 
 #include <cassert>
 #include <vector>
-#include <chrono>
 #include <cmath>
 #include <fstream>
 
@@ -91,16 +90,11 @@ App::~App()
 
 void App::Run()
 {
-	static float deltaTime = 0.0f;
-	static std::chrono::high_resolution_clock clock;
-	static auto t0 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock.now())).time_since_epoch();
+	clock = new std::chrono::high_resolution_clock();
+	t0 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock->now())).time_since_epoch();
 
 	while (runApp)
 	{
-		auto t1 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock.now())).time_since_epoch();
-		deltaTime = (t1 - t0).count() * .001;
-		t0 = t1;
-
 		Start();
 		Update(deltaTime);
 		Render();
@@ -174,6 +168,10 @@ void App::Render()
 {
 	if(updateScreenBuffer)
 	{
+		auto t1 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock->now())).time_since_epoch();
+		deltaTime = (t1 - t0).count() * .001;
+		t0 = t1;
+
 		for(int x = 0; x < screenWidth; x++)
 		{
 			for(int y = 0; y < screenHeight; y++)
@@ -184,12 +182,6 @@ void App::Render()
 
 				screenBuffer[i] = AlbedoToRGB(output.x, output.y, output.z);
 			}
-		}
-
-		// Notify the workers again //
-		for(unsigned int i = 0; i < jobTiles.size(); i++)
-		{
-			jobTiles[i].State = TileState::ToDo;
 		}
 
 		if(resizeScreenBuffers)
@@ -209,6 +201,12 @@ void App::Render()
 
 			memset(colorBuffer, 0.0f, sizeof(vec3) * bufferSize);
 			clearScreenBuffers = false;
+		}
+
+		// Notify the workers again //
+		for(unsigned int i = 0; i < jobTiles.size(); i++)
+		{
+			jobTiles[i].State = TileState::ToDo;
 		}
 
 		workIndex.store(jobTiles.size() - 1);

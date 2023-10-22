@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <chrono>
 #include <GLFW/glfw3.h>
 #include "Math/Vec3.h"
 
@@ -88,4 +89,9 @@ private:
 	vec3* colorBuffer;
 	unsigned int* screenBuffer;
 	unsigned int bufferSize;
+
+	// Delta-time //
+	float deltaTime = 0.0f;
+	std::chrono::high_resolution_clock* clock;
+	std::chrono::milliseconds t0;
 };
