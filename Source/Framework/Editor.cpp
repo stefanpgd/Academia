@@ -6,7 +6,7 @@
 
 #include "Graphics/Sphere.h"
 
-Editor::Editor(GLFWwindow* window)
+Editor::Editor(GLFWwindow* window, SceneManager* sceneManager) : sceneManager(sceneManager)
 {
 	// Setup ImGui  //
 	IMGUI_CHECKVERSION();
@@ -140,7 +140,11 @@ void Editor::PrimitiveHierachy()
 			if(ImGui::Checkbox("Is Emissive", &material->isEmissive)) { sceneUpdated = true; }
 		}
 
-		if(ImGui::Button("Delete Primitive", ImVec2(50, 20))) { primitive->MarkedForDelete = true; }
+		if(ImGui::Button("Delete Primitive", ImVec2(50, 20))) 
+		{ 
+			primitive->MarkedForDelete = true; 
+			sceneUpdated = true;
+		}
 
 		ImGui::Separator();
 		ImGui::PopID();
@@ -154,7 +158,9 @@ void Editor::PrimitiveCreation()
 
 	if(ImGui::Button("Add Primitive"))
 	{
-		// call sceneManager yada
+		Sphere* sphere = new Sphere(vec3(0.0f), 0.25f);
+		sceneManager->AddPrimitiveToScene(sphere);
+		sceneUpdated = true;
 	}
 
 	ImGui::End();

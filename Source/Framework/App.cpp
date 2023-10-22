@@ -58,7 +58,7 @@ App::App()
 	Input::Initialize(window);
 
 	sceneManager = new SceneManager();
-	editor = new Editor(window);
+	editor = new Editor(window, sceneManager);
 	editor->SetActiveScene(sceneManager->GetActiveScene());
 
 	rayTracer = new RayTracer(screenWidth, screenHeight, sceneManager->GetActiveScene());
@@ -203,6 +203,9 @@ void App::Render()
 		if(clearScreenBuffers)
 		{
 			frameCount = 1;
+
+			// Load in or remove new primitives to the scene //
+			sceneManager->UpdateScene();
 
 			memset(colorBuffer, 0.0f, sizeof(vec3) * bufferSize);
 			clearScreenBuffers = false;

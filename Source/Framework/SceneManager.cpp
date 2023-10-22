@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 #include <fstream>
+#include <algorithm>
 
 // Primitives //
 #include "Graphics/Sphere.h"
@@ -28,12 +29,8 @@ SceneManager::SceneManager()
 	{
 		LOG(Log::MessageType::Debug, "No last used scene found, loading default scene...");
 
-		// TO-DO: catch the issue with no objects in the scene to intersect
 		activeScene = new Scene();
 		activeScene->Name = "Default";
-
-		Sphere* sphere = new Sphere(vec3(0.0f), 0.25f);
-		activeScene->primitives.push_back(sphere);
 	}
 
 	LOG("Scene succesfully loaded!");
@@ -193,6 +190,35 @@ void SceneManager::SaveScene()
 	}
 
 	LOG("Scene succesfully saved!");
+}
+
+void SceneManager::AddPrimitiveToScene(Primitive* primitive)
+{
+	primitiveBackBuffer.push_back(primitive);
+}
+
+/// <summary>
+/// Adds new primitves that where in the back buffer into the scene.
+/// Also removes all primitves that have been marked for delete.
+/// </summary>
+void SceneManager::UpdateScene()
+{
+	// Remove 'MarkedForDelete' primitives //
+	activeScene->primitives.erase(
+		std::remove_if(activeScene->primitives.begin(), activeScene->primitives.end(),
+			[](Primitive* primitive) { return primitive->MarkedForDelete; }),
+			activeScene->primitives.end());
+
+	// Add back-buffered primitives //
+	if(primitiveBackBuffer.size() > 0)
+	{
+		for(int i = 0; i < primitiveBackBuffer.size(); i++)
+		{
+			activeScene->primitives.push_back(primitiveBackBuffer[i]);
+		}
+
+		primitiveBackBuffer.clear();
+	}
 }
 
 Scene* SceneManager::GetActiveScene()

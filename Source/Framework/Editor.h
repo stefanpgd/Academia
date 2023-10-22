@@ -4,6 +4,8 @@
 #include "imgui_impl_opengl3.h"
 
 class GLFWwindow;
+class SceneManager;
+
 struct Scene;
 
 /// <summary>
@@ -13,7 +15,7 @@ struct Scene;
 class Editor
 {
 public:
-	Editor(GLFWwindow* window);
+	Editor(GLFWwindow* window, SceneManager* sceneManager);
 
 	void Start();
 	bool Update(float deltaTime);
@@ -28,7 +30,9 @@ private:
 private:
 	bool sceneUpdated = false;
 	bool renderEditor = true;
+
 	Scene* activeScene;
+	SceneManager* sceneManager;
 
 	friend class App;
 };
