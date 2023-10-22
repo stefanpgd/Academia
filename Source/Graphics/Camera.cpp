@@ -49,6 +49,13 @@ bool Camera::Update(float deltaTime)
 		cameraUpdated = true;
 	}
 
+	int upwards = Input::GetKey(KeyCode::E) - Input::GetKey(KeyCode::Q);
+	if(upwards != 0.0)
+	{
+		Position.y += speed * upwards;
+		cameraUpdated = true;
+	}
+
 	if(cameraUpdated)
 	{
 		SetupVirtualPlane(screenWidth, screenHeight);

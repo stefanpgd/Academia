@@ -45,7 +45,6 @@ struct HitRecord
 	bool InsideMedium = false;
 };
 
-
 enum class PrimitiveType
 {
 	Sphere,

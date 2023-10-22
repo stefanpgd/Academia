@@ -3,6 +3,8 @@
 
 PlaneInfinite::PlaneInfinite(vec3 position, vec3 normal)
 {
+	Type = PrimitiveType::PlaneInfinite;
+
 	Position = position;
 	Normal = normal;
 }

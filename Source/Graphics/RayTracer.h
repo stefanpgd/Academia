@@ -31,10 +31,8 @@ private:
 	int maxRayDepth = 12;
 
 	bool useSkydomeTexture = true;
-	float skydomeStrength = 1.0f;
 	vec3 skyColorA = vec3(0.0f);
 	vec3 skyColorB = vec3(0.84f, 0.72f, 1.0f);
-	float skyDomeOffset = 0.0f;
 
 	// temp image //
 	int width, height, comp;

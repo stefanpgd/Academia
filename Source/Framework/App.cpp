@@ -140,7 +140,6 @@ void App::Update(float deltaTime)
 		// All jobs have been picked up, check if they are done as well
 		// if so, that means an trace iteration has been completed, and we can
 		// update the screen buffer
-
 		bool iterationDone = true;
 
 		for(unsigned int i = 0; i < jobTiles.size(); i++)

@@ -12,6 +12,11 @@ struct Scene
 	std::vector<Primitive*> primitives;
 
 	Camera* Camera;
+
+	// Skydome //
+	float SkydomeOrientation = 0.0f;
+	float SkyDomeEmission = 1.5f;
+	float SkyDomeBackgroundStrength = 1.0f;
 };
 
 class SceneManager

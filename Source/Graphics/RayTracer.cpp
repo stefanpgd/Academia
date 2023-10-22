@@ -31,8 +31,9 @@ bool RayTracer::Update(float deltaTime)
 	ImGui::Begin("Skybox");
 	if(ImGui::ColorEdit3("Sky A", &skyColorA.x)) { updated = true; }
 	if(ImGui::ColorEdit3("Sky B", &skyColorB.x)) { updated = true; }
-	if(ImGui::DragFloat("Sky Emission", &skydomeStrength, 0.01f)) { updated = true; }
-	if(ImGui::DragFloat("Sky Offset", &skyDomeOffset, 0.01f, 0.0f, 1.0f)) { updated = true; }
+	if(ImGui::DragFloat("Skydome Emission", &scene->SkyDomeEmission, 0.01f)) { updated = true; }
+	if(ImGui::DragFloat("Skydome Orientation", &scene->SkydomeOrientation, 0.01f, 0.0f, 1.0f)) { updated = true; }
+	if(ImGui::DragFloat("Skydome Background Emission", &scene->SkyDomeBackgroundStrength, 0.01f, 0.0f, 10.0f)) { updated = true; }
 	ImGui::End();
 
 	// Maybe in the future, let the scene manager own Camera and update it
@@ -180,11 +181,11 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 	{
 		if(depth == maxRayDepth - 1)
 		{
-			illumination += GetSkyColor(ray);
+			illumination += GetSkyColor(ray) * scene->SkyDomeBackgroundStrength;
 		}
 		else
 		{
-			illumination += GetSkyColor(ray) * skydomeStrength;
+			illumination += GetSkyColor(ray) * scene->SkyDomeEmission;
 		}
 	}
 
@@ -217,7 +218,7 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 		float u = phi / (2 * PI);
 		float v = theta / PI;
 
-		u -= skyDomeOffset;
+		u -= scene->SkydomeOrientation;
 		
 		if(u > 1.0f)
 		{
@@ -229,7 +230,7 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 			u += 1.0f;
 		}
 
-		int i = (int)(u * width);
+		int i = (int)((1.0f - u) * width);
 		int j = (int)(v * height);
 
 		i = i % width;

@@ -1,10 +1,11 @@
 #include "Editor.h"
-#include "Input.h"
-
 #include <string>
+
+#include "Framework/Input.h"
 #include "Framework/SceneManager.h"
 
 #include "Graphics/Sphere.h"
+#include "Graphics/PlaneInfinite.h"
 
 Editor::Editor(GLFWwindow* window, SceneManager* sceneManager) : sceneManager(sceneManager)
 {
@@ -156,11 +157,55 @@ void Editor::PrimitiveCreation()
 {
 	ImGui::Begin("Primitive Creation");
 
-	if(ImGui::Button("Add Primitive"))
+	if(ImGui::BeginCombo("Primitive Type", primitiveNames[selectedPrimitive]))
 	{
-		Sphere* sphere = new Sphere(vec3(0.0f), 0.25f);
-		sceneManager->AddPrimitiveToScene(sphere);
-		sceneUpdated = true;
+		for(int i = 0; i < primitiveNames.size(); i++)
+		{
+			bool isSelected = primitiveNames[i] == primitiveNames[selectedPrimitive];
+
+			if(ImGui::Selectable(primitiveNames[i], isSelected))
+			{
+				selectedPrimitive = i;
+			}
+
+			if(isSelected)
+			{
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+
+		ImGui::EndCombo();
+	}
+
+	PrimitiveType type = PrimitiveType(selectedPrimitive);
+	switch(type)
+	{
+	case PrimitiveType::Sphere:
+		ImGui::DragFloat3("Position", &primPosition.x, 0.025f);
+		ImGui::DragFloat("Scale", &primScale, 0.05f);
+
+		if(ImGui::Button("Add Sphere"))
+		{
+			Sphere* sphere = new Sphere(primPosition, primScale);
+			sceneManager->AddPrimitiveToScene(sphere);
+			sceneUpdated = true;
+		}
+		break;
+
+	case PrimitiveType::PlaneInfinite:
+		ImGui::DragFloat3("Position", &primPosition.x, 0.025f);
+		if(ImGui::DragFloat3("Normal", &primNormal.x, 0.01f))
+		{
+			primNormal = Normalize(primNormal);
+		}
+
+		if(ImGui::Button("Add Plane Infinite"))
+		{
+			PlaneInfinite* plane = new PlaneInfinite(primPosition, primNormal);
+			sceneManager->AddPrimitiveToScene(plane);
+			sceneUpdated = true;
+		}
+		break;
 	}
 
 	ImGui::End();

@@ -2,6 +2,8 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include <array>
+#include "Math/Vec3.h"
 
 class GLFWwindow;
 class SceneManager;
@@ -33,6 +35,19 @@ private:
 
 	Scene* activeScene;
 	SceneManager* sceneManager;
+
+	// Primitive Creation //
+	std::array<const char*, 4> primitiveNames{
+		"Sphere",
+		"Plane",
+		"PlaneInfinite",
+		"Triangle"
+	};
+	unsigned int selectedPrimitive = 0;
+
+	vec3 primPosition;
+	vec3 primNormal;
+	float primScale = 0.5f;
 
 	friend class App;
 };

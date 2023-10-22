@@ -19,7 +19,7 @@ SceneManager::SceneManager(unsigned int screenWidth, unsigned int screenHeight)
 	if(lastScene.is_open())
 	{
 		LOG("Last used scene found!");
-		
+
 		std::string path;
 		std::getline(lastScene, path);
 		LoadScene(path, screenWidth, screenHeight);
@@ -60,10 +60,10 @@ void SceneManager::LoadScene(const std::string& sceneName, unsigned int screenWi
 		LOG(Log::MessageType::Error, "Tried loading a scene that doesn't exist!");
 		return;
 	}
-		
+
 	activeScene = new Scene();
-	
-	// Scene Info //
+
+	// Scene Information //
 	std::getline(scene, line);
 	activeScene->Name = line;
 
@@ -76,6 +76,17 @@ void SceneManager::LoadScene(const std::string& sceneName, unsigned int screenWi
 	}
 	activeScene->Camera = new Camera(cameraPosition, screenWidth, screenHeight);
 
+	// Skydome Information //
+	std::getline(scene, line);
+	activeScene->SkydomeOrientation = std::stof(line);
+
+	std::getline(scene, line);
+	activeScene->SkyDomeEmission = std::stof(line);
+
+	std::getline(scene, line);
+	activeScene->SkyDomeBackgroundStrength = std::stof(line);
+
+	// Primitive Information //
 	std::getline(scene, line);
 	int amountOfPrimitives = std::stoi(line);
 
@@ -83,7 +94,7 @@ void SceneManager::LoadScene(const std::string& sceneName, unsigned int screenWi
 	{
 		Primitive* primitive;
 
-		// Primitive Type info //
+		// Primitive Type specific Information //
 		std::getline(scene, line);
 		PrimitiveType type = PrimitiveType(std::stoi(line));
 
@@ -106,8 +117,30 @@ void SceneManager::LoadScene(const std::string& sceneName, unsigned int screenWi
 			break;
 		}
 
+		case PrimitiveType::PlaneInfinite:
+		{
+			vec3 position;
+			for(int i = 0; i < 3; i++)
+			{
+				std::getline(scene, line);
+				position.data[i] = std::stof(line);
+			}
+
+			vec3 normal;
+			for(int i = 0; i < 3; i++)
+			{
+				std::getline(scene, line);
+				normal.data[i] = std::stof(line);
+			}
+
+			PlaneInfinite* plane = new PlaneInfinite(position, normal);
+			primitive = plane;
+			break;
+		}
+
 		default:
-			primitive = new Sphere(vec3(0.0f), 0.1f);
+			Sphere* sphere = new Sphere(vec3(0.0f), 0.25f);
+			primitive = sphere;
 		}
 
 		// Material Properties //
@@ -164,6 +197,11 @@ void SceneManager::SaveScene()
 		sceneFile << activeScene->Camera->Position.data[i] << "\n";
 	}
 
+	// Skydome Information // 
+	sceneFile << activeScene->SkydomeOrientation << "\n";
+	sceneFile << activeScene->SkyDomeEmission << "\n";
+	sceneFile << activeScene->SkyDomeBackgroundStrength << "\n";
+
 	sceneFile << activeScene->primitives.size() << "\n";
 	for(int i = 0; i < activeScene->primitives.size(); i++)
 	{
@@ -173,6 +211,7 @@ void SceneManager::SaveScene()
 		switch(activeScene->primitives[i]->Type)
 		{
 		case PrimitiveType::Sphere:
+		{
 			for(int j = 0; j < 3; j++)
 			{
 				sceneFile << activeScene->primitives[i]->Position.data[j] << "\n";
@@ -181,6 +220,22 @@ void SceneManager::SaveScene()
 			Sphere* sphere = dynamic_cast<Sphere*>(activeScene->primitives[i]);
 			sceneFile << sphere->Radius << "\n";
 			break;
+		}
+
+		case PrimitiveType::PlaneInfinite:
+		{
+			for(int j = 0; j < 3; j++)
+			{
+				sceneFile << activeScene->primitives[i]->Position.data[j] << "\n";
+			}
+
+			PlaneInfinite* plane = dynamic_cast<PlaneInfinite*>(activeScene->primitives[i]);
+			for(int j = 0; j < 3; j++)
+			{
+				sceneFile << plane->Normal.data[j] << "\n";
+			}
+			break;
+		}
 		}
 
 		// Material Properties // 
