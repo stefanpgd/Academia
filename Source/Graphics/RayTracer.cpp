@@ -33,7 +33,6 @@ bool RayTracer::Update(float deltaTime)
 	if(ImGui::ColorEdit3("Sky B", &skyColorB.x)) { updated = true; }
 	if(ImGui::DragFloat("Sky Emission", &skydomeStrength, 0.01f)) { updated = true; }
 	if(ImGui::DragFloat("Sky Offset", &skyDomeOffset, 0.01f, 0.0f, 1.0f)) { updated = true; }
-	if(ImGui::DragFloat("Density", &density, 0.1f, 0.0f, 100.0f)) { updated = true; }
 	ImGui::End();
 
 	// Maybe in the future, let the scene manager own Camera and update it
@@ -108,7 +107,7 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 			if(record.InsideMedium)
 			{
 				float transmittedDistance = (record.HitPoint - lastRecord.HitPoint).Magnitude();
-				float beer = expf(-density * transmittedDistance);
+				float beer = expf(-material.Density * transmittedDistance);
 				c = c * beer;
 			}
 

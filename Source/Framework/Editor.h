@@ -22,6 +22,11 @@ public:
 	void SetActiveScene(Scene* scene);
 
 private:
+	void PrimitiveHierachy();
+	void PrimitiveCreation();
+
+private:
+	bool sceneUpdated = false;
 	bool renderEditor = true;
 	Scene* activeScene;
 

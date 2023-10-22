@@ -4,23 +4,26 @@
 class Ray;
 class Primitive;
 
-// Material models?
+// Material models
 // 1. Opaque
-// 2. Dielectric?
+// 2. Dielectric
 // 3. Emissive
-
 struct Material
 {
+	// General/Opaque properties //
 	vec3 Color = vec3(1.0f);
 	float Specularity = 0.0f;
 	float Roughness = 0.0f;
 	float Metalness = 0.0f;
-	float IoR = 1.0f;
 
+	// Dielectric Properties
+	bool isDielectric = false;
+	float IoR = 1.0f;
+	float Density = 0.0f;
+
+	// Emissive Properties
 	float EmissiveStrength = 1.0f;
 	bool isEmissive = false;
-
-	bool isDielectric = false;
 };
 
 struct Light
@@ -59,4 +62,6 @@ public:
 	vec3 Position;
 	Material Material;
 	PrimitiveType Type;
+
+	bool MarkedForDelete = false;
 };

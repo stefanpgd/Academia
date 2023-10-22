@@ -126,6 +126,9 @@ void SceneManager::LoadScene(const std::string& sceneName)
 		primitive->Material.IoR = std::stof(line);
 
 		std::getline(scene, line);
+		primitive->Material.Density = std::stof(line);
+
+		std::getline(scene, line);
 		primitive->Material.EmissiveStrength = std::stof(line);
 
 		std::getline(scene, line);
@@ -174,11 +177,17 @@ void SceneManager::SaveScene()
 			sceneFile << activeScene->primitives[i]->Material.Color.data[j] << "\n";
 		}
 
+		// Opaque properties //
 		sceneFile << activeScene->primitives[i]->Material.Specularity << "\n";
 		sceneFile << activeScene->primitives[i]->Material.Roughness << "\n";
 		sceneFile << activeScene->primitives[i]->Material.Metalness << "\n";
+
+		// Dielectric properties //
 		sceneFile << activeScene->primitives[i]->Material.IoR << "\n";
+		sceneFile << activeScene->primitives[i]->Material.Density << "\n";
 		sceneFile << activeScene->primitives[i]->Material.EmissiveStrength << "\n";
+
+		// Emissive properties //
 		sceneFile << activeScene->primitives[i]->Material.isEmissive << "\n";
 		sceneFile << activeScene->primitives[i]->Material.isDielectric << "\n";
 	}

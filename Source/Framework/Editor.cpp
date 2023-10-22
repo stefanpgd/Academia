@@ -30,6 +30,8 @@ void Editor::Start()
 
 bool Editor::Update(float deltaTime)
 {
+	sceneUpdated = false;
+
 	if(Input::GetKey(KeyCode::H))
 	{
 		// implement GetKeyDown... 
@@ -53,74 +55,10 @@ bool Editor::Update(float deltaTime)
 		ImGui::EndMainMenuBar();
 	}
 
-	bool sceneChanged = false;
+	PrimitiveHierachy();
+	PrimitiveCreation();
 
-	ImGui::Begin("Primitives");
-	for(int i = 0; i < activeScene->primitives.size(); i++)
-	{
-		ImGui::PushID(i);
-		ImGui::Separator();
-		Primitive* primitive = activeScene->primitives[i];
-		std::string name = "Primitive " + std::to_string(i);
-		ImGui::Text(name.c_str());
-
-		if(ImGui::DragFloat3("Position", &primitive->Position.x, 0.01f)) { sceneChanged = true; }
-
-		// Primitive specific editor options // 
-		switch(primitive->Type)
-		{
-		case PrimitiveType::Sphere:
-			Sphere* sphere = dynamic_cast<Sphere*>(primitive);
-
-			if(ImGui::InputFloat("Scale", &sphere->Radius, 0.1f, 0.5f)) 
-			{ 
-				sphere->Radius2 = sphere->Radius * sphere->Radius;
-				sceneChanged = true; 
-			}
-			break;
-		}
-
-		// Material Properties // 
-		Material* material = &activeScene->primitives[i]->Material;
-
-		ImGui::Text("Material Properties:");
-
-		// In future, use a dropdown menu to define between:
-		// 1. Opaque
-		// 2. Dielectric
-		// 3. Emissive
-		if(material->isDielectric) 
-		{
-			if(ImGui::ColorEdit3("Color", &material->Color.x, 0.01f)) { sceneChanged = true; }
-			if(ImGui::DragFloat("IoR", &material->IoR, 0.002f, 1.0f, 3.0f)) { sceneChanged = true; }
-
-			if(ImGui::Checkbox("Is Dielectric", &material->isDielectric)) { sceneChanged = true; }
-		}
-		else if(material->isEmissive)
-		{
-			if(ImGui::ColorEdit3("Color", &material->Color.x, 0.01f)) { sceneChanged = true; }
-			if(ImGui::DragFloat("Emissive Strength", &material->EmissiveStrength, 0.02f, 0.0f, 100.0f)) { sceneChanged = true; }
-
-			if(ImGui::Checkbox("Is Emissive", &material->isEmissive)) { sceneChanged = true; }
-		}
-		else // then material is Opaque model
-		{
-			if(ImGui::ColorEdit3("Color", &material->Color.x, 0.01f)) { sceneChanged = true; }
-			if(ImGui::DragFloat("Specularity", &material->Specularity, 0.002f, 0.0f, 1.0f)) { sceneChanged = true; }
-			if(ImGui::DragFloat("Roughness", &material->Roughness, 0.002f, 0.0f, 1.0f)) { sceneChanged = true; }
-			if(ImGui::DragFloat("Metalness", &material->Metalness, 0.002f, 0.0f, 1.0f)) { sceneChanged = true; }
-			if(ImGui::DragFloat("IoR", &material->IoR, 0.002f, 1.0f, 3.0f)) { sceneChanged = true; }
-
-			if(ImGui::Checkbox("Is Dielectric", &material->isDielectric)) { sceneChanged = true; }
-			if(ImGui::Checkbox("Is Emissive", &material->isEmissive)) { sceneChanged = true; }
-		}
-
-		ImGui::Separator();
-		ImGui::PopID();
-	}
-	ImGui::End();
-
-	return sceneChanged;
+	return sceneUpdated;
 }
 
 void Editor::Render()
@@ -137,4 +75,87 @@ void Editor::Render()
 void Editor::SetActiveScene(Scene* scene)
 {
 	activeScene = scene;
+}
+
+void Editor::PrimitiveHierachy()
+{
+	ImGui::Begin("Primitives");
+	for(int i = 0; i < activeScene->primitives.size(); i++)
+	{
+		ImGui::PushID(i);
+		ImGui::Separator();
+		Primitive* primitive = activeScene->primitives[i];
+		std::string name = "Primitive " + std::to_string(i);
+		ImGui::Text(name.c_str());
+
+		if(ImGui::DragFloat3("Position", &primitive->Position.x, 0.01f)) { sceneUpdated = true; }
+
+		// Primitive specific editor options // 
+		switch(primitive->Type)
+		{
+		case PrimitiveType::Sphere:
+			Sphere* sphere = dynamic_cast<Sphere*>(primitive);
+
+			if(ImGui::InputFloat("Scale", &sphere->Radius, 0.1f, 0.5f))
+			{
+				sphere->Radius2 = sphere->Radius * sphere->Radius;
+				sceneUpdated = true;
+			}
+			break;
+		}
+
+		// Material Properties // 
+		Material* material = &activeScene->primitives[i]->Material;
+
+		ImGui::Text("Material Properties:");
+
+		// In future, use a dropdown menu to define between:
+		// 1. Opaque
+		// 2. Dielectric
+		// 3. Emissive
+		if(material->isDielectric)
+		{
+			if(ImGui::ColorEdit3("Color", &material->Color.x, 0.01f)) { sceneUpdated = true; }
+			if(ImGui::DragFloat("IoR", &material->IoR, 0.002f, 1.0f, 3.0f)) { sceneUpdated = true; }
+			if(ImGui::DragFloat("Density", &material->Density, 0.01, 0.0f, 100.0f)) { sceneUpdated = true; }
+
+			if(ImGui::Checkbox("Is Dielectric", &material->isDielectric)) { sceneUpdated = true; }
+		}
+		else if(material->isEmissive)
+		{
+			if(ImGui::ColorEdit3("Color", &material->Color.x, 0.01f)) { sceneUpdated = true; }
+			if(ImGui::DragFloat("Emissive Strength", &material->EmissiveStrength, 0.02f, 0.0f, 100.0f)) { sceneUpdated = true; }
+
+			if(ImGui::Checkbox("Is Emissive", &material->isEmissive)) { sceneUpdated = true; }
+		}
+		else // then material is Opaque model
+		{
+			if(ImGui::ColorEdit3("Color", &material->Color.x, 0.01f)) { sceneUpdated = true; }
+			if(ImGui::DragFloat("Specularity", &material->Specularity, 0.002f, 0.0f, 1.0f)) { sceneUpdated = true; }
+			if(ImGui::DragFloat("Roughness", &material->Roughness, 0.002f, 0.0f, 1.0f)) { sceneUpdated = true; }
+			if(ImGui::DragFloat("Metalness", &material->Metalness, 0.002f, 0.0f, 1.0f)) { sceneUpdated = true; }
+			if(ImGui::DragFloat("IoR", &material->IoR, 0.002f, 1.0f, 3.0f)) { sceneUpdated = true; }
+
+			if(ImGui::Checkbox("Is Dielectric", &material->isDielectric)) { sceneUpdated = true; }
+			if(ImGui::Checkbox("Is Emissive", &material->isEmissive)) { sceneUpdated = true; }
+		}
+
+		if(ImGui::Button("Delete Primitive", ImVec2(50, 20))) { primitive->MarkedForDelete = true; }
+
+		ImGui::Separator();
+		ImGui::PopID();
+	}
+	ImGui::End();
+}
+
+void Editor::PrimitiveCreation()
+{
+	ImGui::Begin("Primitive Creation");
+
+	if(ImGui::Button("Add Primitive"))
+	{
+		// call sceneManager yada
+	}
+
+	ImGui::End();
 }
