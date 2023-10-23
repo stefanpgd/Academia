@@ -50,9 +50,10 @@ vec3 RayTracer::Trace(int pixelX, int pixelY)
 	// Randomly sample a single light from the scene every frame for a pixel //
 	outputColor = TraverseScene(ray, maxRayDepth, record);
 
-	outputColor.x = max(min(outputColor.x, 1.0f), 0.0);
-	outputColor.y = max(min(outputColor.y, 1.0f), 0.0);
-	outputColor.z = max(min(outputColor.z, 1.0f), 0.0);
+	const float maxLuminance = 24.0f;
+	outputColor.x = Clamp(outputColor.x, 0.0f, maxLuminance);
+	outputColor.y = Clamp(outputColor.y, 0.0f, maxLuminance);
+	outputColor.z = Clamp(outputColor.z, 0.0f, maxLuminance);
 
 	return outputColor;
 }
@@ -237,7 +238,11 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 		j = j % height;
 
 		int index = (i + j * width) * comp;
-		return vec3(&image[index]) * image[index + 3];
+		vec3 b = vec3(image[index], image[index + 1], image[index + 2]);
+		//b.x = sqrtf(b.x);
+		//b.y = sqrtf(b.y);
+		//b.z = sqrtf(b.z);
+		return b;
 	}
 	else
 	{
