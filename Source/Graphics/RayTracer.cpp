@@ -14,14 +14,13 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene*
 	{
 		const char* err = nullptr;
 		int result = LoadEXR(&image, &width, &height, "Assets/studio.exr", &err);
+		comp = sizeof(float);
 
 		if(result != TINYEXR_SUCCESS)
 		{
 			fprintf(stderr, "ERR : %s\n", err);
 			FreeEXRErrorMessage(err);
 		}
-
-		comp = sizeof(float);
 	}
 }
 
@@ -29,6 +28,7 @@ bool RayTracer::Update(float deltaTime)
 {
 	bool updated = false;
 	ImGui::Begin("Skybox");
+	if(ImGui::DragFloat("Max Luminance", &maxLuminance, 0.02f, 0.0f, 100.0f)) { updated = true; }
 	if(ImGui::ColorEdit3("Sky A", &skyColorA.x)) { updated = true; }
 	if(ImGui::ColorEdit3("Sky B", &skyColorB.x)) { updated = true; }
 	if(ImGui::DragFloat("Skydome Emission", &scene->SkyDomeEmission, 0.01f)) { updated = true; }
@@ -50,7 +50,6 @@ vec3 RayTracer::Trace(int pixelX, int pixelY)
 	// Randomly sample a single light from the scene every frame for a pixel //
 	outputColor = TraverseScene(ray, maxRayDepth, record);
 
-	const float maxLuminance = 24.0f;
 	outputColor.x = Clamp(outputColor.x, 0.0f, maxLuminance);
 	outputColor.y = Clamp(outputColor.y, 0.0f, maxLuminance);
 	outputColor.z = Clamp(outputColor.z, 0.0f, maxLuminance);
@@ -239,9 +238,6 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 
 		int index = (i + j * width) * comp;
 		vec3 b = vec3(image[index], image[index + 1], image[index + 2]);
-		//b.x = sqrtf(b.x);
-		//b.y = sqrtf(b.y);
-		//b.z = sqrtf(b.z);
 		return b;
 	}
 	else
