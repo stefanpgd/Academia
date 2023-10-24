@@ -1,5 +1,6 @@
 #pragma once
 #include "imgui.h"
+#include "imgui_internal.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include <array>
@@ -57,4 +58,6 @@ private:
 	vec3 primPosition;
 	vec3 primNormal;
 	float primScale = 0.5f;
+
+	struct ImFont* boldFont;
 };
