@@ -63,10 +63,15 @@ private:
 
 	Editor* editor;
 	SceneManager* sceneManager;
+	
+	// General Information //
+	float timeElasped = 0.0f;
+	int frameCount = 1;
+	float* FPSLog;
+	const int FPSLogSize = 30;
 
 	// Ray Tracer //
 	RayTracer* rayTracer;
-	int frameCount = 1;
 
 	// Multi-threading //
 	int threadsAvailable;
@@ -94,4 +99,6 @@ private:
 	float deltaTime = 0.0f;
 	std::chrono::high_resolution_clock* clock;
 	std::chrono::milliseconds t0;
+
+	friend class Editor;
 };

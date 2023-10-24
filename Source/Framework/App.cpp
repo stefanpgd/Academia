@@ -26,6 +26,7 @@ App::App()
 {
 	LoadApplicationSettings();
 
+	FPSLog = new float[FPSLogSize];
 	bufferSize = screenWidth * screenHeight;
 	screenBuffer = new unsigned int[bufferSize];
 	colorBuffer = new vec3[bufferSize];
@@ -57,7 +58,7 @@ App::App()
 	Input::Initialize(window);
 
 	sceneManager = new SceneManager(screenWidth, screenHeight);
-	editor = new Editor(window, sceneManager);
+	editor = new Editor(window, this, sceneManager);
 	editor->SetActiveScene(sceneManager->GetActiveScene());
 
 	rayTracer = new RayTracer(screenWidth, screenHeight, sceneManager->GetActiveScene());
@@ -192,12 +193,14 @@ void App::Render()
 			int width, height;
 			glfwGetWindowSize(window, &width, &height);
 			ResizeBuffers(width, height);
+
 			resizeScreenBuffers = false;
 		}
 
 		if(clearScreenBuffers)
 		{
 			frameCount = 1;
+			timeElasped = 0.0f;
 
 			// Load in or remove new primitives to the scene //
 			sceneManager->UpdateScene();
@@ -215,7 +218,10 @@ void App::Render()
 		workIndex.store(jobTiles.size() - 1);
 		iterationLock.notify_all();
 
+		timeElasped += deltaTime;
+		FPSLog[frameCount % FPSLogSize] = deltaTime;
 		frameCount++;
+
 		updateScreenBuffer = false;
 	}
 

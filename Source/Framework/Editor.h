@@ -6,6 +6,7 @@
 #include "Math/Vec3.h"
 
 class GLFWwindow;
+class App;
 class SceneManager;
 
 struct Scene;
@@ -17,7 +18,7 @@ struct Scene;
 class Editor
 {
 public:
-	Editor(GLFWwindow* window, SceneManager* sceneManager);
+	Editor(GLFWwindow* window, App* app, SceneManager* sceneManager);
 
 	void Start();
 	bool Update(float deltaTime);
@@ -26,6 +27,8 @@ public:
 	void SetActiveScene(Scene* scene);
 
 private:
+	// Editor Windows //
+	void MenuBar();
 	void PrimitiveHierachy();
 	void PrimitiveCreation();
 
@@ -33,6 +36,7 @@ private:
 	bool sceneUpdated = false;
 	bool renderEditor = true;
 
+	App* app;
 	Scene* activeScene;
 	SceneManager* sceneManager;
 

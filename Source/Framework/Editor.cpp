@@ -1,13 +1,14 @@
 #include "Editor.h"
 #include <string>
 
+#include "Framework/App.h"
 #include "Framework/Input.h"
 #include "Framework/SceneManager.h"
 
 #include "Graphics/Sphere.h"
 #include "Graphics/PlaneInfinite.h"
 
-Editor::Editor(GLFWwindow* window, SceneManager* sceneManager) : sceneManager(sceneManager)
+Editor::Editor(GLFWwindow* window, App* app, SceneManager* sceneManager) : app(app), sceneManager(sceneManager)
 {
 	// Setup ImGui  //
 	IMGUI_CHECKVERSION();
@@ -19,7 +20,7 @@ Editor::Editor(GLFWwindow* window, SceneManager* sceneManager) : sceneManager(sc
 	ImGui::StyleColorsDark();
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
+	ImGui_ImplOpenGL3_Init("#version 460");
 }
 
 void Editor::Start()
@@ -44,18 +45,7 @@ bool Editor::Update(float deltaTime)
 		return false;
 	}
 
-	// For now, hardcode editor elements in here.
-	// in the future, having EditorElements that can be customized and just
-	// added to a vector of elements that need to be renderered, might be more clean
-	if(ImGui::BeginMainMenuBar())
-	{
-		ImGui::Text("FPS: ");
-		std::string fps = std::to_string(int(1.0f / deltaTime));
-		ImGui::Text(fps.c_str());
-
-		ImGui::EndMainMenuBar();
-	}
-
+	MenuBar();
 	PrimitiveHierachy();
 	PrimitiveCreation();
 
@@ -76,6 +66,70 @@ void Editor::Render()
 void Editor::SetActiveScene(Scene* scene)
 {
 	activeScene = scene;
+}
+
+void Editor::MenuBar()
+{
+	if (ImGui::BeginMainMenuBar())
+	{
+		// FPS // 
+		ImGui::Text("FPS:");
+		std::string fps = std::to_string(int(1.0f / app->deltaTime));
+		ImGui::Text(fps.c_str());
+		
+		ImGui::Separator();
+
+		// Average FPS //
+		float average = 0.0f;
+		for (int i = 0; i < app->FPSLogSize; i++)
+		{
+			average += app->FPSLog[i];
+		}
+		average /= app->FPSLogSize;
+
+		ImGui::Text("Average FPS:");
+		std::string averageFPS = std::to_string(int(1.0f / average));
+		ImGui::Text(averageFPS.c_str());
+
+		ImGui::Separator();
+
+		// Samples Taken //
+		ImGui::Text("Samples Taken:");
+		std::string samplesTaken = std::to_string(app->frameCount);
+		ImGui::Text(samplesTaken.c_str());
+
+		ImGui::Separator();
+
+		// Time Elasped // 
+		ImGui::Text("Time Elapsed:");
+		int min = int(app->timeElasped / 60.0f);
+		std::string minutes = std::to_string(min);
+		if (min < 10)
+		{
+			minutes = "0" + minutes;
+		}
+
+		int sec = int(app->timeElasped) % 60;
+		std::string seconds = std::to_string(sec);
+		if (sec < 10)
+		{
+			seconds = "0" + seconds;
+		}
+
+		float milli = app->timeElasped - int(app->timeElasped);
+		std::string milliseconds = std::to_string(int(milli * 100.0f));
+		if (milli < 0.1f)
+		{
+			milliseconds = "0" + milliseconds;
+		}
+
+		std::string time = minutes + ":" + seconds + ":" + milliseconds;
+		ImGui::Text(time.c_str());
+
+		ImGui::Separator();
+
+		ImGui::EndMainMenuBar();
+	}
 }
 
 void Editor::PrimitiveHierachy()
