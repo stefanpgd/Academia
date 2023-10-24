@@ -38,4 +38,6 @@ private:
 	// temp image //
 	int width, height, comp;
 	float* image;
+
+	friend class Editor;
 };

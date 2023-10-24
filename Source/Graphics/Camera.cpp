@@ -13,7 +13,7 @@ Camera::Camera(unsigned int screenWidth, unsigned int screenHeight)
 
 Camera::Camera(vec3 position, unsigned int screenWidth, unsigned int screenHeight) : Position(position)
 {
-	ViewDirection = Vec3(0.0f, 0.0f, 2.0f);
+	ViewDirection = Vec3(0.0f, -0.35f, 2.0f);
 
 	SetupVirtualPlane(screenWidth, screenHeight);
 }

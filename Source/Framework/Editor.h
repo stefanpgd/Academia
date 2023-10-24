@@ -29,8 +29,13 @@ public:
 private:
 	// Editor Windows //
 	void MenuBar();
+
+	void RayTracerSettings();
+
 	void PrimitiveHierachy();
 	void PrimitiveCreation();
+
+	void ImGuiStyleSettings();
 
 private:
 	bool sceneUpdated = false;
@@ -52,6 +57,4 @@ private:
 	vec3 primPosition;
 	vec3 primNormal;
 	float primScale = 0.5f;
-
-	friend class App;
 };

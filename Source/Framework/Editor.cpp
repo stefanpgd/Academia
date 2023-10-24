@@ -5,6 +5,7 @@
 #include "Framework/Input.h"
 #include "Framework/SceneManager.h"
 
+#include "Graphics/RayTracer.h"
 #include "Graphics/Sphere.h"
 #include "Graphics/PlaneInfinite.h"
 
@@ -48,6 +49,8 @@ bool Editor::Update(float deltaTime)
 	MenuBar();
 	PrimitiveHierachy();
 	PrimitiveCreation();
+
+	RayTracerSettings();
 
 	return sceneUpdated;
 }
@@ -130,6 +133,16 @@ void Editor::MenuBar()
 
 		ImGui::EndMainMenuBar();
 	}
+}
+
+void Editor::RayTracerSettings()
+{
+	ImGui::Begin("Ray Tracer Settings");
+	if (ImGui::DragInt("Ray Depth", &app->rayTracer->maxRayDepth, 0.02f, 1, 100)) { sceneUpdated = true; }
+	if (ImGui::DragFloat("Max Luminance Per Sample", &app->rayTracer->maxLuminance, 0.1f, 0.0f, 1000.0f)) { sceneUpdated = true; }
+	if (ImGui::DragFloat("Max Ray T", &app->rayTracer->maxT, 1.0f, 0.0f, 100000)) { sceneUpdated = true; }
+	if (ImGui::Checkbox("Use Skydome", &app->rayTracer->useSkydomeTexture)) { sceneUpdated = true; }
+	ImGui::End();
 }
 
 void Editor::PrimitiveHierachy()
