@@ -33,6 +33,7 @@ private:
 
 	void PathTracerSettings();
 	void SkydomeSettings();
+	void CameraSettings();
 
 	void PrimitiveHierachy();
 	void PrimitiveCreation();
@@ -62,4 +63,9 @@ private:
 
 	struct ImFont* baseFont;
 	struct ImFont* boldFont;
+
+	// Windows //
+	bool showPathTracerSettings = false;
+	bool showSkydomeSettings = false;
+	bool showCameraSettings = false;
 };

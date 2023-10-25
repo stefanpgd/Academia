@@ -5183,9 +5183,9 @@ bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flag
         };
         static const char* fmt_table_float[3][4] =
         {
-            {   "%0.3f",   "%0.3f",   "%0.3f",   "%0.3f" }, // Short display
-            { "R:%0.3f", "G:%0.3f", "B:%0.3f", "A:%0.3f" }, // Long display for RGBA
-            { "H:%0.3f", "S:%0.3f", "V:%0.3f", "A:%0.3f" }  // Long display for HSVA
+            {   "%0.2f",   "%0.2f",   "%0.2f",   "%0.2f" }, // Short display
+            { "R:%0.2f", "G:%0.2f", "B:%0.2f", "A:%0.2f" }, // Long display for RGBA
+            { "H:%0.2f", "S:%0.2f", "V:%0.2f", "A:%0.2f" }  // Long display for HSVA
         };
         const int fmt_idx = hide_prefix ? 0 : (flags & ImGuiColorEditFlags_DisplayHSV) ? 2 : 1;
 

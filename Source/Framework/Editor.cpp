@@ -56,6 +56,7 @@ bool Editor::Update(float deltaTime)
 
 	PathTracerSettings();
 	SkydomeSettings();
+	CameraSettings();
 
 	return sceneUpdated;
 }
@@ -80,6 +81,16 @@ void Editor::MenuBar()
 {
 	if(ImGui::BeginMainMenuBar())
 	{
+		// Window Selection //
+		if(ImGui::BeginMenu("Windows"))
+		{
+			if(ImGui::MenuItem("Path Tracer Settings", NULL, &showPathTracerSettings)) {} 
+			if(ImGui::MenuItem("Skydome Settings", NULL, &showSkydomeSettings)) {}
+			if(ImGui::MenuItem("Camera Settings", NULL, &showCameraSettings)) {}
+
+			ImGui::EndMenu();
+		}
+
 		// FPS // 
 		ImGui::PushFont(boldFont);
 		ImGui::Text("FPS:");
@@ -154,6 +165,11 @@ void Editor::MenuBar()
 
 void Editor::PathTracerSettings()
 {
+	if(!showPathTracerSettings)
+	{
+		return;
+	}
+
 	// Window Positioning & Flags //
 	const int width = 350;
 	const int height = 138;
@@ -208,6 +224,11 @@ void Editor::PathTracerSettings()
 
 void Editor::SkydomeSettings()
 {
+	if(!showSkydomeSettings)
+	{
+		return;
+	}
+
 	// Window Positioning & Flags //
 	const int width = 350;
 	const int height = 220;
@@ -275,6 +296,33 @@ void Editor::SkydomeSettings()
 
 	ImGui::Columns(1);
 	ImGui::Separator();
+
+	ImGui::PopFont();
+	ImGui::End();
+	ImGui::PopFont();
+}
+
+void Editor::CameraSettings()
+{
+	if(!showCameraSettings)
+	{
+		return;
+	}
+
+	// Window Positioning & Flags //
+	const int width = 350;
+	const int height = 220;
+	const int x = app->screenWidth - width;
+	const int y = 375;
+
+	ImGui::SetNextWindowPos(ImVec2(x, y));
+	ImGui::SetNextWindowSize(ImVec2(width, height));
+
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+
+	ImGui::PushFont(boldFont);
+	ImGui::Begin("Camera Settings", nullptr, flags);
+	ImGui::PushFont(baseFont);
 
 	ImGui::PopFont();
 	ImGui::End();
@@ -425,6 +473,7 @@ void Editor::ImGuiStyleSettings()
 	baseFont = ImGui::GetFont();
 	boldFont = io.Fonts->Fonts[1];
 
+
 	// Style //
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.ScrollbarRounding = 2;
@@ -437,6 +486,10 @@ void Editor::ImGuiStyleSettings()
 	style.FrameBorderSize = 0.5f;
 	style.FrameRounding = 3;
 	style.GrabMinSize = 5;
+
+	// Color Wheel //
+	ImGui::SetColorEditOptions(ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR | 
+		ImGuiColorEditFlags_PickerHueBar);
 
 	ImVec4* colors = ImGui::GetStyle().Colors;
 	colors[ImGuiCol_Text] = ImVec4(0.761, 0.761, 0.761, 1.00f);
