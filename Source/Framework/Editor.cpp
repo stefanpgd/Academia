@@ -54,14 +54,15 @@ bool Editor::Update(float deltaTime)
 	PrimitiveHierachy();
 	PrimitiveCreation();
 
-	RayTracerSettings();
+	PathTracerSettings();
+	SkydomeSettings();
 
 	return sceneUpdated;
 }
 
 void Editor::Render()
 {
-	if (!renderEditor)
+	if(!renderEditor)
 	{
 		return;
 	}
@@ -77,7 +78,7 @@ void Editor::SetActiveScene(Scene* scene)
 
 void Editor::MenuBar()
 {
-	if (ImGui::BeginMainMenuBar())
+	if(ImGui::BeginMainMenuBar())
 	{
 		// FPS // 
 		ImGui::PushFont(boldFont);
@@ -86,12 +87,12 @@ void Editor::MenuBar()
 
 		std::string fps = std::to_string(int(1.0f / app->deltaTime));
 		ImGui::Text(fps.c_str());
-		
+
 		ImGui::Separator();
 
 		// Average FPS //
 		float average = 0.0f;
-		for (int i = 0; i < app->FPSLogSize; i++)
+		for(int i = 0; i < app->FPSLogSize; i++)
 		{
 			average += app->FPSLog[i];
 		}
@@ -123,21 +124,21 @@ void Editor::MenuBar()
 
 		int min = int(app->timeElasped / 60.0f);
 		std::string minutes = std::to_string(min);
-		if (min < 10)
+		if(min < 10)
 		{
 			minutes = "0" + minutes;
 		}
 
 		int sec = int(app->timeElasped) % 60;
 		std::string seconds = std::to_string(sec);
-		if (sec < 10)
+		if(sec < 10)
 		{
 			seconds = "0" + seconds;
 		}
 
 		float milli = app->timeElasped - int(app->timeElasped);
 		std::string milliseconds = std::to_string(int(milli * 100.0f));
-		if (milli < 0.1f)
+		if(milli < 0.1f)
 		{
 			milliseconds = "0" + milliseconds;
 		}
@@ -151,12 +152,21 @@ void Editor::MenuBar()
 	}
 }
 
-void Editor::RayTracerSettings()
+void Editor::PathTracerSettings()
 {
-	auto baseFont = ImGui::GetFont();
+	// Window Positioning & Flags //
+	const int width = 350;
+	const int height = 138;
+	const int x = app->screenWidth - width;
+	const int y = 18;
+
+	ImGui::SetNextWindowPos(ImVec2(x, y));
+	ImGui::SetNextWindowSize(ImVec2(width, height));
+
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 
 	ImGui::PushFont(boldFont);
-	ImGui::Begin("Path Tracing Settings");
+	ImGui::Begin("Path Tracing Settings", nullptr, flags);
 	ImGui::PushFont(baseFont);
 
 	ImGui::Columns(2);
@@ -187,7 +197,82 @@ void Editor::RayTracerSettings()
 	ImGui::Text("Use Skydome");
 	ImGui::NextColumn();
 	if(ImGui::Checkbox("##4", &app->rayTracer->useSkydomeTexture)) { sceneUpdated = true; }
-	
+
+	ImGui::Columns(1);
+	ImGui::Separator();
+
+	ImGui::PopFont();
+	ImGui::End();
+	ImGui::PopFont();
+}
+
+void Editor::SkydomeSettings()
+{
+	// Window Positioning & Flags //
+	const int width = 350;
+	const int height = 220;
+	const int x = app->screenWidth - width;
+	const int y = 155;
+
+	ImGui::SetNextWindowPos(ImVec2(x, y));
+	ImGui::SetNextWindowSize(ImVec2(width, height));
+
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+
+	ImGui::PushFont(boldFont);
+	ImGui::Begin("Skydome Settings", nullptr, flags);
+	ImGui::PushFont(baseFont);
+
+	ImGui::PushFont(boldFont);
+	ImGui::SeparatorText("Skydome");
+	ImGui::PushFont(baseFont);
+
+	ImGui::Columns(2);
+
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Skydome Emission");
+	ImGui::NextColumn();
+	if(ImGui::DragFloat("##1", &app->rayTracer->scene->SkyDomeEmission, 0.01f)) { sceneUpdated = true; }
+	ImGui::NextColumn();
+
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Skydome Background Strength");
+	ImGui::NextColumn();
+	if(ImGui::DragFloat("##2", &app->rayTracer->scene->SkyDomeBackgroundStrength, 0.01f, 0.0f, 10.0f)) { sceneUpdated = true; }
+	ImGui::NextColumn();
+
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Skydome Orientation");
+	ImGui::NextColumn();
+	if(ImGui::SliderFloat("##3", &app->rayTracer->scene->SkydomeOrientation, 0.0f, 1.0f)) { sceneUpdated = true; }
+	ImGui::NextColumn();
+
+	ImGui::Columns(1);
+	ImGui::Separator();
+
+	ImGui::PushFont(boldFont);
+	ImGui::SeparatorText("Sky Color");
+	ImGui::PushFont(baseFont);
+
+	ImGui::Columns(2);
+
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Sky Color - Up");
+	ImGui::NextColumn();
+	if(ImGui::ColorEdit3("##4", &app->rayTracer->skyColorB.x)) { sceneUpdated = true; }
+	ImGui::NextColumn();
+
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Sky Color - Down");
+	ImGui::NextColumn();
+	if(ImGui::ColorEdit3("##5", &app->rayTracer->skyColorA.x)) { sceneUpdated = true; }
+	ImGui::NextColumn();
+
 	ImGui::Columns(1);
 	ImGui::Separator();
 
@@ -259,9 +344,9 @@ void Editor::PrimitiveHierachy()
 			if(ImGui::Checkbox("Is Emissive", &material->isEmissive)) { sceneUpdated = true; }
 		}
 
-		if(ImGui::Button("Delete Primitive", ImVec2(50, 20))) 
-		{ 
-			primitive->MarkedForDelete = true; 
+		if(ImGui::Button("Delete Primitive", ImVec2(50, 20)))
+		{
+			primitive->MarkedForDelete = true;
 			sceneUpdated = true;
 		}
 
@@ -337,6 +422,7 @@ void Editor::ImGuiStyleSettings()
 	io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-Regular.ttf", 13.f);
 	io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-Bold.ttf", 13.f);
 
+	baseFont = ImGui::GetFont();
 	boldFont = io.Fonts->Fonts[1];
 
 	// Style //
@@ -347,9 +433,9 @@ void Editor::ImGuiStyleSettings()
 	style.WindowBorderSize = 0.0f;
 	style.WindowTitleAlign = ImVec2(0.0, 0.5f);
 	style.WindowPadding = ImVec2(5, 1);
-	style.ItemSpacing = ImVec2(10, 5);
+	style.ItemSpacing = ImVec2(12, 5);
 	style.FrameBorderSize = 0.5f;
-	style.FrameRounding = 4;
+	style.FrameRounding = 3;
 	style.GrabMinSize = 5;
 
 	ImVec4* colors = ImGui::GetStyle().Colors;
@@ -365,7 +451,7 @@ void Editor::ImGuiStyleSettings()
 	colors[ImGuiCol_FrameBgActive] = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
 	colors[ImGuiCol_TitleBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
 	colors[ImGuiCol_TitleBgActive] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
-	colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+	colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
 	colors[ImGuiCol_MenuBarBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
 	colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
 	colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.34f, 0.34f, 0.34f, 1.00f);

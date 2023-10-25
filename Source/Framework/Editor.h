@@ -31,7 +31,8 @@ private:
 	// Editor Windows //
 	void MenuBar();
 
-	void RayTracerSettings();
+	void PathTracerSettings();
+	void SkydomeSettings();
 
 	void PrimitiveHierachy();
 	void PrimitiveCreation();
@@ -59,5 +60,6 @@ private:
 	vec3 primNormal;
 	float primScale = 0.5f;
 
+	struct ImFont* baseFont;
 	struct ImFont* boldFont;
 };

@@ -27,14 +27,14 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene*
 bool RayTracer::Update(float deltaTime)
 {
 	bool updated = false;
-	ImGui::Begin("Skybox");
-	if(ImGui::DragFloat("Max Luminance", &maxLuminance, 0.02f, 0.0f, 100.0f)) { updated = true; }
-	if(ImGui::ColorEdit3("Sky A", &skyColorA.x)) { updated = true; }
-	if(ImGui::ColorEdit3("Sky B", &skyColorB.x)) { updated = true; }
-	if(ImGui::DragFloat("Skydome Emission", &scene->SkyDomeEmission, 0.01f)) { updated = true; }
-	if(ImGui::DragFloat("Skydome Orientation", &scene->SkydomeOrientation, 0.01f, 0.0f, 1.0f)) { updated = true; }
-	if(ImGui::DragFloat("Skydome Background Emission", &scene->SkyDomeBackgroundStrength, 0.01f, 0.0f, 10.0f)) { updated = true; }
-	ImGui::End();
+	//ImGui::Begin("Skybox");
+	//if(ImGui::DragFloat("Max Luminance", &maxLuminance, 0.02f, 0.0f, 100.0f)) { updated = true; }
+	//if(ImGui::ColorEdit3("Sky A", &skyColorA.x)) { updated = true; }
+	//if(ImGui::ColorEdit3("Sky B", &skyColorB.x)) { updated = true; }
+	//if(ImGui::DragFloat("Skydome Emission", &scene->SkyDomeEmission, 0.01f)) { updated = true; }
+	//if(ImGui::DragFloat("Skydome Orientation", &scene->SkydomeOrientation, 0.01f, 0.0f, 1.0f)) { updated = true; }
+	//if(ImGui::DragFloat("Skydome Background Emission", &scene->SkyDomeBackgroundStrength, 0.01f, 0.0f, 10.0f)) { updated = true; }
+	//ImGui::End();
 
 	// Maybe in the future, let the scene manager own Camera and update it
 	return camera->Update(deltaTime) || updated;
