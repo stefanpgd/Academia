@@ -80,6 +80,9 @@ void Editor::SetActiveScene(Scene* scene)
 
 void Editor::MenuBar()
 {
+	const int staticsWidth = 550; // How wide are all the other elements
+	int FPSOffset = (app->screenWidth - staticsWidth);
+
 	if(ImGui::BeginMainMenuBar())
 	{
 		// Window Selection //
@@ -88,6 +91,8 @@ void Editor::MenuBar()
 			// Insert window options here
 			ImGui::EndMenu();
 		}
+
+		ImGui::Dummy(ImVec2(FPSOffset, 0));
 
 		// FPS // 
 		ImGui::PushFont(boldFont);

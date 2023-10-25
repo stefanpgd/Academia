@@ -222,16 +222,6 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 
 		u -= scene->SkydomeOrientation;
 		
-		if(u > 1.0f)
-		{
-			u -= 1.0f;
-		}
-
-		if(u < 0.0f)
-		{
-			u += 1.0f;
-		}
-
 		int i = (int)((1.0f - u) * width);
 		int j = (int)(v * height);
 
