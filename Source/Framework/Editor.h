@@ -70,9 +70,9 @@ private:
 	struct ImFont* boldFont;
 
 	// Windows //
-	bool showPathTracerSettings = false;
-	bool showSkydomeSettings = false;
-	bool showCameraSettings = false;
+	bool showPathTracerSettings = true;
+	bool showSkydomeSettings = true;
+	bool showCameraSettings = true;
 
 	std::vector<std::string> exrFilePaths;
 };
