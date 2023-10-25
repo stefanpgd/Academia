@@ -88,6 +88,7 @@ private:
 	bool updateScreenBuffer = false;
 	bool clearScreenBuffers = false;
 	bool resizeScreenBuffers = false;
+	bool reloadSkydome = false;
 
 	// In future, save this to a text file and load in last settings.
 	unsigned int screenWidth = 720;

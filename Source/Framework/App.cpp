@@ -229,6 +229,12 @@ void App::Render()
 			findNearestPrimitive = false;
 		}
 
+		if(reloadSkydome)
+		{
+			rayTracer->LoadSkydome();
+			reloadSkydome = false;
+		}
+
 		// Notify the workers again //
 		for(unsigned int i = 0; i < jobTiles.size(); i++)
 		{

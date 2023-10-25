@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <string>
+
 #include "Primitive.h"
 #include "Math/MathCommon.h"
 #include "Camera.h"
@@ -15,6 +17,7 @@ public:
 	vec3 Trace(int pixelX, int pixelY);
 	Primitive* SelectObject(int pixelX, int pixelY);
 	
+	void LoadSkydome();
 	void Resize(int width, int height);
 
 private:
@@ -36,7 +39,8 @@ private:
 	vec3 skyColorA = vec3(0.0f);
 	vec3 skyColorB = vec3(0.84f, 0.72f, 1.0f);
 
-	// temp image //
+	// Skydome //
+	std::string skydomePath = "Assets/EXRs/studio.exr";
 	int width, height, comp;
 	float* image;
 

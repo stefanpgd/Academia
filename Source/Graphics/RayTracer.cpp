@@ -10,18 +10,7 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene*
 {
 	camera = scene->Camera;
 
-	if(useSkydomeTexture)
-	{
-		const char* err = nullptr;
-		int result = LoadEXR(&image, &width, &height, "Assets/EXRs/studio.exr", &err);
-		comp = sizeof(float);
-
-		if(result != TINYEXR_SUCCESS)
-		{
-			fprintf(stderr, "ERR : %s\n", err);
-			FreeEXRErrorMessage(err);
-		}
-	}
+	LoadSkydome();
 }
 
 bool RayTracer::Update(float deltaTime)
@@ -207,6 +196,21 @@ void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
 		{
 			record = tempRecord;
 		}
+	}
+}
+
+void RayTracer::LoadSkydome()
+{
+	delete image;
+
+	const char* err = nullptr;
+	int result = LoadEXR(&image, &width, &height, skydomePath.c_str(), &err);
+	comp = sizeof(float);
+
+	if(result != TINYEXR_SUCCESS)
+	{
+		fprintf(stderr, "ERR : %s\n", err);
+		FreeEXRErrorMessage(err);
 	}
 }
 

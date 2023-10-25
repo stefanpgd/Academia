@@ -248,6 +248,44 @@ void Editor::SkydomeSettings()
 
 	ImGui::Separator();
 	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Active Skydome");
+	ImGui::NextColumn();
+	
+	int currentItem = 0;
+	for(int i = 0; i < exrFilePaths.size(); i++)
+	{
+		if(app->rayTracer->skydomePath == exrFilePaths[i])
+		{
+			currentItem = i;
+		}
+	}
+
+	if(ImGui::BeginCombo("##0", app->rayTracer->skydomePath.c_str()))
+	{
+		for(int i = 0; i < exrFilePaths.size(); i++)
+		{
+			bool isSelected = currentItem == i;
+
+			if(ImGui::Selectable(exrFilePaths[i].c_str(), isSelected))
+			{
+				app->rayTracer->skydomePath = exrFilePaths[i];
+				app->reloadSkydome = true;
+				sceneUpdated = true;
+			}
+
+			if(isSelected)
+			{
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+		ImGui::EndCombo();
+	}
+
+	ImGui::NextColumn();
+
+
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Emission");
 	ImGui::NextColumn();
 	if(ImGui::DragFloat("##1", &app->rayTracer->scene->SkyDomeEmission, 0.01f)) { sceneUpdated = true; }
@@ -537,8 +575,6 @@ void Editor::PrimitiveHierachy()
 	const int x = 0;
 	const int y = 400;
 
-	ImGui::ShowDemoWindow();
-
 	ImGui::SetNextWindowPos(ImVec2(x, y));
 	ImGui::SetNextWindowSize(ImVec2(width, height));
 
@@ -671,7 +707,7 @@ void Editor::PrimitiveCreation()
 
 void Editor::LoadEXRFilePaths()
 {
-	std::string path = "Assets/EXRs";
+	std::string path = "Assets/EXRs/";
 	for(const auto& file : std::filesystem::directory_iterator(path))
 	{
 		if(file.is_directory())
