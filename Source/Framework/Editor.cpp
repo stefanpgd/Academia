@@ -1,5 +1,5 @@
 #include "Editor.h"
-#include <string>
+#include <filesystem>
 
 #include "Framework/App.h"
 #include "Framework/Input.h"
@@ -8,6 +8,8 @@
 #include "Graphics/RayTracer.h"
 #include "Graphics/Sphere.h"
 #include "Graphics/PlaneInfinite.h"
+
+#include "Utilities/LogHelper.h"
 
 Editor::Editor(GLFWwindow* window, App* app, SceneManager* sceneManager) : app(app), sceneManager(sceneManager)
 {
@@ -24,6 +26,7 @@ Editor::Editor(GLFWwindow* window, App* app, SceneManager* sceneManager) : app(a
 	ImGui_ImplOpenGL3_Init("#version 460");
 
 	ImGuiStyleSettings();
+	LoadEXRFilePaths();
 }
 
 void Editor::Start()
@@ -460,6 +463,29 @@ void Editor::PrimitiveCreation()
 	}
 
 	ImGui::End();
+}
+
+void Editor::LoadEXRFilePaths()
+{
+	std::string path = "Assets/EXRs";
+	for(const auto& file : std::filesystem::directory_iterator(path))
+	{
+		if(file.is_directory())
+		{
+			continue;
+		}
+
+		std::string filePath = file.path().string();
+		std::string fileType = filePath.substr(filePath.find_last_of('.') + 1, filePath.size());
+
+		if(fileType == "exr")
+		{
+			exrFilePaths.push_back(filePath);
+		}
+	}
+
+	std::string exrCount = std::to_string(exrFilePaths.size());
+	LOG("Found '" + exrCount + "' usable EXRs inside of 'Assets/EXRs'");
 }
 
 void Editor::ImGuiStyleSettings()

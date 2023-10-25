@@ -1,9 +1,13 @@
 #pragma once
-#include "imgui.h"
-#include "imgui_internal.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
 #include <array>
+#include <string>
+#include <vector>
+
 #include "Math/Vec3.h"
 
 class GLFWwindow;
@@ -38,6 +42,7 @@ private:
 	void PrimitiveHierachy();
 	void PrimitiveCreation();
 
+	void LoadEXRFilePaths();
 	void ImGuiStyleSettings();
 
 private:
@@ -68,4 +73,6 @@ private:
 	bool showPathTracerSettings = false;
 	bool showSkydomeSettings = false;
 	bool showCameraSettings = false;
+
+	std::vector<std::string> exrFilePaths;
 };
