@@ -85,6 +85,7 @@ private:
 	std::condition_variable iterationLock;
 	std::mutex rayLock;
 
+	bool lockUserMovement = false;
 	bool updateScreenBuffer = false;
 	bool clearScreenBuffers = false;
 	bool resizeScreenBuffers = false;

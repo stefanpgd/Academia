@@ -85,12 +85,14 @@ void Editor::MenuBar()
 
 	if(ImGui::BeginMainMenuBar())
 	{
+		ImGui::Checkbox("Lock Movement", &app->lockUserMovement);
+
 		// Window Selection //
-		if(ImGui::BeginMenu("Windows"))
-		{
-			// Insert window options here
-			ImGui::EndMenu();
-		}
+		//if(ImGui::BeginMenu("Windows"))
+		//{
+		//	// Insert window options here
+		//	ImGui::EndMenu();
+		//}
 
 		ImGui::Dummy(ImVec2(FPSOffset, 0));
 

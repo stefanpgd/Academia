@@ -128,7 +128,11 @@ void App::Update(float deltaTime)
 	bool cameraUpdated = false;
 	bool sceneUpdated = false;
 
-	cameraUpdated = rayTracer->Update(deltaTime);
+	if(!lockUserMovement)
+	{
+		cameraUpdated = rayTracer->Update(deltaTime);
+	}
+
 	sceneUpdated = editor->Update(deltaTime);
 
 	if(sceneUpdated || cameraUpdated)
