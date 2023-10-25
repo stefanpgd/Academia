@@ -54,12 +54,12 @@ bool Editor::Update(float deltaTime)
 	ImGui::ShowDemoWindow();
 
 	MenuBar();
+
+	PrimitiveSelection();
 	PrimitiveHierachy();
 	PrimitiveCreation();
 
-	PathTracerSettings();
-	SkydomeSettings();
-	CameraSettings();
+	SceneSettings();
 
 	return sceneUpdated;
 }
@@ -87,10 +87,7 @@ void Editor::MenuBar()
 		// Window Selection //
 		if(ImGui::BeginMenu("Windows"))
 		{
-			if(ImGui::MenuItem("Path Tracer Settings", NULL, &showPathTracerSettings)) {} 
-			if(ImGui::MenuItem("Skydome Settings", NULL, &showSkydomeSettings)) {}
-			if(ImGui::MenuItem("Camera Settings", NULL, &showCameraSettings)) {}
-
+			// Insert window options here
 			ImGui::EndMenu();
 		}
 
@@ -166,16 +163,11 @@ void Editor::MenuBar()
 	}
 }
 
-void Editor::PathTracerSettings()
+void Editor::SceneSettings()
 {
-	if(!showPathTracerSettings)
-	{
-		return;
-	}
-
 	// Window Positioning & Flags //
 	const int width = 350;
-	const int height = 138;
+	const int height = 400;
 	const int x = app->screenWidth - width;
 	const int y = 18;
 
@@ -185,9 +177,31 @@ void Editor::PathTracerSettings()
 	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 
 	ImGui::PushFont(boldFont);
-	ImGui::Begin("Path Tracing Settings", nullptr, flags);
+	ImGui::Begin("Scene Settings", nullptr, flags);
 	ImGui::PushFont(baseFont);
 
+	if(ImGui::CollapsingHeader("Path Tracer Settings"))
+	{
+		PathTracerSettings();
+	}
+
+	if(ImGui::CollapsingHeader("Skydome Settings"))
+	{
+		SkydomeSettings();
+	}
+
+	if(ImGui::CollapsingHeader("Camera Settings"))
+	{
+		CameraSettings();
+	}
+
+	ImGui::PopFont();
+	ImGui::End();
+	ImGui::PopFont();
+}
+
+void Editor::PathTracerSettings()
+{
 	ImGui::Columns(2);
 
 	ImGui::Separator();
@@ -219,38 +233,12 @@ void Editor::PathTracerSettings()
 
 	ImGui::Columns(1);
 	ImGui::Separator();
-
-	ImGui::PopFont();
-	ImGui::End();
-	ImGui::PopFont();
 }
 
 void Editor::SkydomeSettings()
 {
-	if(!showSkydomeSettings)
-	{
-		return;
-	}
-
-	// Window Positioning & Flags //
-	const int width = 350;
-	const int height = 220;
-	const int x = app->screenWidth - width;
-	const int y = 155;
-
-	ImGui::SetNextWindowPos(ImVec2(x, y));
-	ImGui::SetNextWindowSize(ImVec2(width, height));
-
-	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
-
-	ImGui::PushFont(boldFont);
-	ImGui::Begin("Skydome Settings", nullptr, flags);
-	ImGui::PushFont(baseFont);
-
 	ImGui::PushFont(boldFont);
 	ImGui::SeparatorText("Skydome");
-	ImGui::PopFont();
-	ImGui::PushFont(baseFont);
 	ImGui::PopFont();
 
 	ImGui::Columns(2);
@@ -282,8 +270,6 @@ void Editor::SkydomeSettings()
 	ImGui::PushFont(boldFont);
 	ImGui::SeparatorText("Sky Color");
 	ImGui::PopFont();
-	ImGui::PushFont(baseFont);
-	ImGui::PopFont();
 
 	ImGui::Columns(2);
 
@@ -303,36 +289,12 @@ void Editor::SkydomeSettings()
 
 	ImGui::Columns(1);
 	ImGui::Separator();
-
-	ImGui::PopFont();
-	ImGui::End();
-	ImGui::PopFont();
 }
 
 void Editor::CameraSettings()
 {
-	if(!showCameraSettings)
-	{
-		return;
-	}
-
-	// Window Positioning & Flags //
-	const int width = 350;
-	const int height = 220;
-	const int x = app->screenWidth - width;
-	const int y = 375;
-
-	ImGui::SetNextWindowPos(ImVec2(x, y));
-	ImGui::SetNextWindowSize(ImVec2(width, height));
-
-	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
-
 	Camera* camera = app->rayTracer->camera;
 	bool cameraUpdated = false;
-
-	ImGui::PushFont(boldFont);
-	ImGui::Begin("Camera Settings", nullptr, flags);
-	ImGui::PushFont(baseFont);
 
 	ImGui::Columns(2);
 
@@ -368,20 +330,190 @@ void Editor::CameraSettings()
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Slow Multiplier");
 	ImGui::NextColumn();
-	if(ImGui::DragFloat("##5", &camera->SlowMultilplier, 0.01f, 0.0f, 100.0f)) { cameraUpdated = true; }
+	if(ImGui::DragFloat("##5", &camera->SlowMultiplier, 0.01f, 0.0f, 100.0f)) { cameraUpdated = true; }
 	ImGui::NextColumn();
 
 	ImGui::Columns(1);
-
-	ImGui::PopFont();
-	ImGui::End();
-	ImGui::PopFont();
 
 	if(cameraUpdated)
 	{
 		camera->SetupVirtualPlane(app->screenWidth, app->screenHeight);
 		sceneUpdated = true;
 	}
+}
+
+void Editor::PrimitiveSelection()
+{
+	// Window Positioning & Flags //
+	const int width = 350;
+	const int height = 365;
+	const int x = 0;
+	const int y = 19;
+
+	ImGui::SetNextWindowPos(ImVec2(x, y));
+	ImGui::SetNextWindowSize(ImVec2(width, height));
+
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+	Primitive* primitive = activeScene->primitives[0];
+	Material* material = &primitive->Material;
+
+	placeholderName = primitive->name;
+
+	ImGui::PushFont(boldFont);
+	ImGui::Begin("Primitive Editor", nullptr, flags);
+	ImGui::PushFont(baseFont);
+
+	std::string info = "Primitive Properties - " + primitive->name;
+
+	ImGui::PushFont(boldFont);
+	ImGui::SeparatorText(info.c_str());
+	ImGui::PopFont();
+	ImGui::PushFont(baseFont);
+	ImGui::PopFont();
+
+	ImGui::Columns(2);
+
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Name");
+	ImGui::NextColumn();
+	if(ImGui::InputText("##1", &placeholderName)) { primitive->name = placeholderName; }
+	ImGui::NextColumn();
+
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Position");
+	ImGui::NextColumn();
+	if(ImGui::DragFloat3("##2", &primitive->Position.x, 0.05f, 0.0f, 0.0f, "%.2f")) { sceneUpdated = true; }
+	ImGui::NextColumn();
+
+	switch(primitive->Type)
+	{
+	case PrimitiveType::Sphere:
+		Sphere* sphere = dynamic_cast<Sphere*>(primitive);
+
+		ImGui::Separator();
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("Scale");
+		ImGui::NextColumn();
+		if(ImGui::InputFloat("##3", &sphere->Radius, 0.1f, 0.5f))
+		{
+			sphere->Radius2 = sphere->Radius * sphere->Radius;
+			sceneUpdated = true;
+		}
+		ImGui::NextColumn();
+		break;
+	}
+	ImGui::Columns(1);
+	ImGui::Separator();
+
+	ImGui::PushFont(boldFont);
+	ImGui::SeparatorText("Material Properties");
+	ImGui::PopFont();
+	ImGui::PushFont(baseFont);
+	ImGui::PopFont();
+
+	ImGui::Columns(2);
+
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Color");
+	ImGui::NextColumn();
+	if(ImGui::ColorEdit3("##4", &material->Color.x, 0.01f)) { sceneUpdated = true; }
+	ImGui::NextColumn();
+
+	if(material->isDielectric)
+	{
+		ImGui::Separator();
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("Index of Refraction");
+		ImGui::NextColumn();
+		if(ImGui::DragFloat("##5", &material->IoR, 0.002f, 1.0f, 3.0f)) { sceneUpdated = true; }
+		ImGui::NextColumn();
+
+		ImGui::Separator();
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("Density");
+		ImGui::NextColumn();
+		if(ImGui::DragFloat("##6", &material->Density, 0.01, 0.0f, 100.0f)) { sceneUpdated = true; }
+		ImGui::NextColumn();
+
+		ImGui::Separator();
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("Is Dielectric");
+		ImGui::NextColumn();
+		if(ImGui::Checkbox("##7", &material->isDielectric)) { sceneUpdated = true; }
+		ImGui::NextColumn();
+	}
+	else if(material->isEmissive)
+	{
+		ImGui::Separator();
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("Emissive Strength");
+		ImGui::NextColumn();
+		if(ImGui::DragFloat("##5", &material->EmissiveStrength, 0.02f, 0.0f, 100.0f)) { sceneUpdated = true; }
+		ImGui::NextColumn();
+
+		ImGui::Separator();
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("Is Emissive");
+		ImGui::NextColumn();
+		if(ImGui::Checkbox("##6", &material->isEmissive)) { sceneUpdated = true; }
+		ImGui::NextColumn();
+	}
+	else // then material is Opaque model
+	{
+		ImGui::Separator();
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("Specularity");
+		ImGui::NextColumn();
+		if(ImGui::DragFloat("##5", &material->Specularity, 0.002f, 0.0f, 1.0f)) { sceneUpdated = true; }
+		ImGui::NextColumn();
+
+		ImGui::Separator();
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("Roughness");
+		ImGui::NextColumn();
+		if(ImGui::DragFloat("##6", &material->Roughness, 0.002f, 0.0f, 1.0f)) { sceneUpdated = true; }
+		ImGui::NextColumn();
+
+		ImGui::Separator();
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("Metalness");
+		ImGui::NextColumn();
+		if(ImGui::DragFloat("##7", &material->Metalness, 0.002f, 0.0f, 1.0f)) { sceneUpdated = true; }
+		ImGui::NextColumn();
+
+		ImGui::Separator();
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("Index of Refraction");
+		ImGui::NextColumn();
+		if(ImGui::DragFloat("##8", &material->IoR, 0.002f, 1.0f, 3.0f)) { sceneUpdated = true; }
+		ImGui::NextColumn();
+
+		ImGui::Separator();
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("Is Dielectric");
+		ImGui::NextColumn();
+		if(ImGui::Checkbox("##9", &material->isDielectric)) { sceneUpdated = true; }
+		ImGui::NextColumn();
+
+		ImGui::Separator();
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("Is Emissive");
+		ImGui::NextColumn();
+		if(ImGui::Checkbox("##10", &material->isEmissive)) { sceneUpdated = true; }
+		ImGui::NextColumn();
+	}
+
+	ImGui::Columns(1);
+	ImGui::Separator();
+
+	ImGui::PopFont();
+	ImGui::End();
+	ImGui::PopFont();
+
+	ImGui::Separator();
 }
 
 void Editor::PrimitiveHierachy()
@@ -551,7 +683,6 @@ void Editor::ImGuiStyleSettings()
 	baseFont = ImGui::GetFont();
 	boldFont = io.Fonts->Fonts[1];
 
-
 	// Style //
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.ScrollbarRounding = 2;
@@ -566,7 +697,7 @@ void Editor::ImGuiStyleSettings()
 	style.GrabMinSize = 5;
 
 	// Color Wheel //
-	ImGui::SetColorEditOptions(ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR | 
+	ImGui::SetColorEditOptions(ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR |
 		ImGuiColorEditFlags_PickerHueBar);
 
 	ImVec4* colors = ImGui::GetStyle().Colors;

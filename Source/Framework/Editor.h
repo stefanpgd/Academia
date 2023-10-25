@@ -3,6 +3,7 @@
 #include <imgui_internal.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <imgui_stdlib.h>
 
 #include <array>
 #include <string>
@@ -35,10 +36,12 @@ private:
 	// Editor Windows //
 	void MenuBar();
 
+	void SceneSettings();
 	void PathTracerSettings();
 	void SkydomeSettings();
 	void CameraSettings();
 
+	void PrimitiveSelection();
 	void PrimitiveHierachy();
 	void PrimitiveCreation();
 
@@ -69,10 +72,6 @@ private:
 	struct ImFont* baseFont;
 	struct ImFont* boldFont;
 
-	// Windows //
-	bool showPathTracerSettings = true;
-	bool showSkydomeSettings = true;
-	bool showCameraSettings = true;
-
 	std::vector<std::string> exrFilePaths;
+	std::string placeholderName;
 };
