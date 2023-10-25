@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Dependencies\ImGui\source\imgui_stdlib.cpp" />
     <ClCompile Include="Dependencies\stb\stb_image.cpp" />
     <ClCompile Include="Dependencies\stb\stb_image_write.cpp" />
     <ClCompile Include="Dependencies\tinyexr\tinyexr.cpp" />
