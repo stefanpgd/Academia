@@ -19,7 +19,7 @@ public:
 
 	float Speed = 0.25f;
 	float BoostMultiplier = 2.5f; // Holding Shift
-	float SlowMultilplier = 0.15f; // Holding Ctrl
+	float SlowMultiplier = 0.15f; // Holding Ctrl
 
 private:
 	// Screen virtual plane //

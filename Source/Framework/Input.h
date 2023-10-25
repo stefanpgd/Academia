@@ -30,7 +30,8 @@ enum class KeyCode
 	Y = GLFW_KEY_Y,
 	Z = GLFW_KEY_Z,
 	LeftShift = GLFW_KEY_LEFT_SHIFT,
-	LeftCtrl = GLFW_KEY_LEFT_CONTROL
+	LeftCtrl = GLFW_KEY_LEFT_CONTROL,
+	Escape = GLFW_KEY_ESCAPE
 };
 
 class Input

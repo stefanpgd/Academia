@@ -157,11 +157,10 @@ void App::Update(float deltaTime)
 		}
 	}
 
-	// Process input
-	// Process editor & Scene stuff...
-	// Update components like camera
-
-	// Potentially reset buffers like colorBuffer incase scene got updated
+	if(Input::GetKey(KeyCode::Escape))
+	{
+		runApp = false;
+	}
 }
 
 void App::Render()

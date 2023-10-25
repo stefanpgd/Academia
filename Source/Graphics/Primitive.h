@@ -1,5 +1,6 @@
 #pragma once
 #include "Math/MathCommon.h"
+#include <string>
 
 class Ray;
 class Primitive;
@@ -58,6 +59,7 @@ class Primitive
 public:
 	virtual void Intersect(const Ray& ray, HitRecord& record) = 0;
 
+	std::string name = "Primitive";
 	vec3 Position;
 	Material Material;
 	PrimitiveType Type;

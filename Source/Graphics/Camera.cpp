@@ -30,7 +30,7 @@ bool Camera::Update(float deltaTime)
 
 	if(Input::GetKey(KeyCode::LeftCtrl))
 	{
-		speed *= SlowMultilplier;
+		speed *= SlowMultiplier;
 	}
 
 	int forward = Input::GetKey(KeyCode::W) - Input::GetKey(KeyCode::S);
