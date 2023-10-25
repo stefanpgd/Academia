@@ -153,7 +153,11 @@ void Editor::MenuBar()
 
 void Editor::RayTracerSettings()
 {
-	ImGui::Begin("Ray Tracer Settings");
+	auto baseFont = ImGui::GetFont();
+
+	ImGui::PushFont(boldFont);
+	ImGui::Begin("Path Tracing Settings");
+	ImGui::PushFont(baseFont);
 
 	ImGui::Columns(2);
 
@@ -187,7 +191,9 @@ void Editor::RayTracerSettings()
 	ImGui::Columns(1);
 	ImGui::Separator();
 
+	ImGui::PopFont();
 	ImGui::End();
+	ImGui::PopFont();
 }
 
 void Editor::PrimitiveHierachy()
@@ -329,7 +335,7 @@ void Editor::ImGuiStyleSettings()
 
 	// Fonts //	
 	io.FontDefault = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-Regular.ttf", 13.f);
-	io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-Medium.ttf", 13.f);
+	io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-Bold.ttf", 13.f);
 
 	boldFont = io.Fonts->Fonts[1];
 
@@ -349,7 +355,7 @@ void Editor::ImGuiStyleSettings()
 	ImVec4* colors = ImGui::GetStyle().Colors;
 	colors[ImGuiCol_Text] = ImVec4(0.761, 0.761, 0.761, 1.00f);
 	colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-	colors[ImGuiCol_WindowBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+	colors[ImGuiCol_WindowBg] = ImVec4(0.118f, 0.118f, 0.118f, 1.00f);
 	colors[ImGuiCol_ChildBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
 	colors[ImGuiCol_PopupBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
 	colors[ImGuiCol_Border] = ImVec4(0.21f, 0.21f, 0.21f, 1.00f);
@@ -358,9 +364,9 @@ void Editor::ImGuiStyleSettings()
 	colors[ImGuiCol_FrameBgHovered] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
 	colors[ImGuiCol_FrameBgActive] = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
 	colors[ImGuiCol_TitleBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
-	colors[ImGuiCol_TitleBgActive] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+	colors[ImGuiCol_TitleBgActive] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
 	colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-	colors[ImGuiCol_MenuBarBg] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+	colors[ImGuiCol_MenuBarBg] = ImVec4(0.16f, 0.16f, 0.16f, 1.00f);
 	colors[ImGuiCol_ScrollbarBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
 	colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.34f, 0.34f, 0.34f, 1.00f);
 	colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.43f, 0.43f, 0.43f, 1.00f);
