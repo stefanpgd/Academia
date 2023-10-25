@@ -14,6 +14,7 @@
 class GLFWwindow;
 class App;
 class SceneManager;
+class Primitive;
 
 struct Scene;
 
@@ -58,12 +59,12 @@ private:
 
 	// Primitive Creation //
 	std::array<const char*, 4> primitiveNames{
-		"Sphere",
-		"Plane",
-		"PlaneInfinite",
-		"Triangle"
+		"Sphere        ",
+		"Plane         ",
+		"Plane Infinite",
+		"Triangle      "
 	};
-	unsigned int selectedPrimitive = 0;
+	unsigned int selectedPrimitiveType = 0;
 
 	vec3 primPosition;
 	vec3 primNormal;
@@ -74,4 +75,6 @@ private:
 
 	std::vector<std::string> exrFilePaths;
 	std::string placeholderName;
+
+	Primitive* selectedPrimitive = nullptr;
 };

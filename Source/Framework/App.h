@@ -99,7 +99,7 @@ private:
 	unsigned int bufferSize;
 
 	// deltaTime //
-	float deltaTime = 0.0f;
+	float deltaTime = 1.0f;
 	std::chrono::high_resolution_clock* clock;
 	std::chrono::milliseconds t0;
 

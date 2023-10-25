@@ -347,7 +347,7 @@ void Editor::CameraSettings()
 
 void Editor::PrimitiveSelection()
 {
-	if(!app->nearestPrimitive)
+	if(!selectedPrimitive)
 	{
 		return;
 	}
@@ -362,7 +362,7 @@ void Editor::PrimitiveSelection()
 	ImGui::SetNextWindowSize(ImVec2(width, height));
 
 	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
-	Primitive* primitive = app->nearestPrimitive;
+	Primitive* primitive = selectedPrimitive;
 	Material* material = &primitive->Material;
 
 	placeholderName = primitive->name;
@@ -523,24 +523,107 @@ void Editor::PrimitiveSelection()
 
 	ImGui::Separator();
 }
-void Editor::PrimitiveHierachy()
 
+void Editor::PrimitiveHierachy()
 {
+	if(selectedPrimitive != app->nearestPrimitive)
+	{
+		selectedPrimitive = app->nearestPrimitive;
+	}
+
+	// Window Positioning & Flags //
+	const int width = 350;
+	const int height = 400;
+	const int x = 0;
+	const int y = 400;
+
+	ImGui::ShowDemoWindow();
+
+	ImGui::SetNextWindowPos(ImVec2(x, y));
+	ImGui::SetNextWindowSize(ImVec2(width, height));
+
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+	std::vector<Primitive*>& primitives = app->rayTracer->scene->primitives;
+
+	ImGui::PushFont(boldFont);
+	ImGui::Begin("Scene Hierarchy");
+	ImGui::PushFont(baseFont);
+
+	ImGui::Separator();
+	ImGui::Indent(8.0f);
+
+	for(int i = 0; i < primitives.size(); i++)
+	{
+		ImGui::PushID(i);
+
+		ImGui::Bullet();
+
+		Primitive* primitive = primitives[i];
+		std::string name = primitive->name.c_str();
+
+
+		bool isSelected = primitive == selectedPrimitive;
+		if(ImGui::Selectable(name.c_str(), isSelected))
+		{
+			selectedPrimitive = primitive;
+			app->nearestPrimitive = primitive;
+		}
+
+		if(isSelected)
+		{
+			ImGui::SetItemDefaultFocus();
+		}
+
+		ImGui::SameLine();
+		ImGui::Text("-");
+		ImGui::SameLine();
+		ImGui::Text(primitiveNames[int(primitive->Type)]);
+		
+		ImGui::SameLine();
+		ImGui::Text("-");
+
+		ImGui::SameLine();
+		if(primitive->Material.isDielectric)
+		{
+			ImGui::Text("Dielectric");
+		}
+		else if(primitive->Material.isEmissive)
+		{
+			ImGui::Text("Emissive");
+		}
+		else if(primitive->Material.Specularity > 0.99f)
+		{
+			ImGui::Text("Pure Specular");
+		}
+		else
+		{
+			ImGui::Text("Opaque");
+		}
+
+		ImGui::PopID();
+	}
+
+	ImGui::Unindent(8.0f);
+	ImGui::Separator();
+
+	ImGui::PopFont();
+	ImGui::End();
+	ImGui::PopFont();
 }
 
 void Editor::PrimitiveCreation()
 {
 	ImGui::Begin("Primitive Creation");
 
-	if(ImGui::BeginCombo("Primitive Type", primitiveNames[selectedPrimitive]))
+	if(ImGui::BeginCombo("Primitive Type", primitiveNames[selectedPrimitiveType]))
 	{
 		for(int i = 0; i < primitiveNames.size(); i++)
 		{
-			bool isSelected = primitiveNames[i] == primitiveNames[selectedPrimitive];
+			bool isSelected = primitiveNames[i] == primitiveNames[selectedPrimitiveType];
 
 			if(ImGui::Selectable(primitiveNames[i], isSelected))
 			{
-				selectedPrimitive = i;
+				selectedPrimitiveType = i;
 			}
 
 			if(isSelected)
@@ -552,7 +635,7 @@ void Editor::PrimitiveCreation()
 		ImGui::EndCombo();
 	}
 
-	PrimitiveType type = PrimitiveType(selectedPrimitive);
+	PrimitiveType type = PrimitiveType(selectedPrimitiveType);
 	switch(type)
 	{
 	case PrimitiveType::Sphere:
