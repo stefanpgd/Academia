@@ -13,6 +13,7 @@ public:
 
 	bool Update(float deltaTime);
 	vec3 Trace(int pixelX, int pixelY);
+	Primitive* SelectObject(int pixelX, int pixelY);
 	
 	void Resize(int width, int height);
 

@@ -15,6 +15,7 @@ class GLFWwindow;
 class RayTracer;
 class Editor;
 class SceneManager;
+class Primitive;
 
 enum class TileState
 {
@@ -72,6 +73,8 @@ private:
 
 	// Ray Tracer //
 	RayTracer* rayTracer;
+	bool findNearestPrimitive = false;
+	Primitive* nearestPrimitive = nullptr;
 
 	// Multi-threading //
 	int threadsAvailable;

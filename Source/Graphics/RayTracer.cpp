@@ -49,6 +49,16 @@ vec3 RayTracer::Trace(int pixelX, int pixelY)
 	return outputColor;
 }
 
+Primitive* RayTracer::SelectObject(int pixelX, int pixelY)
+{
+	Ray ray = camera->GetRay(pixelX, pixelY);
+	HitRecord record;
+	record.t = maxT;
+
+	IntersectScene(ray, record);
+	return record.Primitive;
+}
+
 void RayTracer::Resize(int width, int height)
 {
 	camera->SetupVirtualPlane(width, height);

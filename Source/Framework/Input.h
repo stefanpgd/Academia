@@ -29,18 +29,27 @@ enum class KeyCode
 	X = GLFW_KEY_X,
 	Y = GLFW_KEY_Y,
 	Z = GLFW_KEY_Z,
+
 	LeftShift = GLFW_KEY_LEFT_SHIFT,
 	LeftCtrl = GLFW_KEY_LEFT_CONTROL,
 	Escape = GLFW_KEY_ESCAPE
+};
+
+enum class MouseCode
+{
+	Left = GLFW_MOUSE_BUTTON_LEFT,
+	Right = GLFW_MOUSE_BUTTON_RIGHT,
+	Middle = GLFW_MOUSE_BUTTON_MIDDLE
 };
 
 class Input
 {
 public:
 	static bool GetKey(KeyCode key);
+	static bool GetMouseButton(MouseCode button);
 
-	//static glm::vec2 GetMousePosition();
-	//static void LockCursor(bool lock);
+	static int GetMouseX();
+	static int GetMouseY();
 
 private:
 	static void Initialize(GLFWwindow* window);
@@ -48,7 +57,8 @@ private:
 	static void InputMouseCallback(GLFWwindow* window, double x, double y);
 
 	static inline GLFWwindow* window;
-	//static inline glm::vec2 lastMousePosition;
+	static inline float lastMouseX;
+	static inline float lastMouseY;
 
 	friend class App;
 };

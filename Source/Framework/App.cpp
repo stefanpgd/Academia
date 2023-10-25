@@ -157,9 +157,15 @@ void App::Update(float deltaTime)
 		}
 	}
 
-	if(Input::GetKey(KeyCode::Escape))
+	if(Input::GetMouseButton(MouseCode::Left) && !findNearestPrimitive)
 	{
-		runApp = false;
+		ImGuiIO& io = ImGui::GetIO();
+
+		// Check if mouse is not hovering above ImGui windows
+		if(!io.WantCaptureMouse)
+		{
+			findNearestPrimitive = true;
+		}
 	}
 }
 
@@ -206,6 +212,21 @@ void App::Render()
 
 			memset(colorBuffer, 0.0f, sizeof(vec3) * bufferSize);
 			clearScreenBuffers = false;
+		}
+
+		if(findNearestPrimitive)
+		{
+			float x = Input::GetMouseX();
+			float y = screenHeight - Input::GetMouseY();
+
+			Primitive* prim = rayTracer->SelectObject(x, y);
+
+			if(prim != nullptr)
+			{
+				nearestPrimitive = prim;
+			}
+
+			findNearestPrimitive = false;
 		}
 
 		// Notify the workers again //

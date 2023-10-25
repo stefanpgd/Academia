@@ -42,7 +42,7 @@ struct HitRecord
 	float t;
 	vec3 HitPoint;
 	vec3 Normal;
-	Primitive* Primitive;
+	Primitive* Primitive = nullptr;
 	bool InsideMedium = false;
 };
 
