@@ -43,7 +43,7 @@ private:
 	void CameraSettings();
 
 	void PrimitiveSelection();
-	void PrimitiveHierachy();
+	void PrimitiveHierarchy();
 	void PrimitiveCreation();
 
 	void LoadEXRFilePaths();

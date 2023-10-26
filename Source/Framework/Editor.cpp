@@ -54,7 +54,7 @@ bool Editor::Update(float deltaTime)
 	MenuBar();
 
 	PrimitiveSelection();
-	PrimitiveHierachy();
+	PrimitiveHierarchy();
 	PrimitiveCreation();
 
 	SceneSettings();
@@ -225,13 +225,6 @@ void Editor::PathTracerSettings()
 
 	ImGui::Separator();
 	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Max Ray T");
-	ImGui::NextColumn();
-	if(ImGui::DragFloat("##3", &app->rayTracer->maxT, 1.0f, 0.0f, 100000)) { sceneUpdated = true; }
-	ImGui::NextColumn();
-
-	ImGui::Separator();
-	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Use Skydome");
 	ImGui::NextColumn();
 	if(ImGui::Checkbox("##4", &app->rayTracer->useSkydomeTexture)) { sceneUpdated = true; }
@@ -262,7 +255,7 @@ void Editor::SkydomeSettings()
 		}
 	}
 
-	if(ImGui::BeginCombo("##0", app->rayTracer->skydomePath.c_str()))
+	if(ImGui::BeginCombo("##5", app->rayTracer->skydomePath.c_str()))
 	{
 		for(int i = 0; i < exrFilePaths.size(); i++)
 		{
@@ -290,21 +283,21 @@ void Editor::SkydomeSettings()
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Emission");
 	ImGui::NextColumn();
-	if(ImGui::DragFloat("##1", &app->rayTracer->scene->SkyDomeEmission, 0.01f)) { sceneUpdated = true; }
+	if(ImGui::DragFloat("##6", &app->rayTracer->scene->SkyDomeEmission, 0.01f)) { sceneUpdated = true; }
 	ImGui::NextColumn();
 
 	ImGui::Separator();
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Background Strength");
 	ImGui::NextColumn();
-	if(ImGui::DragFloat("##2", &app->rayTracer->scene->SkyDomeBackgroundStrength, 0.01f, 0.0f, 10.0f)) { sceneUpdated = true; }
+	if(ImGui::DragFloat("##7", &app->rayTracer->scene->SkyDomeBackgroundStrength, 0.01f, 0.0f, 10.0f)) { sceneUpdated = true; }
 	ImGui::NextColumn();
 
 	ImGui::Separator();
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Orientation");
 	ImGui::NextColumn();
-	if(ImGui::SliderFloat("##3", &app->rayTracer->scene->SkydomeOrientation, 0.0f, 1.0f)) { sceneUpdated = true; }
+	if(ImGui::SliderFloat("##8", &app->rayTracer->scene->SkydomeOrientation, 0.0f, 1.0f)) { sceneUpdated = true; }
 	ImGui::NextColumn();
 
 	ImGui::Columns(1);
@@ -320,14 +313,14 @@ void Editor::SkydomeSettings()
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Color - Up");
 	ImGui::NextColumn();
-	if(ImGui::ColorEdit3("##4", &app->rayTracer->skyColorB.x)) { sceneUpdated = true; }
+	if(ImGui::ColorEdit3("##9", &app->rayTracer->skyColorB.x)) { sceneUpdated = true; }
 	ImGui::NextColumn();
 
 	ImGui::Separator();
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Color - Down");
 	ImGui::NextColumn();
-	if(ImGui::ColorEdit3("##5", &app->rayTracer->skyColorA.x)) { sceneUpdated = true; }
+	if(ImGui::ColorEdit3("##10", &app->rayTracer->skyColorA.x)) { sceneUpdated = true; }
 	ImGui::NextColumn();
 
 	ImGui::Columns(1);
@@ -345,35 +338,35 @@ void Editor::CameraSettings()
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Position");
 	ImGui::NextColumn();
-	if(ImGui::DragFloat3("##1", &camera->Position.x, 0.05f, 0.0f, 0.0f, "%.2f")) { cameraUpdated = true; }
+	if(ImGui::DragFloat3("##11", &camera->Position.x, 0.05f, 0.0f, 0.0f, "%.2f")) { cameraUpdated = true; }
 	ImGui::NextColumn();
 
 	ImGui::Separator();
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("View Direction");
 	ImGui::NextColumn();
-	if(ImGui::DragFloat3("##2", &camera->ViewDirection.x, 0.01f, 0.0f, 0.0f, "%.2f")) { cameraUpdated = true; }
+	if(ImGui::DragFloat3("##12", &camera->ViewDirection.x, 0.01f, 0.0f, 0.0f, "%.2f")) { cameraUpdated = true; }
 	ImGui::NextColumn();
 
 	ImGui::Separator();
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Move Speed");
 	ImGui::NextColumn();
-	if(ImGui::DragFloat("##3", &camera->Speed, 0.01f, 0.0f, 100.0f)) { cameraUpdated = true; }
+	if(ImGui::DragFloat("##13", &camera->Speed, 0.01f, 0.0f, 100.0f)) { cameraUpdated = true; }
 	ImGui::NextColumn();
 
 	ImGui::Separator();
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Boost Multiplier");
 	ImGui::NextColumn();
-	if(ImGui::DragFloat("##4", &camera->BoostMultiplier, 0.01f, 0.0f, 100.0f)) { cameraUpdated = true; }
+	if(ImGui::DragFloat("##14", &camera->BoostMultiplier, 0.01f, 0.0f, 100.0f)) { cameraUpdated = true; }
 	ImGui::NextColumn();
 
 	ImGui::Separator();
 	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Slow Multiplier");
 	ImGui::NextColumn();
-	if(ImGui::DragFloat("##5", &camera->SlowMultiplier, 0.01f, 0.0f, 100.0f)) { cameraUpdated = true; }
+	if(ImGui::DragFloat("##15", &camera->SlowMultiplier, 0.01f, 0.0f, 100.0f)) { cameraUpdated = true; }
 	ImGui::NextColumn();
 
 	ImGui::Columns(1);
@@ -389,7 +382,7 @@ void Editor::PrimitiveSelection()
 {
 	if(!selectedPrimitive)
 	{
-		return;
+		//return;
 	}
 
 	// Window Positioning & Flags //
@@ -560,11 +553,9 @@ void Editor::PrimitiveSelection()
 	ImGui::PopFont();
 	ImGui::End();
 	ImGui::PopFont();
-
-	ImGui::Separator();
 }
 
-void Editor::PrimitiveHierachy()
+void Editor::PrimitiveHierarchy()
 {
 	if(selectedPrimitive != app->nearestPrimitive)
 	{
