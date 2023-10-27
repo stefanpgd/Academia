@@ -77,4 +77,10 @@ private:
 	std::string placeholderName;
 
 	Primitive* selectedPrimitive = nullptr;
+
+	// Windows States //
+	bool showSceneHierarchy = true;
+	bool showPrimitiveSelection = true;
+	bool showSceneSettings = true;
+	bool showPrimitiveCreation = true;
 };

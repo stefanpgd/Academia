@@ -88,11 +88,15 @@ void Editor::MenuBar()
 		ImGui::Checkbox("Lock Movement", &app->lockUserMovement);
 
 		// Window Selection //
-		//if(ImGui::BeginMenu("Windows"))
-		//{
-		//	// Insert window options here
-		//	ImGui::EndMenu();
-		//}
+		if(ImGui::BeginMenu("Windows"))
+		{
+			if (ImGui::MenuItem("Primitive Selection", NULL, &showPrimitiveSelection)) {}
+			if (ImGui::MenuItem("Primitive Creation", NULL, &showPrimitiveCreation)) {}
+			if (ImGui::MenuItem("Scene Hierarchy", NULL, &showSceneHierarchy)) {}
+			if (ImGui::MenuItem("Scene Settings", NULL, &showSceneSettings)) {}
+
+			ImGui::EndMenu();
+		}
 
 		ImGui::Dummy(ImVec2(FPSOffset, 0));
 
@@ -170,11 +174,23 @@ void Editor::MenuBar()
 
 void Editor::SceneSettings()
 {
+	if (!showSceneSettings)
+	{
+		return;
+	}
+
 	// Window Positioning & Flags //
 	const int width = 350;
-	const int height = 400;
+	const int height = 200;
 	const int x = app->screenWidth - width;
-	const int y = 18;
+	int y = 18;
+
+	// If selectedPrimitive is not 'NUll/nullptr' 
+	// then the PrimitiveSelection window is open, thus it needs to move down
+	if (selectedPrimitive)
+	{
+		y += 365;
+	}
 
 	ImGui::SetNextWindowPos(ImVec2(x, y));
 	ImGui::SetNextWindowSize(ImVec2(width, height));
@@ -380,15 +396,22 @@ void Editor::CameraSettings()
 
 void Editor::PrimitiveSelection()
 {
+	if (!showPrimitiveSelection)
+	{
+		return;
+	}
+
+	// if no primitive is selected, than there is no primitive
+	// to showcase details for.
 	if(!selectedPrimitive)
 	{
-		//return;
+		return;
 	}
 
 	// Window Positioning & Flags //
 	const int width = 350;
 	const int height = 365;
-	const int x = 0;
+	const int x = app->screenWidth - width;
 	const int y = 19;
 
 	ImGui::SetNextWindowPos(ImVec2(x, y));
@@ -557,16 +580,21 @@ void Editor::PrimitiveSelection()
 
 void Editor::PrimitiveHierarchy()
 {
+	if (!showSceneHierarchy)
+	{
+		return;
+	}
+
 	if(selectedPrimitive != app->nearestPrimitive)
 	{
 		selectedPrimitive = app->nearestPrimitive;
 	}
 
 	// Window Positioning & Flags //
-	const int width = 350;
-	const int height = 400;
+	const int width = 300;
+	const int height = 300;
 	const int x = 0;
-	const int y = 400;
+	const int y = 19;
 
 	ImGui::SetNextWindowPos(ImVec2(x, y));
 	ImGui::SetNextWindowSize(ImVec2(width, height));
@@ -575,7 +603,7 @@ void Editor::PrimitiveHierarchy()
 	std::vector<Primitive*>& primitives = app->rayTracer->scene->primitives;
 
 	ImGui::PushFont(boldFont);
-	ImGui::Begin("Scene Hierarchy");
+	ImGui::Begin("Scene Hierarchy", NULL, flags);
 	ImGui::PushFont(baseFont);
 
 	ImGui::Separator();
@@ -642,6 +670,11 @@ void Editor::PrimitiveHierarchy()
 
 void Editor::PrimitiveCreation()
 {
+	if (!showPrimitiveCreation)
+	{
+		return;
+	}
+
 	ImGui::Begin("Primitive Creation");
 
 	if(ImGui::BeginCombo("Primitive Type", primitiveNames[selectedPrimitiveType]))
