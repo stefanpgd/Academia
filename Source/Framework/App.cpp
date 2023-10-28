@@ -34,7 +34,7 @@ App::App()
 
 	glfwSetErrorCallback(GLFWErrorCallback);
 
-	if (!glfwInit())
+	if(!glfwInit())
 	{
 		// Check out again how to retrieve errors from GLFW
 		LOG(Log::MessageType::Error, "GLFW didn't intialize properly");
@@ -44,7 +44,7 @@ App::App()
 	LOG("Succesfully initialized GLFW.");
 	window = glfwCreateWindow(screenWidth, screenHeight, appName.c_str(), NULL, NULL);
 
-	if (!window)
+	if(!window)
 	{
 		LOG(Log::MessageType::Error, "Failed to create a GLFW window!");
 		assert(false);
@@ -94,7 +94,7 @@ void App::Run()
 	clock = new std::chrono::high_resolution_clock();
 	t0 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock->now())).time_since_epoch();
 
-	while (runApp)
+	while(runApp)
 	{
 		Start();
 		Update(deltaTime);
@@ -140,6 +140,17 @@ void App::Update(float deltaTime)
 		clearScreenBuffers = true;
 	}
 
+	// In case we reached our target frame count
+	// we want to check if either something got updated or resized
+	// If so, we force the screen to update again, and the path tracer restarts.
+	if(frameCount == targetSampleCount)
+	{
+		if(clearScreenBuffers || resizeScreenBuffers)
+		{
+			updateScreenBuffer = true;
+		}
+	}
+
 	if(workIndex < 0)
 	{
 		// All jobs have been picked up, check if they are done as well
@@ -170,6 +181,21 @@ void App::Update(float deltaTime)
 		{
 			findNearestPrimitive = true;
 		}
+	}
+
+	if(findNearestPrimitive)
+	{
+		float x = Input::GetMouseX();
+		float y = screenHeight - Input::GetMouseY();
+
+		Primitive* prim = rayTracer->SelectObject(x, y);
+
+		if(prim != nullptr)
+		{
+			nearestPrimitive = prim;
+		}
+
+		findNearestPrimitive = false;
 	}
 }
 
@@ -218,39 +244,27 @@ void App::Render()
 			clearScreenBuffers = false;
 		}
 
-		if(findNearestPrimitive)
-		{
-			float x = Input::GetMouseX();
-			float y = screenHeight - Input::GetMouseY();
-
-			Primitive* prim = rayTracer->SelectObject(x, y);
-
-			if(prim != nullptr)
-			{
-				nearestPrimitive = prim;
-			}
-
-			findNearestPrimitive = false;
-		}
-
 		if(reloadSkydome)
 		{
 			rayTracer->LoadSkydome();
 			reloadSkydome = false;
 		}
 
-		// Notify the workers again //
 		for(unsigned int i = 0; i < jobTiles.size(); i++)
 		{
 			jobTiles[i].State = TileState::ToDo;
 		}
 
-		workIndex.store(jobTiles.size() - 1);
-		iterationLock.notify_all();
-
-		timeElasped += deltaTime;
-		FPSLog[frameCount % FPSLogSize] = deltaTime;
 		frameCount++;
+		if(frameCount < targetSampleCount)
+		{
+			// Notify the workers again //
+			workIndex.store(jobTiles.size() - 1);
+			iterationLock.notify_all();
+
+			timeElasped += deltaTime;
+			FPSLog[frameCount % FPSLogSize] = deltaTime;
+		}
 
 		updateScreenBuffer = false;
 	}
@@ -272,7 +286,7 @@ void App::ResizeBuffers(int width, int height)
 
 	screenBuffer = new unsigned int[bufferSize];
 	colorBuffer = new vec3[bufferSize];
-	
+
 	clearScreenBuffers = true;
 	ResizeJobTiles();
 

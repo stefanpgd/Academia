@@ -75,7 +75,7 @@ void Camera::SetupVirtualPlane(unsigned int screenWidth, unsigned int screenHeig
 	screenCenter = Position + ViewDirection;
 
 	screenP0 = screenCenter + vec3(-0.5f - xOffset, -0.5f, 0.0f);		// Bottom Left
-	screenP1 = screenCenter + vec3(0.5f	 + xOffset, -0.5, 0.0f);		// Bottom Right
+	screenP1 = screenCenter + vec3(0.5f + xOffset, -0.5, 0.0f);		// Bottom Right
 	screenP2 = screenCenter + vec3(-0.5f - xOffset, 0.5f, 0.0f);		// Top left
 
 	screenU = screenP1 - screenP0;
@@ -88,14 +88,15 @@ void Camera::SetupVirtualPlane(unsigned int screenWidth, unsigned int screenHeig
 Ray Camera::GetRay(int pixelX, int pixelY)
 {
 	// determine where on the virtual screen we need to be //
-	float xScale = pixelX / float(screenWidth);
-	float yScale = pixelY / float(screenHeight);
+	// Note: position is treated as the top-left corner of a pixel 
+	float posX = pixelX / float(screenWidth);
+	float posY = pixelY / float(screenHeight);
 
-	// Anti-Aliasing (Monte-Carlo? - Double check the lecture)
-	xScale += RandomInRange(-pixelSizeX, pixelSizeX);
-	yScale += RandomInRange(-pixelSizeY, pixelSizeY);
+	// Anti-Aliasing (Monte-Carlo)
+	posX += RandomInRange(-pixelSizeX, pixelSizeX);
+	posY += RandomInRange(-pixelSizeY, pixelSizeY);
 
-	vec3 screenPoint = screenP0 + (screenU * xScale) + (screenV * yScale);
+	vec3 screenPoint = screenP0 + (screenU * posX) + (screenV * posY);
 	vec3 rayDirection = Normalize(screenPoint - Position);
 
 	return Ray(Position, rayDirection);

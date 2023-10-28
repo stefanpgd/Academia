@@ -51,6 +51,11 @@ bool Editor::Update(float deltaTime)
 		return false;
 	}
 
+	if(selectedPrimitive != app->nearestPrimitive)
+	{
+		selectedPrimitive = app->nearestPrimitive;
+	}
+
 	MenuBar();
 
 	PrimitiveSelection();
@@ -80,7 +85,7 @@ void Editor::SetActiveScene(Scene* scene)
 
 void Editor::MenuBar()
 {
-	const int staticsWidth = 550; // How wide are all the other elements
+	const int staticsWidth = 690; // How wide are all the other elements
 	int FPSOffset = (app->screenWidth - staticsWidth);
 
 	if(ImGui::BeginMainMenuBar())
@@ -583,11 +588,6 @@ void Editor::PrimitiveHierarchy()
 	if (!showSceneHierarchy)
 	{
 		return;
-	}
-
-	if(selectedPrimitive != app->nearestPrimitive)
-	{
-		selectedPrimitive = app->nearestPrimitive;
 	}
 
 	// Window Positioning & Flags //
