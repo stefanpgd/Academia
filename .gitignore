@@ -31,3 +31,6 @@
 .vs
 Build
 imgui.ini
+
+Screenshots/*
+!Screenshots/Latest/

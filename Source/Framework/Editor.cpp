@@ -103,6 +103,11 @@ void Editor::MenuBar()
 			ImGui::EndMenu();
 		}
 
+		if(ImGui::Button("Take Screenshot"))
+		{
+			app->takeScreenshot = true;
+		}
+
 		ImGui::Dummy(ImVec2(FPSOffset, 0));
 
 		// FPS // 
@@ -628,7 +633,6 @@ void Editor::PrimitiveHierarchy()
 
 		Primitive* primitive = primitives[i];
 		std::string name = primitive->name.c_str();
-
 
 		bool isSelected = primitive == selectedPrimitive;
 		if(ImGui::Selectable(name.c_str(), isSelected))

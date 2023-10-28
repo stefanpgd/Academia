@@ -5,6 +5,7 @@
 #include <vector>
 #include <cmath>
 #include <fstream>
+#include <stb_image_write.h>
 
 #include "Input.h"
 #include "Editor.h"
@@ -127,6 +128,12 @@ void App::Update(float deltaTime)
 {
 	bool cameraUpdated = false;
 	bool sceneUpdated = false;
+
+	if(takeScreenshot)
+	{
+		takeScreenshot = false;
+		MakeScreenshot();
+	}
 
 	if(!lockUserMovement)
 	{
@@ -400,4 +407,34 @@ void App::SaveApplicationSettings()
 	appSettings << screenHeight << "\n";
 
 	LOG("Application settings succesfully saved!");
+}
+
+void App::MakeScreenshot()
+{
+	unsigned int stride = screenWidth * sizeof(unsigned int);
+	unsigned int* screenshotBuffer = new unsigned int[screenWidth * screenHeight];
+
+	for(int x = 0; x < screenWidth; x++)
+	{
+		for(int y = 0; y < screenHeight; y++)
+		{
+			int index = x + y * screenWidth;
+			unsigned int c = screenBuffer[index];
+			c += (255 << 24);
+			screenshotBuffer[index] = c;
+		}
+	}
+
+	std::string timeStamp = std::to_string(time(NULL));
+	std::string path = screenshotPath + timeStamp + ".png";
+
+	stbi_flip_vertically_on_write(true);
+
+	// Regular screenshot, using timestamp as name //
+	stbi_write_png(path.c_str(), screenWidth, screenHeight, 4, screenshotBuffer, stride);
+
+	// Screenshot that will be used for github readme //
+	stbi_write_png(lastestScreenshotPath.c_str(), screenWidth, screenHeight, 4, screenshotBuffer, stride);
+
+	delete[] screenshotBuffer;
 }

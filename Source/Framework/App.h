@@ -56,10 +56,14 @@ private:
 	void LoadApplicationSettings();
 	void SaveApplicationSettings();
 
+	void MakeScreenshot();
+
 private:
 	bool runApp = true;
 	std::string appName = "Academia";
 	std::string appSettingsFile = "Settings/app.settings";
+	std::string screenshotPath = "Screenshots/";
+	std::string lastestScreenshotPath = "Screenshots/latest.png";
 	GLFWwindow* window;
 
 	Editor* editor;
@@ -86,11 +90,13 @@ private:
 	std::condition_variable iterationLock;
 	std::mutex rayLock;
 
+	// Actions to take // 
 	bool lockUserMovement = false;
 	bool updateScreenBuffer = false;
 	bool clearScreenBuffers = false;
 	bool resizeScreenBuffers = false;
 	bool reloadSkydome = false;
+	bool takeScreenshot = false;
 
 	// Default screen size parameters
 	unsigned int screenWidth = 720;
