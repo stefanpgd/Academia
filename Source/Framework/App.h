@@ -63,7 +63,7 @@ private:
 	std::string appName = "Academia";
 	std::string appSettingsFile = "Settings/app.settings";
 	std::string screenshotPath = "Screenshots/";
-	std::string lastestScreenshotPath = "Screenshots/latest.png";
+	std::string lastestScreenshotPath = "Screenshots/Latest/latest.png";
 	GLFWwindow* window;
 
 	Editor* editor;
