@@ -143,7 +143,7 @@ void App::Update(float deltaTime)
 	// In case we reached our target frame count
 	// we want to check if either something got updated or resized
 	// If so, we force the screen to update again, and the path tracer restarts.
-	if(frameCount == targetSampleCount)
+	if(frameCount >= targetSampleCount)
 	{
 		if(clearScreenBuffers || resizeScreenBuffers)
 		{

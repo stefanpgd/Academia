@@ -232,6 +232,17 @@ void Editor::PathTracerSettings()
 
 	ImGui::Separator();
 	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Target Sample Count");
+	ImGui::NextColumn();
+	if(ImGui::DragInt("##0", &app->targetSampleCount, 50, 0, 1000000)) 
+	{ 
+		sceneUpdated = true; 
+		app->updateScreenBuffer = true; 
+	}
+	ImGui::NextColumn();
+
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
 	ImGui::Text("Max Luminance Per Frame");
 	ImGui::NextColumn();
 	if(ImGui::DragFloat("##1", &app->rayTracer->maxLuminance, 0.1f, 0.0f, 1000.0f)) { sceneUpdated = true; }

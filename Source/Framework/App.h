@@ -70,6 +70,7 @@ private:
 	int frameCount = 1;
 	float* FPSLog;
 	const int FPSLogSize = 30;
+	int targetSampleCount = 100000;
 
 	// Ray Tracer //
 	RayTracer* rayTracer;
@@ -91,7 +92,7 @@ private:
 	bool resizeScreenBuffers = false;
 	bool reloadSkydome = false;
 
-	// In future, save this to a text file and load in last settings.
+	// Default screen size parameters
 	unsigned int screenWidth = 720;
 	unsigned int screenHeight = 720;
 
