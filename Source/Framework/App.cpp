@@ -222,9 +222,10 @@ void App::Render()
 				vec3 output = colorBuffer[i];
 				output = output * (1.0f / (float)frameCount);
 
-				output.x = Clamp(sqrtf(output.x), 0.0f, 1.0f);
-				output.y = Clamp(sqrtf(output.y), 0.0f, 1.0f);
-				output.z = Clamp(sqrtf(output.z), 0.0f, 1.0f);
+				float g = 1.0f / 2.2f;
+				output.x = pow(Clamp(output.x, 0.0f, 1.0f), g);
+				output.y = pow(Clamp(output.y, 0.0f, 1.0f), g);
+				output.z = pow(Clamp(output.z, 0.0f, 1.0f), g);
 
 				screenBuffer[i] = AlbedoToRGB(output.x, output.y, output.z);
 			}
