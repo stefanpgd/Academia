@@ -85,7 +85,7 @@ void Editor::SetActiveScene(Scene* scene)
 
 void Editor::MenuBar()
 {
-	const int staticsWidth = 690; // How wide are all the other elements
+	const int staticsWidth = 800; 
 	int FPSOffset = (app->screenWidth - staticsWidth);
 
 	if(ImGui::BeginMainMenuBar())

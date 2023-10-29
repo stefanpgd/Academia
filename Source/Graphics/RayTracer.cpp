@@ -71,104 +71,7 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 
 	vec3 illumination = vec3(0.0f);
 
-	if(record.t < maxT)
-	{
-		const Material& material = record.Primitive->Material;
-
-		if(material.isEmissive)
-		{
-			// Emissive materials don't receive shading or bounce
-			// They are considered to be lights.
-			return material.Color * material.EmissiveStrength;
-		}
-
-		if(material.isDielectric)
-		{
-			float reflectance = Fresnel(ray.Direction, record.Normal, material.IoR);
-			float transmittance = 1.0f - reflectance;
-
-			// Reflection //
-			Ray reflectedRay = Ray(record.HitPoint, Reflect(ray.Direction, record.Normal));
-			illumination += TraverseScene(reflectedRay, depth, record) * reflectance;
-
-			// Refraction // 
-			vec3 Rt = Refract(ray.Direction, record.Normal, material.IoR);
-			Ray refractedRay = Ray(record.HitPoint + Rt * EPSILONSMALL, Rt);
-
-			vec3 c = material.Color;
-			if(record.InsideMedium)
-			{
-				float transmittedDistance = (record.HitPoint - lastRecord.HitPoint).Magnitude();
-				float beer = expf(-material.Density * transmittedDistance);
-				c = c * beer;
-			}
-
-			illumination += c * TraverseScene(refractedRay, depth, record) * transmittance;
-		}
-		else
-		{
-			vec3 bounceDir = RandomUnitVector();
-			if(Dot(bounceDir, record.Normal) < 0.0f)
-			{
-				bounceDir = bounceDir * -1.0f;
-			}
-
-			Ray bounceRay = Ray(record.HitPoint, bounceDir);
-
-			vec3 BRDF = vec3(0.0f);
-			float diff = 0.0f;
-			float spec = 0.0f;
-
-			// Is mirror
-			if(material.Specularity >= 0.999f)
-			{
-				diff = 0.0f;
-				spec = 1.0f;
-			}
-			else // Exhibits diffuse & specular behaviour, include fresnel
-			{
-				float fresnel = Fresnel(ray.Direction, record.Normal, material.IoR);
-				spec = min(material.Specularity + fresnel, 1.0f);
-				diff = 1.0f - spec;
-			}
-
-			if(diff > 0.0f)
-			{
-				BRDF += diff * (material.Color * INVPI);
-			}
-
-			if(spec > 0.0f)
-			{
-				Ray reflectRay;
-
-				if(material.Roughness > 0.0f)
-				{
-					vec3 offset = RandomUnitVector() * material.Roughness;
-					reflectRay = Ray(record.HitPoint, Reflect(Normalize(ray.Direction + offset), record.Normal));
-				}
-				else
-				{
-					reflectRay = Ray(record.HitPoint, Reflect(ray.Direction, record.Normal));
-				}
-
-				if(material.Metalness > 0.0f)
-				{
-					vec3 radiance = TraverseScene(reflectRay, depth, record);
-					BRDF += radiance * material.Color * material.Metalness;
-					BRDF += radiance * (1.0f - material.Metalness);
-				}
-				else
-				{
-					BRDF += spec * TraverseScene(reflectRay, depth, record);
-				}
-			}
-
-			float cosI = Dot(record.Normal, bounceDir);
-			vec3 irradiance = TraverseScene(bounceRay, depth, record) * cosI;
-			illumination += PI * 2.0f * BRDF * irradiance;
-		}
-	}
-	else
+	if(record.t >= maxT)
 	{
 		if(depth == maxRayDepth - 1)
 		{
@@ -177,6 +80,99 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 		else
 		{
 			illumination += GetSkyColor(ray) * scene->SkyDomeEmission;
+		}
+
+		return illumination;
+	}
+
+	const Material& material = record.Primitive->Material;
+
+	// Emissive Material Model //
+	if(material.isEmissive)
+	{
+		// Emissive materials don't receive shading or bounce
+		// They are considered to be lights.
+		return material.Color * material.EmissiveStrength;
+	}
+
+	// Dielectric Material Model //
+	if(material.isDielectric)
+	{
+		float reflectance = Fresnel(ray.Direction, record.Normal, material.IoR);
+		float transmittance = 1.0f - reflectance;
+
+		// Reflection //
+		Ray reflectedRay = Ray(record.HitPoint, Reflect(ray.Direction, record.Normal));
+		illumination += TraverseScene(reflectedRay, depth, record) * reflectance;
+
+		// Refraction // 
+		vec3 Rt = Refract(ray.Direction, record.Normal, material.IoR);
+		Ray refractedRay = Ray(record.HitPoint + Rt * EPSILONSMALL, Rt);
+
+		vec3 c = material.Color;
+		if(record.InsideMedium)
+		{
+			float transmittedDistance = (record.HitPoint - lastRecord.HitPoint).Magnitude();
+			float beer = expf(-material.Density * transmittedDistance);
+			c = c * beer;
+		}
+
+		illumination += c * TraverseScene(refractedRay, depth, record) * transmittance;
+
+		return illumination;
+	}
+
+	// Opaque Material Model //
+	float fresnel = Fresnel(ray.Direction, record.Normal, material.IoR);
+	float specularity = min(material.Specularity + fresnel, 1.0f);
+	float diffuse = 1.0f - specularity;
+
+	if(diffuse > 0.0f)
+	{
+		vec3 bounceDir = RandomUnitVector();
+		if(Dot(bounceDir, record.Normal) < 0.0f)
+		{
+			bounceDir = bounceDir * -1.0f;
+		}
+
+		Ray bounceRay = Ray(record.HitPoint, bounceDir);
+
+		vec3 BRDF = diffuse * (material.Color * INVPI);
+		vec3 radiance = TraverseScene(bounceRay, depth, record);
+		float cosI = Dot(record.Normal, bounceDir);
+		const float area = PI * 2.0f;
+
+		// Hemispherical rendering equation // 
+		illumination += area * BRDF * radiance * cosI;
+	}
+	
+	if(specularity > 0.0f)
+	{
+		Ray reflectRay;
+
+		if(material.Roughness > 0.0f)
+		{
+			vec3 offset = RandomUnitVector() * material.Roughness;
+			reflectRay = Ray(record.HitPoint, Reflect(Normalize(ray.Direction + offset), record.Normal));
+		}
+		else
+		{
+			reflectRay = Ray(record.HitPoint, Reflect(ray.Direction, record.Normal));
+		}
+
+		vec3 radiance = TraverseScene(reflectRay, depth, record);
+
+		if(material.Metalness > 0.0f)
+		{
+			float metallicness = material.Metalness * specularity;
+			float specular = (1.0f - material.Metalness) * specularity;
+
+			illumination += metallicness * material.Color * TraverseScene(reflectRay, depth, record);
+			illumination += specular * TraverseScene(reflectRay, depth, record);
+		}
+		else
+		{
+			illumination += specularity * TraverseScene(reflectRay, depth, record);
 		}
 	}
 
@@ -225,7 +221,7 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 		float v = theta / PI;
 
 		u -= scene->SkydomeOrientation;
-		
+
 		int i = (int)((1.0f - u) * width);
 		int j = (int)(v * height);
 
