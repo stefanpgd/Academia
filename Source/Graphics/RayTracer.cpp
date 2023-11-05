@@ -123,6 +123,18 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 	}
 
 	// Opaque Material Model //
+
+	// Russian Roulette (Variance Reduction)
+	float multiplier = 1.0f;
+	float brightestChannel = max(max(material.Color.x, material.Color.y), material.Color.z);
+	float survivalRate = Clamp(brightestChannel, 0.1f, 0.9f);
+
+	if(survivalRate < Random01())
+	{
+		return vec3(0.0f);
+	}
+	multiplier = 1.0f / survivalRate;
+
 	float fresnel = Fresnel(ray.Direction, record.Normal, material.IoR);
 	float specularity = min(material.Specularity + fresnel, 1.0f);
 	float diffuse = 1.0f - specularity;
@@ -145,7 +157,7 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 		// Hemispherical rendering equation // 
 		illumination += area * BRDF * radiance * cosI;
 	}
-	
+
 	if(specularity > 0.0f)
 	{
 		Ray reflectRay;
@@ -161,22 +173,21 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 		}
 
 		vec3 radiance = TraverseScene(reflectRay, depth, record);
-
 		if(material.Metalness > 0.0f)
 		{
 			float metallicness = material.Metalness * specularity;
 			float specular = (1.0f - material.Metalness) * specularity;
 
-			illumination += metallicness * material.Color * TraverseScene(reflectRay, depth, record);
-			illumination += specular * TraverseScene(reflectRay, depth, record);
+			illumination += metallicness * material.Color * radiance;
+			illumination += specular * radiance;
 		}
 		else
 		{
-			illumination += specularity * TraverseScene(reflectRay, depth, record);
+			illumination += specularity * radiance;
 		}
 	}
 
-	return illumination;
+	return illumination * multiplier;
 }
 
 void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)

@@ -30,3 +30,8 @@ inline float RandomInRange(float min, float max)
 {
 	return min + (max - min) * Random01();
 }
+
+inline float Lerp(float a, float b, float t)
+{
+	return (t - 1.0f) * a + b * t;
+}

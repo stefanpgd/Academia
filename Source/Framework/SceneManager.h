@@ -15,7 +15,7 @@ struct Scene
 
 	// Skydome //
 	float SkydomeOrientation = 0.0f;
-	float SkyDomeEmission = 1.5f;
+	float SkyDomeEmission = 1.0f;
 	float SkyDomeBackgroundStrength = 1.0f;
 };
 
