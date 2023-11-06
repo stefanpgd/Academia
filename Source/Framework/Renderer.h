@@ -1,14 +1,14 @@
 #pragma once
 #include "Math/Vec3.h"
-
 #include <string>
-#include <vector>
 
 struct GLFWwindow;
+
+class Primitive;
 class RayTracer;
 class SceneManager;
-class Primitive;
 class WorkerSystem;
+class PostProcessor;
 
 class Renderer
 {
@@ -32,18 +32,17 @@ private:
 private:
 	WorkerSystem* workerSystem;
 	SceneManager* sceneManager;
+	RayTracer* rayTracer;
+	PostProcessor* postProcessor;
 
 	// Move to editor?
 	std::string screenshotPath = "Screenshots/";
 	std::string lastestScreenshotPath = "Screenshots/Latest/latest.png";
 
 	// Ray Tracing //
-	RayTracer* rayTracer;
 	unsigned int sampleCount = 1;
 	unsigned int targetSampleCount = 100000;
-	bool findNearestPrimitive = false;
 	Primitive* nearestPrimitive = nullptr;
-	bool doPathTracing = true;
 
 	// Window & Back Buffers // 
 	GLFWwindow* window;

@@ -5,14 +5,15 @@
 #include <imgui.h>
 #include <stb_image_write.h>
 
-#include "Input.h"
-#include "SceneManager.h"
-#include "WorkerSystem.h"
 #include "Graphics/RayTracer.h"
+#include "Graphics/PostProcessor.h"
+
+#include "Framework/Input.h"
+#include "Framework/SceneManager.h"
+#include "Framework/WorkerSystem.h"
 #include "Utilities/Utilities.h"
 
-Renderer::Renderer(const std::string& windowName, unsigned int screenWidth, unsigned int screenHeight) :
-	screenWidth(screenWidth), screenHeight(screenHeight)
+Renderer::Renderer(const std::string& windowName, unsigned int screenWidth, unsigned int screenHeight) : screenWidth(screenWidth), screenHeight(screenHeight)
 {
 	// Create Back Buffers // 
 	bufferSize = screenWidth * screenHeight;
@@ -40,10 +41,11 @@ Renderer::Renderer(const std::string& windowName, unsigned int screenWidth, unsi
 	LOG("Succesfully created a window.");
 	glfwMakeContextCurrent(window);
 
-	// Intialize Scene & Ray Tracer //
+	// Intialize sub-systems //
 	sceneManager = new SceneManager(screenWidth, screenHeight);
 	rayTracer = new RayTracer(screenWidth, screenHeight, sceneManager->GetActiveScene());
 	workerSystem = new WorkerSystem(this, screenWidth, screenHeight);
+	postProcessor = new PostProcessor();
 }
 
 Renderer::~Renderer()
@@ -70,41 +72,33 @@ void Renderer::Update()
 {
 	workerSystem->Update();
 
-	// In case we reached our target frame count
-	// we want to check if either something got updated or resized
-	// If so, we force the screen to update again, and the path tracer restarts.
 	if(sampleCount >= targetSampleCount)
 	{
+		// In case we reached our target frame count
+		// we want to check if either something got updated or resized
+		// If so, we force the screen to update again, and the path tracer restarts.
 		if(clearScreenBuffers || resizeScreenBuffers)
 		{
 			updateScreenBuffer = true;
 		}
 	}
 
-	if(Input::GetMouseButton(MouseCode::Left) && !findNearestPrimitive)
+	if(Input::GetMouseButton(MouseCode::Left))
 	{
 		ImGuiIO& io = ImGui::GetIO();
 
 		// Check if mouse is not hovering above ImGui windows
 		if(!io.WantCaptureMouse)
 		{
-			findNearestPrimitive = true;
+			float x = Input::GetMouseX();
+			float y = screenHeight - Input::GetMouseY();
+
+			Primitive* prim = rayTracer->SelectObject(x, y);
+			if(prim != nullptr)
+			{
+				nearestPrimitive = prim;
+			}
 		}
-	}
-
-	if(findNearestPrimitive)
-	{
-		float x = Input::GetMouseX();
-		float y = screenHeight - Input::GetMouseY();
-
-		Primitive* prim = rayTracer->SelectObject(x, y);
-
-		if(prim != nullptr)
-		{
-			nearestPrimitive = prim;
-		}
-
-		findNearestPrimitive = false;
 	}
 }
 
@@ -112,10 +106,6 @@ void Renderer::Render()
 {
 	if(updateScreenBuffer)
 	{
-		//auto t1 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock->now())).time_since_epoch();
-		//deltaTime = (t1 - t0).count() * .001;
-		//t0 = t1;
-
 		float sampleINV = (1.0f / (float)sampleCount);
 		for(int x = 0; x < screenWidth; x++)
 		{
@@ -125,14 +115,10 @@ void Renderer::Render()
 				vec3 output = sampleBuffer[i];
 				output = output * sampleINV;
 
-				float g = 1.0f / 2.2f;
-				output.x = pow(Clamp(output.x, 0.0f, 1.0f), g);
-				output.y = pow(Clamp(output.y, 0.0f, 1.0f), g);
-				output.z = pow(Clamp(output.z, 0.0f, 1.0f), g);
-
-				screenBuffer[i] = AlbedoToRGB(output.x, output.y, output.z);
+				screenBuffer[i] = postProcessor->PostProcess(output);
 			}
 		}
+		sampleCount++;
 
 		if(resizeScreenBuffers)
 		{
@@ -145,29 +131,12 @@ void Renderer::Render()
 
 		if(clearScreenBuffers)
 		{
-			sampleCount = 1;
-			//timeElasped = 0.0f;
-
-			// Load in or remove new primitives to the scene //
-			sceneManager->UpdateScene();
-
-			memset(sampleBuffer, 0.0f, sizeof(vec3) * bufferSize);
-			clearScreenBuffers = false;
+			ClearSampleBuffer();
 		}
 
-		//if(reloadSkydome)
-		//{
-		//	rayTracer->LoadSkydome();
-		//	reloadSkydome = false;
-		//}
-
-		sampleCount++;
 		if(sampleCount < targetSampleCount)
 		{
 			workerSystem->NotifyWorkers();
-
-			//timeElasped += deltaTime;
-			//FPSLog[frameCount % FPSLogSize] = deltaTime;
 		}
 
 		updateScreenBuffer = false;
@@ -209,7 +178,6 @@ void Renderer::ResizeScreenBuffers(int width, int height)
 void Renderer::ClearSampleBuffer()
 {
 	sampleCount = 1;
-	//timeElasped = 0.0f;
 
 	// Load in or remove new primitives to the scene //
 	sceneManager->UpdateScene();

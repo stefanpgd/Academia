@@ -18,16 +18,12 @@ void GLFWErrorCallback(int, const char* err_str)
 App::App()
 {
 	LoadApplicationSettings();
-
-	FPSLog = new float[FPSLogSize];
-
 	glfwSetErrorCallback(GLFWErrorCallback);
 
 	// Start initializing custom systems  //
 	renderer = new Renderer(appName, screenWidth, screenHeight);
-	
-	Input::Initialize(renderer->GetWindow());
 	editor = new Editor(renderer->GetWindow(), this);
+	Input::Initialize(renderer->GetWindow());
 
 	LOG("'Academia' has succesfully initialized!");
 }
@@ -41,13 +37,10 @@ App::~App()
 
 void App::Run()
 {
-	clock = new std::chrono::high_resolution_clock();
-	t0 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock->now())).time_since_epoch();
-
 	while(runApp)
 	{
 		Start();
-		Update(deltaTime);
+		Update();
 		Render();
 
 		glfwPollEvents();
@@ -64,28 +57,13 @@ void App::Start()
 	editor->Start();
 }
 
-void App::Update(float deltaTime)
+void App::Update()
 {
 	renderer->Update();
 
-	bool cameraUpdated = false;
-	bool sceneUpdated = false;
+	bool sceneUpdated = editor->Update();
 
-	//if(takeScreenshot)
-	//{
-	//	//takeScreenshot = false;
-	//	//MakeScreenshot();
-	//}
-	//
-	//if(!lockUserMovement)
-	//{
-	//	// Move to SceneManager...
-	//	//cameraUpdated = rayTracer->Update(deltaTime);
-	//}
-
-	sceneUpdated = editor->Update(deltaTime);
-
-	if(sceneUpdated || cameraUpdated)
+	if(sceneUpdated)
 	{
 		renderer->RestartSampling();
 	}
@@ -95,6 +73,7 @@ void App::Render()
 {
 	renderer->Render();
 	editor->Render();
+
 	glfwSwapBuffers(renderer->GetWindow());
 }
 

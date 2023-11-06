@@ -40,7 +40,7 @@ void Editor::Start()
 	ImGui::NewFrame();
 }
 
-bool Editor::Update(float deltaTime)
+bool Editor::Update()
 {
 	sceneUpdated = false;
 
@@ -84,101 +84,101 @@ void Editor::Render()
 
 void Editor::MenuBar()
 {
-	const int staticsWidth = 800; 
-	int FPSOffset = (app->screenWidth - staticsWidth);
-
-	if(ImGui::BeginMainMenuBar())
-	{
-		//ImGui::Checkbox("Lock Movement", &app->lockUserMovement);
-
-		// Window Selection //
-		if(ImGui::BeginMenu("Windows"))
-		{
-			if (ImGui::MenuItem("Primitive Selection", NULL, &showPrimitiveSelection)) {}
-			if (ImGui::MenuItem("Primitive Creation", NULL, &showPrimitiveCreation)) {}
-			if (ImGui::MenuItem("Scene Hierarchy", NULL, &showSceneHierarchy)) {}
-			if (ImGui::MenuItem("Scene Settings", NULL, &showSceneSettings)) {}
-
-			ImGui::EndMenu();
-		}
-
-		if(ImGui::Button("Take Screenshot"))
-		{
-			//app->takeScreenshot = true;
-		}
-
-		ImGui::Dummy(ImVec2(FPSOffset, 0));
-
-		// FPS // 
-		ImGui::PushFont(boldFont);
-		ImGui::Text("FPS:");
-		ImGui::PopFont();
-
-		std::string fps = std::to_string(int(1.0f / app->deltaTime));
-		ImGui::Text(fps.c_str());
-
-		ImGui::Separator();
-
-		// Average FPS //
-		float average = 0.0f;
-		for(int i = 0; i < app->FPSLogSize; i++)
-		{
-			average += app->FPSLog[i];
-		}
-		average /= app->FPSLogSize;
-
-		ImGui::PushFont(boldFont);
-		ImGui::Text("Average FPS:");
-		ImGui::PopFont();
-
-		std::string averageFPS = std::to_string(int(1.0f / average));
-		ImGui::Text(averageFPS.c_str());
-
-		ImGui::Separator();
-
-		// Samples Taken //
-		ImGui::PushFont(boldFont);
-		ImGui::Text("Samples Taken:");
-		ImGui::PopFont();
-
-		std::string samplesTaken = std::to_string(app->frameCount);
-		ImGui::Text(samplesTaken.c_str());
-
-		ImGui::Separator();
-
-		// Time Elasped // 
-		ImGui::PushFont(boldFont);
-		ImGui::Text("Time Elapsed:");
-		ImGui::PopFont();
-
-		int min = int(app->timeElasped / 60.0f);
-		std::string minutes = std::to_string(min);
-		if(min < 10)
-		{
-			minutes = "0" + minutes;
-		}
-
-		int sec = int(app->timeElasped) % 60;
-		std::string seconds = std::to_string(sec);
-		if(sec < 10)
-		{
-			seconds = "0" + seconds;
-		}
-
-		float milli = app->timeElasped - int(app->timeElasped);
-		std::string milliseconds = std::to_string(int(milli * 100.0f));
-		if(milli < 0.1f)
-		{
-			milliseconds = "0" + milliseconds;
-		}
-
-		std::string time = minutes + ":" + seconds + ":" + milliseconds;
-		ImGui::Text(time.c_str());
-
-		ImGui::Separator();
-
-		ImGui::EndMainMenuBar();
-	}
+	//const int staticsWidth = 800; 
+	//int FPSOffset = (app->screenWidth - staticsWidth);
+	//
+	//if(ImGui::BeginMainMenuBar())
+	//{
+	//	//ImGui::Checkbox("Lock Movement", &app->lockUserMovement);
+	//
+	//	// Window Selection //
+	//	if(ImGui::BeginMenu("Windows"))
+	//	{
+	//		if (ImGui::MenuItem("Primitive Selection", NULL, &showPrimitiveSelection)) {}
+	//		if (ImGui::MenuItem("Primitive Creation", NULL, &showPrimitiveCreation)) {}
+	//		if (ImGui::MenuItem("Scene Hierarchy", NULL, &showSceneHierarchy)) {}
+	//		if (ImGui::MenuItem("Scene Settings", NULL, &showSceneSettings)) {}
+	//
+	//		ImGui::EndMenu();
+	//	}
+	//
+	//	if(ImGui::Button("Take Screenshot"))
+	//	{
+	//		//app->takeScreenshot = true;
+	//	}
+	//
+	//	ImGui::Dummy(ImVec2(FPSOffset, 0));
+	//
+	//	// FPS // 
+	//	ImGui::PushFont(boldFont);
+	//	ImGui::Text("FPS:");
+	//	ImGui::PopFont();
+	//
+	//	std::string fps = std::to_string(int(1.0f / app->deltaTime));
+	//	ImGui::Text(fps.c_str());
+	//
+	//	ImGui::Separator();
+	//
+	//	// Average FPS //
+	//	float average = 0.0f;
+	//	for(int i = 0; i < app->FPSLogSize; i++)
+	//	{
+	//		average += app->FPSLog[i];
+	//	}
+	//	average /= app->FPSLogSize;
+	//
+	//	ImGui::PushFont(boldFont);
+	//	ImGui::Text("Average FPS:");
+	//	ImGui::PopFont();
+	//
+	//	std::string averageFPS = std::to_string(int(1.0f / average));
+	//	ImGui::Text(averageFPS.c_str());
+	//
+	//	ImGui::Separator();
+	//
+	//	// Samples Taken //
+	//	ImGui::PushFont(boldFont);
+	//	ImGui::Text("Samples Taken:");
+	//	ImGui::PopFont();
+	//
+	//	std::string samplesTaken = std::to_string(app->frameCount);
+	//	ImGui::Text(samplesTaken.c_str());
+	//
+	//	ImGui::Separator();
+	//
+	//	// Time Elasped // 
+	//	ImGui::PushFont(boldFont);
+	//	ImGui::Text("Time Elapsed:");
+	//	ImGui::PopFont();
+	//
+	//	int min = int(app->timeElasped / 60.0f);
+	//	std::string minutes = std::to_string(min);
+	//	if(min < 10)
+	//	{
+	//		minutes = "0" + minutes;
+	//	}
+	//
+	//	int sec = int(app->timeElasped) % 60;
+	//	std::string seconds = std::to_string(sec);
+	//	if(sec < 10)
+	//	{
+	//		seconds = "0" + seconds;
+	//	}
+	//
+	//	float milli = app->timeElasped - int(app->timeElasped);
+	//	std::string milliseconds = std::to_string(int(milli * 100.0f));
+	//	if(milli < 0.1f)
+	//	{
+	//		milliseconds = "0" + milliseconds;
+	//	}
+	//
+	//	std::string time = minutes + ":" + seconds + ":" + milliseconds;
+	//	ImGui::Text(time.c_str());
+	//
+	//	ImGui::Separator();
+	//
+	//	ImGui::EndMainMenuBar();
+	//}
 }
 
 void Editor::SceneSettings()

@@ -28,7 +28,7 @@ public:
 	Editor(GLFWwindow* window, App* app);
 
 	void Start();
-	bool Update(float deltaTime);
+	bool Update();
 	void Render();
 
 private:
