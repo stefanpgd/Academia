@@ -3,6 +3,7 @@
 
 #include "Framework/App.h"
 #include "Framework/Input.h"
+#include "Framework/Renderer.h"
 #include "Framework/SceneManager.h"
 
 #include "Graphics/RayTracer.h"
@@ -11,9 +12,11 @@
 
 #include "Utilities/LogHelper.h"
 
-Editor::Editor(GLFWwindow* window, App* app, SceneManager* sceneManager) : app(app), sceneManager(sceneManager)
+Editor::Editor(GLFWwindow* window, App* app) : app(app)
 {
+	sceneManager = app->renderer->sceneManager;
 	activeScene = sceneManager->GetActiveScene();
+
 	LoadEXRFilePaths();
 
 	// Setup ImGui  //
@@ -86,7 +89,7 @@ void Editor::MenuBar()
 
 	if(ImGui::BeginMainMenuBar())
 	{
-		ImGui::Checkbox("Lock Movement", &app->lockUserMovement);
+		//ImGui::Checkbox("Lock Movement", &app->lockUserMovement);
 
 		// Window Selection //
 		if(ImGui::BeginMenu("Windows"))
@@ -101,7 +104,7 @@ void Editor::MenuBar()
 
 		if(ImGui::Button("Take Screenshot"))
 		{
-			app->takeScreenshot = true;
+			//app->takeScreenshot = true;
 		}
 
 		ImGui::Dummy(ImVec2(FPSOffset, 0));

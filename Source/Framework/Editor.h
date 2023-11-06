@@ -25,7 +25,7 @@ struct Scene;
 class Editor
 {
 public:
-	Editor(GLFWwindow* window, App* app, SceneManager* sceneManager);
+	Editor(GLFWwindow* window, App* app);
 
 	void Start();
 	bool Update(float deltaTime);

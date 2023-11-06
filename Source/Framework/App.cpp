@@ -2,17 +2,13 @@
 #include <GLFW/glfw3.h>
 
 #include <cassert>
-#include <vector>
-#include <cmath>
 #include <fstream>
 
 #include "Renderer.h"
 #include "Input.h"
 #include "Editor.h"
 #include "SceneManager.h"
-#include "Graphics/RayTracer.h"
 #include "Utilities/Utilities.h"
-#include "Utilities/Timer.h"
 
 void GLFWErrorCallback(int, const char* err_str)
 {
@@ -28,11 +24,10 @@ App::App()
 	glfwSetErrorCallback(GLFWErrorCallback);
 
 	// Start initializing custom systems  //
-	sceneManager = new SceneManager(screenWidth, screenHeight);
-	renderer = new Renderer(appName, screenWidth, screenHeight, sceneManager);
+	renderer = new Renderer(appName, screenWidth, screenHeight);
 	
 	Input::Initialize(renderer->GetWindow());
-	editor = new Editor(renderer->GetWindow(), this, sceneManager);
+	editor = new Editor(renderer->GetWindow(), this);
 
 	LOG("'Academia' has succesfully initialized!");
 }
@@ -41,7 +36,6 @@ App::~App()
 {
 	SaveApplicationSettings();
 
-	delete sceneManager;
 	delete renderer;
 }
 
@@ -72,20 +66,22 @@ void App::Start()
 
 void App::Update(float deltaTime)
 {
+	renderer->Update();
+
 	bool cameraUpdated = false;
 	bool sceneUpdated = false;
 
-	if(takeScreenshot)
-	{
-		//takeScreenshot = false;
-		//MakeScreenshot();
-	}
-
-	if(!lockUserMovement)
-	{
-		// Move to SceneManager...
-		//cameraUpdated = rayTracer->Update(deltaTime);
-	}
+	//if(takeScreenshot)
+	//{
+	//	//takeScreenshot = false;
+	//	//MakeScreenshot();
+	//}
+	//
+	//if(!lockUserMovement)
+	//{
+	//	// Move to SceneManager...
+	//	//cameraUpdated = rayTracer->Update(deltaTime);
+	//}
 
 	sceneUpdated = editor->Update(deltaTime);
 

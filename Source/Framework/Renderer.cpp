@@ -10,9 +10,13 @@
 #include "Graphics/RayTracer.h"
 #include "Utilities/Utilities.h"
 
-Renderer::Renderer(const std::string& windowName, unsigned int screenWidth, unsigned int screenHeight, SceneManager* sceneManager) :
-	screenWidth(screenWidth), screenHeight(screenHeight), sceneManager(sceneManager)
+Renderer::Renderer(const std::string& windowName, unsigned int screenWidth, unsigned int screenHeight) :
+	screenWidth(screenWidth), screenHeight(screenHeight)
 {
+	// Intialize Scene & Ray Tracer //
+	sceneManager = new SceneManager(screenWidth, screenHeight);
+	rayTracer = new RayTracer(screenWidth, screenHeight, sceneManager->GetActiveScene());
+
 	// Create Back Buffers // 
 	bufferSize = screenWidth * screenHeight;
 	screenBuffer = new unsigned int[bufferSize];
@@ -39,9 +43,6 @@ Renderer::Renderer(const std::string& windowName, unsigned int screenWidth, unsi
 	LOG("Succesfully created a window.");
 	glfwMakeContextCurrent(window);
 
-	// Intialize Ray Tracer //
-	rayTracer = new RayTracer(screenWidth, screenHeight, sceneManager->GetActiveScene());
-
 	// Setting up multi-threading //
 	LOG("Retrieving thread count...");
 	threadsAvailable = std::thread::hardware_concurrency();
@@ -60,6 +61,8 @@ Renderer::Renderer(const std::string& windowName, unsigned int screenWidth, unsi
 
 Renderer::~Renderer()
 {
+	delete sceneManager;
+
 	glfwDestroyWindow(window);
 }
 

@@ -35,7 +35,7 @@ struct JobTile
 class Renderer
 {
 public:
-	Renderer(const std::string& windowName, unsigned int screenWidth, unsigned int screenHeight, SceneManager* sceneManager);
+	Renderer(const std::string& windowName, unsigned int screenWidth, unsigned int screenHeight);
 	~Renderer();
 
 	void Start();
@@ -82,6 +82,9 @@ private:
 	bool updateScreenBuffer = false;
 	bool clearScreenBuffers = false;
 	bool resizeScreenBuffers = false;
+	bool lockUserMovement = false;
+	bool reloadSkydome = false;
+	bool takeScreenshot = false;
 
 	// Multi-threading //
 	int threadsAvailable;
@@ -91,4 +94,6 @@ private:
 	std::atomic<int> workIndex;
 	std::condition_variable iterationLock;
 	std::mutex rayLock;
+
+	friend class Editor;
 };

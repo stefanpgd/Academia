@@ -65,18 +65,12 @@ private:
 
 	Editor* editor;
 	Renderer* renderer;
-	SceneManager* sceneManager;
 	
 	// General Information //
 	float timeElasped = 0.0f;
 	int frameCount = 1;
 	float* FPSLog;
 	const int FPSLogSize = 30;
-
-	// Actions to take // 
-	bool lockUserMovement = false;
-	bool reloadSkydome = false;
-	bool takeScreenshot = false;
 
 	// deltaTime //
 	float deltaTime = 1.0f;
