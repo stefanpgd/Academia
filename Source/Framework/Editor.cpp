@@ -13,6 +13,9 @@
 
 Editor::Editor(GLFWwindow* window, App* app, SceneManager* sceneManager) : app(app), sceneManager(sceneManager)
 {
+	activeScene = sceneManager->GetActiveScene();
+	LoadEXRFilePaths();
+
 	// Setup ImGui  //
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -24,9 +27,7 @@ Editor::Editor(GLFWwindow* window, App* app, SceneManager* sceneManager) : app(a
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 460");
-
 	ImGuiStyleSettings();
-	LoadEXRFilePaths();
 }
 
 void Editor::Start()
@@ -51,10 +52,10 @@ bool Editor::Update(float deltaTime)
 		return false;
 	}
 
-	if(selectedPrimitive != app->nearestPrimitive)
-	{
-		selectedPrimitive = app->nearestPrimitive;
-	}
+	//if(selectedPrimitive != app->nearestPrimitive)
+	//{
+	//	selectedPrimitive = app->nearestPrimitive;
+	//}
 
 	MenuBar();
 
@@ -76,11 +77,6 @@ void Editor::Render()
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
-void Editor::SetActiveScene(Scene* scene)
-{
-	activeScene = scene;
 }
 
 void Editor::MenuBar()
@@ -233,140 +229,140 @@ void Editor::SceneSettings()
 
 void Editor::PathTracerSettings()
 {
-	ImGui::Columns(2);
+	//ImGui::Columns(2);
 
-	ImGui::Separator();
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Target Sample Count");
-	ImGui::NextColumn();
-	if(ImGui::DragInt("##0", &app->targetSampleCount, 50, 0, 1000000)) 
-	{ 
-		sceneUpdated = true; 
-		app->updateScreenBuffer = true; 
-	}
-	ImGui::NextColumn();
+	//ImGui::Separator();
+	//ImGui::AlignTextToFramePadding();
+	//ImGui::Text("Target Sample Count");
+	//ImGui::NextColumn();
+	//if(ImGui::DragInt("##0", &app->targetSampleCount, 50, 0, 1000000)) 
+	//{ 
+	//	sceneUpdated = true; 
+	//	app->updateScreenBuffer = true; 
+	//}
+	//ImGui::NextColumn();
 
-	ImGui::Separator();
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Max Luminance Per Frame");
-	ImGui::NextColumn();
-	if(ImGui::DragFloat("##1", &app->rayTracer->maxLuminance, 0.1f, 0.0f, 1000.0f)) { sceneUpdated = true; }
-	ImGui::NextColumn();
+	//ImGui::Separator();
+	//ImGui::AlignTextToFramePadding();
+	//ImGui::Text("Max Luminance Per Frame");
+	//ImGui::NextColumn();
+	//if(ImGui::DragFloat("##1", &app->rayTracer->maxLuminance, 0.1f, 0.0f, 1000.0f)) { sceneUpdated = true; }
+	//ImGui::NextColumn();
 
-	ImGui::Separator();
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Ray Depth");
-	ImGui::NextColumn();
-	if(ImGui::DragInt("##2", &app->rayTracer->maxRayDepth, 0.02f, 1, 100)) { sceneUpdated = true; }
-	ImGui::NextColumn();
+	//ImGui::Separator();
+	//ImGui::AlignTextToFramePadding();
+	//ImGui::Text("Ray Depth");
+	//ImGui::NextColumn();
+	//if(ImGui::DragInt("##2", &app->rayTracer->maxRayDepth, 0.02f, 1, 100)) { sceneUpdated = true; }
+	//ImGui::NextColumn();
 
-	ImGui::Separator();
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Use Skydome");
-	ImGui::NextColumn();
-	if(ImGui::Checkbox("##4", &app->rayTracer->useSkydomeTexture)) { sceneUpdated = true; }
+	//ImGui::Separator();
+	//ImGui::AlignTextToFramePadding();
+	//ImGui::Text("Use Skydome");
+	//ImGui::NextColumn();
+	//if(ImGui::Checkbox("##4", &app->rayTracer->useSkydomeTexture)) { sceneUpdated = true; }
 
-	ImGui::Columns(1);
-	ImGui::Separator();
+	//ImGui::Columns(1);
+	//ImGui::Separator();
 }
 
 void Editor::SkydomeSettings()
 {
-	ImGui::PushFont(boldFont);
-	ImGui::SeparatorText("Skydome");
-	ImGui::PopFont();
+	//ImGui::PushFont(boldFont);
+	//ImGui::SeparatorText("Skydome");
+	//ImGui::PopFont();
 
-	ImGui::Columns(2);
+	//ImGui::Columns(2);
 
-	ImGui::Separator();
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Active Skydome");
-	ImGui::NextColumn();
-	
-	int currentItem = 0;
-	for(int i = 0; i < exrFilePaths.size(); i++)
-	{
-		if(app->rayTracer->skydomePath == exrFilePaths[i])
-		{
-			currentItem = i;
-		}
-	}
+	//ImGui::Separator();
+	//ImGui::AlignTextToFramePadding();
+	//ImGui::Text("Active Skydome");
+	//ImGui::NextColumn();
+	//
+	//int currentItem = 0;
+	//for(int i = 0; i < exrFilePaths.size(); i++)
+	//{
+	//	if(app->rayTracer->skydomePath == exrFilePaths[i])
+	//	{
+	//		currentItem = i;
+	//	}
+	//}
 
-	if(ImGui::BeginCombo("##5", app->rayTracer->skydomePath.c_str()))
-	{
-		for(int i = 0; i < exrFilePaths.size(); i++)
-		{
-			bool isSelected = currentItem == i;
+	//if(ImGui::BeginCombo("##5", app->rayTracer->skydomePath.c_str()))
+	//{
+	//	for(int i = 0; i < exrFilePaths.size(); i++)
+	//	{
+	//		bool isSelected = currentItem == i;
 
-			if(ImGui::Selectable(exrFilePaths[i].c_str(), isSelected))
-			{
-				app->rayTracer->skydomePath = exrFilePaths[i];
-				app->reloadSkydome = true;
-				sceneUpdated = true;
-			}
+	//		if(ImGui::Selectable(exrFilePaths[i].c_str(), isSelected))
+	//		{
+	//			app->rayTracer->skydomePath = exrFilePaths[i];
+	//			app->reloadSkydome = true;
+	//			sceneUpdated = true;
+	//		}
 
-			if(isSelected)
-			{
-				ImGui::SetItemDefaultFocus();
-			}
-		}
-		ImGui::EndCombo();
-	}
+	//		if(isSelected)
+	//		{
+	//			ImGui::SetItemDefaultFocus();
+	//		}
+	//	}
+	//	ImGui::EndCombo();
+	//}
 
-	ImGui::NextColumn();
+	//ImGui::NextColumn();
 
 
-	ImGui::Separator();
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Emission");
-	ImGui::NextColumn();
-	if(ImGui::DragFloat("##6", &app->rayTracer->scene->SkyDomeEmission, 0.01f)) { sceneUpdated = true; }
-	ImGui::NextColumn();
+	//ImGui::Separator();
+	//ImGui::AlignTextToFramePadding();
+	//ImGui::Text("Emission");
+	//ImGui::NextColumn();
+	//if(ImGui::DragFloat("##6", &app->rayTracer->scene->SkyDomeEmission, 0.01f)) { sceneUpdated = true; }
+	//ImGui::NextColumn();
 
-	ImGui::Separator();
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Background Strength");
-	ImGui::NextColumn();
-	if(ImGui::DragFloat("##7", &app->rayTracer->scene->SkyDomeBackgroundStrength, 0.01f, 0.0f, 10.0f)) { sceneUpdated = true; }
-	ImGui::NextColumn();
+	//ImGui::Separator();
+	//ImGui::AlignTextToFramePadding();
+	//ImGui::Text("Background Strength");
+	//ImGui::NextColumn();
+	//if(ImGui::DragFloat("##7", &app->rayTracer->scene->SkyDomeBackgroundStrength, 0.01f, 0.0f, 10.0f)) { sceneUpdated = true; }
+	//ImGui::NextColumn();
 
-	ImGui::Separator();
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Orientation");
-	ImGui::NextColumn();
-	if(ImGui::SliderFloat("##8", &app->rayTracer->scene->SkydomeOrientation, 0.0f, 1.0f)) { sceneUpdated = true; }
-	ImGui::NextColumn();
+	//ImGui::Separator();
+	//ImGui::AlignTextToFramePadding();
+	//ImGui::Text("Orientation");
+	//ImGui::NextColumn();
+	//if(ImGui::SliderFloat("##8", &app->rayTracer->scene->SkydomeOrientation, 0.0f, 1.0f)) { sceneUpdated = true; }
+	//ImGui::NextColumn();
 
-	ImGui::Columns(1);
-	ImGui::Separator();
+	//ImGui::Columns(1);
+	//ImGui::Separator();
 
-	ImGui::PushFont(boldFont);
-	ImGui::SeparatorText("Sky Color");
-	ImGui::PopFont();
+	//ImGui::PushFont(boldFont);
+	//ImGui::SeparatorText("Sky Color");
+	//ImGui::PopFont();
 
-	ImGui::Columns(2);
+	//ImGui::Columns(2);
 
-	ImGui::Separator();
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Color - Up");
-	ImGui::NextColumn();
-	if(ImGui::ColorEdit3("##9", &app->rayTracer->skyColorB.x)) { sceneUpdated = true; }
-	ImGui::NextColumn();
+	//ImGui::Separator();
+	//ImGui::AlignTextToFramePadding();
+	//ImGui::Text("Color - Up");
+	//ImGui::NextColumn();
+	//if(ImGui::ColorEdit3("##9", &app->rayTracer->skyColorB.x)) { sceneUpdated = true; }
+	//ImGui::NextColumn();
 
-	ImGui::Separator();
-	ImGui::AlignTextToFramePadding();
-	ImGui::Text("Color - Down");
-	ImGui::NextColumn();
-	if(ImGui::ColorEdit3("##10", &app->rayTracer->skyColorA.x)) { sceneUpdated = true; }
-	ImGui::NextColumn();
+	//ImGui::Separator();
+	//ImGui::AlignTextToFramePadding();
+	//ImGui::Text("Color - Down");
+	//ImGui::NextColumn();
+	//if(ImGui::ColorEdit3("##10", &app->rayTracer->skyColorA.x)) { sceneUpdated = true; }
+	//ImGui::NextColumn();
 
-	ImGui::Columns(1);
-	ImGui::Separator();
+	//ImGui::Columns(1);
+	//ImGui::Separator();
 }
 
 void Editor::CameraSettings()
 {
-	Camera* camera = app->rayTracer->camera;
+	/*Camera* camera = app->rayTracer->camera;
 	bool cameraUpdated = false;
 
 	ImGui::Columns(2);
@@ -412,7 +408,7 @@ void Editor::CameraSettings()
 	{
 		camera->SetupVirtualPlane(app->screenWidth, app->screenHeight);
 		sceneUpdated = true;
-	}
+	}*/
 }
 
 void Editor::PrimitiveSelection()
@@ -601,86 +597,86 @@ void Editor::PrimitiveSelection()
 
 void Editor::PrimitiveHierarchy()
 {
-	if (!showSceneHierarchy)
-	{
-		return;
-	}
+	//if (!showSceneHierarchy)
+	//{
+	//	return;
+	//}
 
-	// Window Positioning & Flags //
-	const int width = 300;
-	const int height = 300;
-	const int x = 0;
-	const int y = 19;
+	//// Window Positioning & Flags //
+	//const int width = 300;
+	//const int height = 300;
+	//const int x = 0;
+	//const int y = 19;
 
-	ImGui::SetNextWindowPos(ImVec2(x, y));
-	ImGui::SetNextWindowSize(ImVec2(width, height));
+	//ImGui::SetNextWindowPos(ImVec2(x, y));
+	//ImGui::SetNextWindowSize(ImVec2(width, height));
 
-	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
-	std::vector<Primitive*>& primitives = app->rayTracer->scene->primitives;
+	//ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+	//std::vector<Primitive*>& primitives = app->rayTracer->scene->primitives;
 
-	ImGui::PushFont(boldFont);
-	ImGui::Begin("Scene Hierarchy", NULL, flags);
-	ImGui::PushFont(baseFont);
+	//ImGui::PushFont(boldFont);
+	//ImGui::Begin("Scene Hierarchy", NULL, flags);
+	//ImGui::PushFont(baseFont);
 
-	ImGui::Separator();
-	ImGui::Indent(8.0f);
+	//ImGui::Separator();
+	//ImGui::Indent(8.0f);
 
-	for(int i = 0; i < primitives.size(); i++)
-	{
-		ImGui::PushID(i);
+	//for(int i = 0; i < primitives.size(); i++)
+	//{
+	//	ImGui::PushID(i);
 
-		ImGui::Bullet();
+	//	ImGui::Bullet();
 
-		Primitive* primitive = primitives[i];
-		std::string name = primitive->name.c_str();
+	//	Primitive* primitive = primitives[i];
+	//	std::string name = primitive->name.c_str();
 
-		bool isSelected = primitive == selectedPrimitive;
-		if(ImGui::Selectable(name.c_str(), isSelected))
-		{
-			selectedPrimitive = primitive;
-			app->nearestPrimitive = primitive;
-		}
+	//	bool isSelected = primitive == selectedPrimitive;
+	//	if(ImGui::Selectable(name.c_str(), isSelected))
+	//	{
+	//		selectedPrimitive = primitive;
+	//		app->nearestPrimitive = primitive;
+	//	}
 
-		if(isSelected)
-		{
-			ImGui::SetItemDefaultFocus();
-		}
+	//	if(isSelected)
+	//	{
+	//		ImGui::SetItemDefaultFocus();
+	//	}
 
-		ImGui::SameLine();
-		ImGui::Text("-");
-		ImGui::SameLine();
-		ImGui::Text(primitiveNames[int(primitive->Type)]);
-		
-		ImGui::SameLine();
-		ImGui::Text("-");
+	//	ImGui::SameLine();
+	//	ImGui::Text("-");
+	//	ImGui::SameLine();
+	//	ImGui::Text(primitiveNames[int(primitive->Type)]);
+	//	
+	//	ImGui::SameLine();
+	//	ImGui::Text("-");
 
-		ImGui::SameLine();
-		if(primitive->Material.isDielectric)
-		{
-			ImGui::Text("Dielectric");
-		}
-		else if(primitive->Material.isEmissive)
-		{
-			ImGui::Text("Emissive");
-		}
-		else if(primitive->Material.Specularity > 0.99f)
-		{
-			ImGui::Text("Pure Specular");
-		}
-		else
-		{
-			ImGui::Text("Opaque");
-		}
+	//	ImGui::SameLine();
+	//	if(primitive->Material.isDielectric)
+	//	{
+	//		ImGui::Text("Dielectric");
+	//	}
+	//	else if(primitive->Material.isEmissive)
+	//	{
+	//		ImGui::Text("Emissive");
+	//	}
+	//	else if(primitive->Material.Specularity > 0.99f)
+	//	{
+	//		ImGui::Text("Pure Specular");
+	//	}
+	//	else
+	//	{
+	//		ImGui::Text("Opaque");
+	//	}
 
-		ImGui::PopID();
-	}
+	//	ImGui::PopID();
+	//}
 
-	ImGui::Unindent(8.0f);
-	ImGui::Separator();
+	//ImGui::Unindent(8.0f);
+	//ImGui::Separator();
 
-	ImGui::PopFont();
-	ImGui::End();
-	ImGui::PopFont();
+	//ImGui::PopFont();
+	//ImGui::End();
+	//ImGui::PopFont();
 }
 
 void Editor::PrimitiveCreation()

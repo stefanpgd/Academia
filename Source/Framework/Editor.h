@@ -31,8 +31,6 @@ public:
 	bool Update(float deltaTime);
 	void Render();
 
-	void SetActiveScene(Scene* scene);
-
 private:
 	// Editor Windows //
 	void MenuBar();

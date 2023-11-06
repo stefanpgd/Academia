@@ -41,5 +41,4 @@ vec3 SphericalToCartesian(float theta, float phi);
 
 // To do:
 // Operator overloading
-// union
 // proper copy & assignment constructor
