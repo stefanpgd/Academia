@@ -1,6 +1,7 @@
 #pragma once
 #include "Math/Vec3.h"
 #include <string>
+#include <chrono>
 
 struct GLFWwindow;
 
@@ -30,12 +31,12 @@ private:
 	void MakeScreenshot();
 
 private:
+	RayTracer* rayTracer;
 	WorkerSystem* workerSystem;
 	SceneManager* sceneManager;
-	RayTracer* rayTracer;
 	PostProcessor* postProcessor;
 
-	// Move to editor?
+	// Move t
 	std::string screenshotPath = "Screenshots/";
 	std::string lastestScreenshotPath = "Screenshots/Latest/latest.png";
 
@@ -60,6 +61,14 @@ private:
 	bool lockUserMovement = false;
 	bool reloadSkydome = false;
 	bool takeScreenshot = false;
+
+	// Time //
+	float deltaTime = 1.0f;
+	std::chrono::high_resolution_clock* clock;
+	std::chrono::milliseconds t0;
+	float* FPSLog;
+	float renderTime = 0.0f;
+	const int FPSLogSize = 30;
 
 	friend class Editor;
 	friend class WorkerSystem;

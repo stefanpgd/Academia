@@ -53,11 +53,9 @@ SceneManager::~SceneManager()
 	lastScene << activeScenePath;
 }
 
-bool SceneManager::Update()
+bool SceneManager::Update(float deltaTime)
 {
-	// get deltaTime again...
-	bool cameraUpdated = activeScene->Camera->Update(0.016f);
-
+	bool cameraUpdated = activeScene->Camera->Update(deltaTime);
 	return cameraUpdated || activeScene->HasUpdated;
 }
 

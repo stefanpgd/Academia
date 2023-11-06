@@ -46,6 +46,10 @@ Renderer::Renderer(const std::string& windowName, unsigned int screenWidth, unsi
 	rayTracer = new RayTracer(screenWidth, screenHeight, sceneManager->GetActiveScene());
 	workerSystem = new WorkerSystem(this, screenWidth, screenHeight);
 	postProcessor = new PostProcessor();
+
+	clock = new std::chrono::high_resolution_clock();
+	t0 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock->now())).time_since_epoch();
+	FPSLog = new float[FPSLogSize];
 }
 
 Renderer::~Renderer()
@@ -70,14 +74,14 @@ void Renderer::Start()
 
 void Renderer::Update()
 {
+	workerSystem->Update();
+
 	// If anything in the scene gets updated ( camera, skydome, primitives )
 	// We want to clear the screen, and update the content of the scene
-	if(sceneManager->Update())
+	if(sceneManager->Update(deltaTime))
 	{
 		RestartSampling();
 	}
-
-	workerSystem->Update();
 
 	if(sampleCount >= targetSampleCount)
 	{
@@ -90,6 +94,7 @@ void Renderer::Update()
 		}
 	}
 
+	// Move to Editor ->
 	if(Input::GetMouseButton(MouseCode::Left))
 	{
 		ImGuiIO& io = ImGui::GetIO();
@@ -113,6 +118,10 @@ void Renderer::Render()
 {
 	if(updateScreenBuffer)
 	{
+		auto t1 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock->now())).time_since_epoch();
+		deltaTime = (t1 - t0).count() * .001;
+		t0 = t1;
+
 		float sampleINV = (1.0f / (float)sampleCount);
 		for(int x = 0; x < screenWidth; x++)
 		{
@@ -144,6 +153,9 @@ void Renderer::Render()
 		if(sampleCount < targetSampleCount)
 		{
 			workerSystem->NotifyWorkers();
+
+			renderTime += deltaTime;
+			FPSLog[sampleCount % FPSLogSize] = deltaTime;
 		}
 
 		updateScreenBuffer = false;

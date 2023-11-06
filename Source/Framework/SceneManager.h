@@ -37,7 +37,7 @@ public:
 	SceneManager(unsigned int screenWidth, unsigned int screenHeight);
 	~SceneManager();
 
-	bool Update();
+	bool Update(float deltaTime);
 
 	// Scene Serialization //
 	void LoadScene(const std::string& sceneName, unsigned int screenWidth, unsigned int screenHeight);
