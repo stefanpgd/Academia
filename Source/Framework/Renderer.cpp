@@ -70,6 +70,13 @@ void Renderer::Start()
 
 void Renderer::Update()
 {
+	// If anything in the scene gets updated ( camera, skydome, primitives )
+	// We want to clear the screen, and update the content of the scene
+	if(sceneManager->Update())
+	{
+		RestartSampling();
+	}
+
 	workerSystem->Update();
 
 	if(sampleCount >= targetSampleCount)

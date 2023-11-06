@@ -60,13 +60,6 @@ void App::Start()
 void App::Update()
 {
 	renderer->Update();
-
-	bool sceneUpdated = editor->Update();
-
-	if(sceneUpdated)
-	{
-		renderer->RestartSampling();
-	}
 }
 
 void App::Render()

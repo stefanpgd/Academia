@@ -13,17 +13,9 @@ RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene*
 	LoadSkydome();
 }
 
-bool RayTracer::Update(float deltaTime)
-{
-	bool updated = false;
-
-	// Maybe in the future, let the scene manager own Camera and update it
-	return camera->Update(deltaTime) || updated;
-}
-
 vec3 RayTracer::Trace(int pixelX, int pixelY)
 {
-	vec3 outputColor = vec3(0.0f);
+	vec3 outputColor;
 
 	Ray ray = camera->GetRay(pixelX, pixelY);
 	HitRecord record;

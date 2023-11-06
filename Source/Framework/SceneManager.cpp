@@ -48,6 +48,14 @@ SceneManager::~SceneManager()
 	lastScene << activeScenePath;
 }
 
+bool SceneManager::Update()
+{
+	// get deltaTime again...
+	bool cameraUpdated = activeScene->Camera->Update(0.016f);
+
+	return cameraUpdated || activeScene->HasUpdated;
+}
+
 void SceneManager::LoadScene(const std::string& sceneName, unsigned int screenWidth, unsigned int screenHeight)
 {
 	LOG("Loading Scene: '" + sceneName + "'");
@@ -289,6 +297,8 @@ void SceneManager::UpdateScene()
 
 		primitiveBackBuffer.clear();
 	}
+
+	activeScene->HasUpdated = false;
 }
 
 Scene* SceneManager::GetActiveScene()

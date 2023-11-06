@@ -40,7 +40,7 @@ void Editor::Start()
 	ImGui::NewFrame();
 }
 
-bool Editor::Update()
+void Editor::Update()
 {
 	sceneUpdated = false;
 
@@ -52,7 +52,7 @@ bool Editor::Update()
 
 	if(!renderEditor)
 	{
-		return false;
+		return;
 	}
 
 	//if(selectedPrimitive != app->nearestPrimitive)
@@ -68,7 +68,10 @@ bool Editor::Update()
 
 	SceneSettings();
 
-	return sceneUpdated;
+	if(sceneUpdated)
+	{
+		activeScene->HasUpdated = true;
+	}
 }
 
 void Editor::Render()
