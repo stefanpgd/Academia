@@ -67,7 +67,7 @@ void Editor::Update()
 	//PrimitiveHierarchy();
 	//PrimitiveCreation();
 	//
-	//SceneSettings();
+	SceneSettings();
 	PostProcessSettings();
 
 	if(sceneUpdated)
@@ -276,17 +276,19 @@ void Editor::PathTracerSettings()
 
 void Editor::SkydomeSettings()
 {
-	//ImGui::PushFont(boldFont);
-	//ImGui::SeparatorText("Skydome");
-	//ImGui::PopFont();
+	Skydome& skydome = sceneManager->GetActiveScene()->Skydome;
 
-	//ImGui::Columns(2);
+	ImGui::PushFont(boldFont);
+	ImGui::SeparatorText("Skydome");
+	ImGui::PopFont();
 
-	//ImGui::Separator();
-	//ImGui::AlignTextToFramePadding();
-	//ImGui::Text("Active Skydome");
-	//ImGui::NextColumn();
-	//
+	ImGui::Columns(2);
+
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Active Skydome");
+	ImGui::NextColumn();
+	
 	//int currentItem = 0;
 	//for(int i = 0; i < exrFilePaths.size(); i++)
 	//{
@@ -295,20 +297,20 @@ void Editor::SkydomeSettings()
 	//		currentItem = i;
 	//	}
 	//}
-
+	//
 	//if(ImGui::BeginCombo("##5", app->rayTracer->skydomePath.c_str()))
 	//{
 	//	for(int i = 0; i < exrFilePaths.size(); i++)
 	//	{
 	//		bool isSelected = currentItem == i;
-
+	//
 	//		if(ImGui::Selectable(exrFilePaths[i].c_str(), isSelected))
 	//		{
 	//			app->rayTracer->skydomePath = exrFilePaths[i];
 	//			app->reloadSkydome = true;
 	//			sceneUpdated = true;
 	//		}
-
+	//
 	//		if(isSelected)
 	//		{
 	//			ImGui::SetItemDefaultFocus();
@@ -317,38 +319,38 @@ void Editor::SkydomeSettings()
 	//	ImGui::EndCombo();
 	//}
 
-	//ImGui::NextColumn();
+	ImGui::NextColumn();
 
 
-	//ImGui::Separator();
-	//ImGui::AlignTextToFramePadding();
-	//ImGui::Text("Emission");
-	//ImGui::NextColumn();
-	//if(ImGui::DragFloat("##6", &app->rayTracer->scene->SkyDomeEmission, 0.01f)) { sceneUpdated = true; }
-	//ImGui::NextColumn();
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Emission");
+	ImGui::NextColumn();
+	if(ImGui::DragFloat("##6", &skydome.SkyDomeEmission, 0.01f)) { sceneUpdated = true; }
+	ImGui::NextColumn();
 
-	//ImGui::Separator();
-	//ImGui::AlignTextToFramePadding();
-	//ImGui::Text("Background Strength");
-	//ImGui::NextColumn();
-	//if(ImGui::DragFloat("##7", &app->rayTracer->scene->SkyDomeBackgroundStrength, 0.01f, 0.0f, 10.0f)) { sceneUpdated = true; }
-	//ImGui::NextColumn();
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Background Strength");
+	ImGui::NextColumn();
+	if(ImGui::DragFloat("##7", &skydome.SkyDomeBackgroundStrength, 0.01f, 0.0f, 10.0f)) { sceneUpdated = true; }
+	ImGui::NextColumn();
 
-	//ImGui::Separator();
-	//ImGui::AlignTextToFramePadding();
-	//ImGui::Text("Orientation");
-	//ImGui::NextColumn();
-	//if(ImGui::SliderFloat("##8", &app->rayTracer->scene->SkydomeOrientation, 0.0f, 1.0f)) { sceneUpdated = true; }
-	//ImGui::NextColumn();
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Orientation");
+	ImGui::NextColumn();
+	if(ImGui::SliderFloat("##8", &skydome.SkydomeOrientation, 0.0f, 1.0f)) { sceneUpdated = true; }
+	ImGui::NextColumn();
 
-	//ImGui::Columns(1);
-	//ImGui::Separator();
+	ImGui::Columns(1);
+	ImGui::Separator();
 
-	//ImGui::PushFont(boldFont);
-	//ImGui::SeparatorText("Sky Color");
-	//ImGui::PopFont();
+	ImGui::PushFont(boldFont);
+	ImGui::SeparatorText("Sky Color");
+	ImGui::PopFont();
 
-	//ImGui::Columns(2);
+	ImGui::Columns(2);
 
 	//ImGui::Separator();
 	//ImGui::AlignTextToFramePadding();
@@ -356,7 +358,7 @@ void Editor::SkydomeSettings()
 	//ImGui::NextColumn();
 	//if(ImGui::ColorEdit3("##9", &app->rayTracer->skyColorB.x)) { sceneUpdated = true; }
 	//ImGui::NextColumn();
-
+	//
 	//ImGui::Separator();
 	//ImGui::AlignTextToFramePadding();
 	//ImGui::Text("Color - Down");
@@ -364,8 +366,8 @@ void Editor::SkydomeSettings()
 	//if(ImGui::ColorEdit3("##10", &app->rayTracer->skyColorA.x)) { sceneUpdated = true; }
 	//ImGui::NextColumn();
 
-	//ImGui::Columns(1);
-	//ImGui::Separator();
+	ImGui::Columns(1);
+	ImGui::Separator();
 }
 
 void Editor::CameraSettings()
@@ -425,6 +427,8 @@ void Editor::PostProcessSettings()
 
 	ImGui::Begin("Post Processor");
 	if(ImGui::DragFloat("Gamma", &pp->gamma, 0.01f, 0.0f, 10.0f)) { pp->gammaInverse = 1.0f / pp->gamma; }
+	if(ImGui::DragFloat("Exposure", &pp->exposure, 0.01f, 0.0f, 10.0f));
+	ImGui::Checkbox("Use ACES Tonemapping", &pp->doACESTonemapping);
 	ImGui::End();
 }
 

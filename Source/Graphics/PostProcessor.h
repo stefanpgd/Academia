@@ -10,6 +10,9 @@ public:
 
 private:
 	float gammaInverse = 1.0f;
+
+	bool doACESTonemapping = true;
+	float exposure = 0.545f;
 	float gamma = 2.4f;
 
 	friend class Editor;
