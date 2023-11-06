@@ -4,33 +4,11 @@
 #include <string>
 #include <vector>
 
-// Multi-threading //
-#include <thread>
-#include <atomic>
-#include <mutex>
-#include <condition_variable>
-
 struct GLFWwindow;
 class RayTracer;
 class SceneManager;
 class Primitive;
-
-enum class JobState
-{
-	ToDo,
-	Processing,
-	Done
-};
-
-struct JobTile
-{
-	JobState State = JobState::ToDo;
-
-	unsigned int x;
-	unsigned int y;
-	unsigned int xMax;
-	unsigned int yMax;
-};
+class WorkerSystem;
 
 class Renderer
 {
@@ -47,14 +25,12 @@ public:
 
 private:
 	void ResizeScreenBuffers(int width, int height);
-	void ResizeJobTiles();
-
 	void ClearSampleBuffer();
 
-	void PathTrace();
 	void MakeScreenshot();
 
 private:
+	WorkerSystem* workerSystem;
 	SceneManager* sceneManager;
 
 	// Move to editor?
@@ -86,14 +62,6 @@ private:
 	bool reloadSkydome = false;
 	bool takeScreenshot = false;
 
-	// Multi-threading //
-	int threadsAvailable;
-	unsigned int tileSize = 16;
-	std::thread* threads;
-	std::vector<JobTile> jobTiles;
-	std::atomic<int> workIndex;
-	std::condition_variable iterationLock;
-	std::mutex rayLock;
-
 	friend class Editor;
+	friend class WorkerSystem;
 };

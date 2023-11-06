@@ -149,6 +149,7 @@
     <ClCompile Include="Dependencies\stb\stb_image.cpp" />
     <ClCompile Include="Dependencies\stb\stb_image_write.cpp" />
     <ClCompile Include="Dependencies\tinyexr\tinyexr.cpp" />
+    <ClCompile Include="Source\Framework\WorkerSystem.cpp" />
     <ClCompile Include="Source\Framework\Renderer.cpp" />
     <ClCompile Include="Source\Framework\SceneManager.cpp" />
     <ClCompile Include="Source\Framework\Editor.cpp" />
@@ -175,6 +176,7 @@
     <ClCompile Include="Source\Utilities\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Framework\WorkerSystem.h" />
     <ClInclude Include="Source\Framework\Renderer.h" />
     <ClInclude Include="Source\Framework\SceneManager.h" />
     <ClInclude Include="Source\Framework\Editor.h" />
