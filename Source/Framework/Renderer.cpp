@@ -168,6 +168,7 @@ void Renderer::ResizeScreenBuffers(int width, int height)
 	screenWidth = width;
 	screenHeight = height;
 
+	glViewport(0, 0, screenWidth, screenHeight);
 	bufferSize = screenWidth * screenHeight;
 	delete screenBuffer;
 	delete sampleBuffer;

@@ -53,18 +53,19 @@ void App::Run()
 
 void App::Start()
 {
-	renderer->Start();
 	editor->Start();
+	//renderer->Start();
 }
 
 void App::Update()
 {
-	renderer->Update();
+	editor->Update();
+	//renderer->Update();
 }
 
 void App::Render()
 {
-	renderer->Render();
+	//renderer->Render();
 	editor->Render();
 
 	glfwSwapBuffers(renderer->GetWindow());
@@ -104,8 +105,11 @@ void App::SaveApplicationSettings()
 	appSettings.open(appSettingsFile, std::fstream::out);
 	appSettings.clear();
 
-	appSettings << screenWidth << "\n";
-	appSettings << screenHeight << "\n";
+	int width, height;
+	glfwGetWindowSize(renderer->GetWindow(), &width, &height);
+
+	appSettings << width << "\n";
+	appSettings << height << "\n";
 
 	LOG("Application settings succesfully saved!");
 }

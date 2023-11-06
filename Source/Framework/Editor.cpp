@@ -9,6 +9,7 @@
 #include "Graphics/RayTracer.h"
 #include "Graphics/Sphere.h"
 #include "Graphics/PlaneInfinite.h"
+#include "Graphics/PostProcessor.h"
 
 #include "Utilities/LogHelper.h"
 
@@ -29,7 +30,7 @@ Editor::Editor(GLFWwindow* window, App* app) : app(app)
 	ImGui::StyleColorsDark();
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 460");
+	ImGui_ImplOpenGL3_Init("#version 330");
 	ImGuiStyleSettings();
 }
 
@@ -60,13 +61,14 @@ void Editor::Update()
 	//	selectedPrimitive = app->nearestPrimitive;
 	//}
 
-	MenuBar();
-
-	PrimitiveSelection();
-	PrimitiveHierarchy();
-	PrimitiveCreation();
-
-	SceneSettings();
+	//MenuBar();
+	//
+	//PrimitiveSelection();
+	//PrimitiveHierarchy();
+	//PrimitiveCreation();
+	//
+	//SceneSettings();
+	PostProcessSettings();
 
 	if(sceneUpdated)
 	{
@@ -415,6 +417,15 @@ void Editor::CameraSettings()
 		camera->SetupVirtualPlane(app->screenWidth, app->screenHeight);
 		sceneUpdated = true;
 	}*/
+}
+
+void Editor::PostProcessSettings()
+{
+	PostProcessor* pp = app->renderer->postProcessor;
+
+	ImGui::Begin("Post Processor");
+	if(ImGui::DragFloat("Gamma", &pp->gamma, 0.01f, 0.0f, 10.0f)) { pp->gammaInverse = 1.0f / pp->gamma; }
+	ImGui::End();
 }
 
 void Editor::PrimitiveSelection()

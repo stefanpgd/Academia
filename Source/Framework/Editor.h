@@ -39,6 +39,7 @@ private:
 	void PathTracerSettings();
 	void SkydomeSettings();
 	void CameraSettings();
+	void PostProcessSettings();
 
 	void PrimitiveSelection();
 	void PrimitiveHierarchy();

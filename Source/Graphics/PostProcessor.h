@@ -11,4 +11,6 @@ public:
 private:
 	float gammaInverse = 1.0f;
 	float gamma = 2.4f;
+
+	friend class Editor;
 };

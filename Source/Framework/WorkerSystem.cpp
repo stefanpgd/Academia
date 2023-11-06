@@ -10,7 +10,6 @@ WorkerSystem::WorkerSystem(Renderer* renderer, unsigned int screenWidth, unsigne
 	LOG("Retrieving thread count...");
 	threadsAvailable = std::thread::hardware_concurrency();
 
-	//threadsAvailable = std::thread::hardware_concurrency() - 1;
 	threads = new std::thread[threadsAvailable];
 	LOG("There are: '" + std::to_string(threadsAvailable) + "' threads available for use.");
 
