@@ -177,9 +177,7 @@ void Renderer::ResizeScreenBuffers(int width, int height)
 
 	clearScreenBuffers = true;
 	workerSystem->ResizeJobTiles(screenWidth, screenHeight);
-
-	// Update rendering side //
-	rayTracer->Resize(width, height);
+	sceneManager->GetActiveScene()->Camera->SetupVirtualPlane(screenWidth, screenHeight);
 }
 
 void Renderer::ClearSampleBuffer()

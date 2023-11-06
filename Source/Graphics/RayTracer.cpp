@@ -3,14 +3,11 @@
 #include "Framework/SceneManager.h"
 
 #include <imgui.h>
-#include <stb_image.h>
-#include <tinyexr.h>
 
 RayTracer::RayTracer(unsigned int screenWidth, unsigned int screenHeight, Scene* scene) : scene(scene)
 {
 	camera = scene->Camera;
-
-	LoadSkydome();
+	skydome = &scene->Skydome;
 }
 
 vec3 RayTracer::Trace(int pixelX, int pixelY)
@@ -40,11 +37,6 @@ Primitive* RayTracer::SelectObject(int pixelX, int pixelY)
 	return record.Primitive;
 }
 
-void RayTracer::Resize(int width, int height)
-{
-	camera->SetupVirtualPlane(width, height);
-}
-
 vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& lastRecord)
 {
 	if(rayDepth <= 0)
@@ -67,11 +59,11 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 	{
 		if(depth == maxRayDepth - 1)
 		{
-			illumination += GetSkyColor(ray) * scene->SkyDomeBackgroundStrength;
+			illumination += GetSkyColor(ray) * skydome->SkyDomeBackgroundStrength;
 		}
 		else
 		{
-			illumination += GetSkyColor(ray) * scene->SkyDomeEmission;
+			illumination += GetSkyColor(ray) * skydome->SkyDomeEmission;
 		}
 
 		return illumination;
@@ -198,21 +190,6 @@ void RayTracer::IntersectScene(const Ray& ray, HitRecord& record)
 	}
 }
 
-void RayTracer::LoadSkydome()
-{
-	delete image;
-
-	const char* err = nullptr;
-	int result = LoadEXR(&image, &width, &height, skydomePath.c_str(), &err);
-	comp = sizeof(float);
-
-	if(result != TINYEXR_SUCCESS)
-	{
-		fprintf(stderr, "ERR : %s\n", err);
-		FreeEXRErrorMessage(err);
-	}
-}
-
 vec3 RayTracer::GetSkyColor(const Ray& ray)
 {
 	if(useSkydomeTexture)
@@ -223,16 +200,16 @@ vec3 RayTracer::GetSkyColor(const Ray& ray)
 		float u = phi / (2 * PI);
 		float v = theta / PI;
 
-		u -= scene->SkydomeOrientation;
+		u -= skydome->SkydomeOrientation;
 
-		int i = (int)((1.0f - u) * width);
-		int j = (int)(v * height);
+		int i = (int)((1.0f - u) * skydome->width);
+		int j = (int)(v * skydome->height);
 
-		i = i % width;
-		j = j % height;
+		i = i % skydome->width;
+		j = j % skydome->height;
 
-		int index = (i + j * width) * comp;
-		vec3 b = vec3(image[index], image[index + 1], image[index + 2]);
+		int index = (i + j * skydome->width) * skydome->comp;
+		vec3 b = vec3(&skydome->image[index]);
 		return b;
 	}
 	else

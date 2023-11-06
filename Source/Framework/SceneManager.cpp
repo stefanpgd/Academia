@@ -1,5 +1,7 @@
 #include "SceneManager.h"
 #include <fstream>
+#include <stb_image.h>
+#include <tinyexr.h>
 
 #include "Graphics/Camera.h"
 
@@ -32,6 +34,9 @@ SceneManager::SceneManager(unsigned int screenWidth, unsigned int screenHeight)
 		activeScene->Name = "Default";
 		activeScene->Camera = new Camera(screenWidth, screenHeight);
 	}
+
+	// Replace with last loaded skydome // 
+	LoadSkydome("Assets/EXRs/studio.exr");
 
 	LOG("Scene succesfully loaded!");
 }
@@ -86,13 +91,13 @@ void SceneManager::LoadScene(const std::string& sceneName, unsigned int screenWi
 
 	// Skydome Information //
 	std::getline(scene, line);
-	activeScene->SkydomeOrientation = std::stof(line);
+	activeScene->Skydome.SkydomeOrientation = std::stof(line);
 
 	std::getline(scene, line);
-	activeScene->SkyDomeEmission = std::stof(line);
+	activeScene->Skydome.SkyDomeEmission = std::stof(line);
 
 	std::getline(scene, line);
-	activeScene->SkyDomeBackgroundStrength = std::stof(line);
+	activeScene->Skydome.SkyDomeBackgroundStrength = std::stof(line);
 
 	// Primitive Information //
 	std::getline(scene, line);
@@ -188,6 +193,22 @@ void SceneManager::LoadScene(const std::string& sceneName, unsigned int screenWi
 	}
 }
 
+void SceneManager::LoadSkydome(const std::string& skydomePath)
+{
+	Skydome& sd = activeScene->Skydome;
+	delete sd.image;
+
+	const char* err = nullptr;
+	int result = LoadEXR(&sd.image, &sd.width, &sd.height, skydomePath.c_str(), &err);
+	sd.comp = sizeof(float);
+
+	if(result != TINYEXR_SUCCESS)
+	{
+		fprintf(stderr, "ERR : %s\n", err);
+		FreeEXRErrorMessage(err);
+	}
+}
+
 void SceneManager::SaveScene()
 {
 	LOG("Saving Scene: '" + activeScene->Name + "'");
@@ -206,9 +227,9 @@ void SceneManager::SaveScene()
 	}
 
 	// Skydome Information // 
-	sceneFile << activeScene->SkydomeOrientation << "\n";
-	sceneFile << activeScene->SkyDomeEmission << "\n";
-	sceneFile << activeScene->SkyDomeBackgroundStrength << "\n";
+	sceneFile << activeScene->Skydome.SkydomeOrientation << "\n";
+	sceneFile << activeScene->Skydome.SkyDomeEmission << "\n";
+	sceneFile << activeScene->Skydome.SkyDomeBackgroundStrength << "\n";
 
 	sceneFile << activeScene->primitives.size() << "\n";
 	for(int i = 0; i < activeScene->primitives.size(); i++)
