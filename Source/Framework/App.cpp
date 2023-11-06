@@ -22,8 +22,8 @@ App::App()
 
 	// Start initializing custom systems  //
 	renderer = new Renderer(appName, screenWidth, screenHeight);
-	editor = new Editor(renderer->GetWindow(), this);
 	Input::Initialize(renderer->GetWindow());
+	editor = new Editor(renderer->GetWindow(), this);
 
 	LOG("'Academia' has succesfully initialized!");
 }
@@ -53,19 +53,19 @@ void App::Run()
 
 void App::Start()
 {
+	renderer->Start();
 	editor->Start();
-	//renderer->Start();
 }
 
 void App::Update()
 {
+	renderer->Update();
 	editor->Update();
-	//renderer->Update();
 }
 
 void App::Render()
 {
-	//renderer->Render();
+	renderer->Render();
 	editor->Render();
 
 	glfwSwapBuffers(renderer->GetWindow());
