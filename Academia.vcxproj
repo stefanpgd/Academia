@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Graphics\Textures\CheckerBoard.cpp" />
     <ClCompile Include="Dependencies\ImGui\source\imgui_stdlib.cpp" />
     <ClCompile Include="Dependencies\stb\stb_image.cpp" />
     <ClCompile Include="Dependencies\stb\stb_image_write.cpp" />
@@ -177,6 +178,7 @@
     <ClCompile Include="Source\Utilities\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Graphics\Textures\CheckerBoard.h" />
     <ClInclude Include="Source\Graphics\PostProcessor.h" />
     <ClInclude Include="Source\Framework\WorkerSystem.h" />
     <ClInclude Include="Source\Framework\Renderer.h" />
@@ -197,6 +199,7 @@
     <ClInclude Include="Source\Graphics\Sphere.h" />
     <ClInclude Include="Source\Graphics\Triangle.h" />
     <ClInclude Include="Source\Utilities\Timer.h" />
+    <ClInclude Include="Source\Graphics\Texture.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

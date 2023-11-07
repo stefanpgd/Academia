@@ -1,6 +1,7 @@
 #include "RayTracer.h"
 #include "Utilities/Utilities.h"
 #include "Framework/SceneManager.h"
+#include "Graphics/Texture.h"
 
 #include <imgui.h>
 
@@ -70,13 +71,19 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 	}
 
 	const Material& material = record.Primitive->Material;
+	vec3 materialColor = material.Color;
+
+	if(material.usesTexture)
+	{
+		materialColor = material.texture->Sample(record);
+	}
 
 	// Emissive Material Model //
 	if(material.isEmissive)
 	{
 		// Emissive materials don't receive shading or bounce
 		// They are considered to be lights.
-		return material.Color * material.EmissiveStrength;
+		return materialColor * material.EmissiveStrength;
 	}
 
 	// Dielectric Material Model //
@@ -93,7 +100,7 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 		vec3 Rt = Refract(ray.Direction, record.Normal, material.IoR);
 		Ray refractedRay = Ray(record.HitPoint + Rt * EPSILONSMALL, Rt);
 
-		vec3 c = material.Color;
+		vec3 c = materialColor;
 		if(record.InsideMedium)
 		{
 			float transmittedDistance = (record.HitPoint - lastRecord.HitPoint).Magnitude();
@@ -106,11 +113,9 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 		return illumination;
 	}
 
-	// Opaque Material Model //
-
-	// Russian Roulette (Variance Reduction)
+	// Russian Roulette (Variance Reduction) 
 	float multiplier = 1.0f;
-	float brightestChannel = max(max(material.Color.x, material.Color.y), material.Color.z);
+	float brightestChannel = max(max(materialColor.x, materialColor.y), materialColor.z);
 	float survivalRate = Clamp(brightestChannel, 0.1f, 0.9f);
 
 	if(survivalRate < Random01())
@@ -119,6 +124,7 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 	}
 	multiplier = 1.0f / survivalRate;
 
+	// Opaque Material Model //
 	float fresnel = Fresnel(ray.Direction, record.Normal, material.IoR);
 	float specularity = min(material.Specularity + fresnel, 1.0f);
 	float diffuse = 1.0f - specularity;
@@ -133,7 +139,7 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 
 		Ray bounceRay = Ray(record.HitPoint, bounceDir);
 
-		vec3 BRDF = diffuse * (material.Color * INVPI);
+		vec3 BRDF = diffuse * (materialColor * INVPI);
 		vec3 radiance = TraverseScene(bounceRay, depth, record);
 		float cosI = Dot(record.Normal, bounceDir);
 		const float area = PI * 2.0f;
@@ -162,7 +168,7 @@ vec3 RayTracer::TraverseScene(const Ray& ray, int rayDepth, const HitRecord& las
 			float metallicness = material.Metalness * specularity;
 			float specular = (1.0f - material.Metalness) * specularity;
 
-			illumination += metallicness * material.Color * radiance;
+			illumination += metallicness * materialColor * radiance;
 			illumination += specular * radiance;
 		}
 		else

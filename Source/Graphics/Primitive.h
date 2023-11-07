@@ -4,6 +4,7 @@
 
 class Ray;
 class Primitive;
+class Texture;
 
 // Material models
 // 1. Opaque
@@ -11,8 +12,11 @@ class Primitive;
 // 3. Emissive
 struct Material
 {
-	// General/Opaque properties //
 	vec3 Color = vec3(1.0f);
+	Texture* texture;
+	bool usesTexture = false;
+
+	// General/Opaque properties //
 	float Specularity = 0.0f;
 	float Roughness = 0.0f;
 	float Metalness = 0.0f;

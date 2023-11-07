@@ -4,6 +4,7 @@
 #include <tinyexr.h>
 
 #include "Graphics/Camera.h"
+#include "Graphics/Textures/CheckerBoard.h"
 
 // Primitives //
 #include "Graphics/Sphere.h"
@@ -151,6 +152,9 @@ void SceneManager::LoadScene(const std::string& sceneName, unsigned int screenWi
 			}
 
 			PlaneInfinite* plane = new PlaneInfinite(position, normal);
+			plane->Material.usesTexture = true;
+			plane->Material.texture = new CheckerBoard(vec3(0.3f), vec3(0.2f), 0.5f);
+
 			primitive = plane;
 			break;
 		}
