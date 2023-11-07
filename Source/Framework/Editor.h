@@ -13,8 +13,9 @@
 
 class GLFWwindow;
 class App;
-class SceneManager;
+class Renderer;
 class Primitive;
+class SceneManager;
 
 struct Scene;
 
@@ -54,6 +55,7 @@ private:
 
 	App* app;
 	Scene* activeScene;
+	Renderer* renderer;
 	SceneManager* sceneManager;
 
 	// Primitive Creation //

@@ -56,4 +56,12 @@ private:
 	Scene* activeScene;
 	std::string lastSceneSettings = "Scenes/scene.settings";
 	std::vector<Primitive*> primitiveBackBuffer;
+
+	bool lockCameraMovement = false;
+
+	// Skydome //
+	bool reloadSkydome = false;
+	std::string skydomeToLoad;
+
+	friend class Editor;
 };

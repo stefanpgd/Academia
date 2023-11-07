@@ -83,8 +83,10 @@ void Renderer::Update()
 		RestartSampling();
 	}
 
-	if(sampleCount >= targetSampleCount)
+	if(sampleCount > targetSampleCount)
 	{
+		sampleCount = targetSampleCount;
+
 		// In case we reached our target frame count
 		// we want to check if either something got updated or resized
 		// If so, we force the screen to update again, and the path tracer restarts.
@@ -196,6 +198,7 @@ void Renderer::ResizeScreenBuffers(int width, int height)
 void Renderer::ClearSampleBuffer()
 {
 	sampleCount = 1;
+	renderTime = 0.0f;
 
 	// Load in or remove new primitives to the scene //
 	sceneManager->UpdateScene();

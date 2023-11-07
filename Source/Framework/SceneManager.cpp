@@ -55,7 +55,13 @@ SceneManager::~SceneManager()
 
 bool SceneManager::Update(float deltaTime)
 {
-	bool cameraUpdated = activeScene->Camera->Update(deltaTime);
+	bool cameraUpdated = false;
+
+	if(!lockCameraMovement)
+	{
+		cameraUpdated = activeScene->Camera->Update(deltaTime);
+	}
+
 	return cameraUpdated || activeScene->HasUpdated;
 }
 
@@ -196,6 +202,7 @@ void SceneManager::LoadSkydome(const std::string& skydomePath)
 	Skydome& sd = activeScene->Skydome;
 	delete sd.image;
 
+	sd.Name = skydomePath;
 	const char* err = nullptr;
 	int result = LoadEXR(&sd.image, &sd.width, &sd.height, skydomePath.c_str(), &err);
 	sd.comp = sizeof(float);
@@ -315,6 +322,12 @@ void SceneManager::UpdateScene()
 		}
 
 		primitiveBackBuffer.clear();
+	}
+
+	if(reloadSkydome)
+	{
+		LoadSkydome(skydomeToLoad);
+		reloadSkydome = false;
 	}
 
 	activeScene->HasUpdated = false;

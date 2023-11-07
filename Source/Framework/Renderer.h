@@ -41,8 +41,8 @@ private:
 	std::string lastestScreenshotPath = "Screenshots/Latest/latest.png";
 
 	// Ray Tracing //
-	unsigned int sampleCount = 1;
-	unsigned int targetSampleCount = 100000;
+	int sampleCount = 1;
+	int targetSampleCount = 100000;
 	Primitive* nearestPrimitive = nullptr;
 
 	// Window & Back Buffers // 
@@ -58,8 +58,6 @@ private:
 	bool updateScreenBuffer = false;
 	bool clearScreenBuffers = false;
 	bool resizeScreenBuffers = false;
-	bool lockUserMovement = false;
-	bool reloadSkydome = false;
 	bool takeScreenshot = false;
 
 	// Time //

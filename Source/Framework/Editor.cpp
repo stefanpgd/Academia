@@ -15,6 +15,7 @@
 
 Editor::Editor(GLFWwindow* window, App* app) : app(app)
 {
+	renderer = app->renderer;
 	sceneManager = app->renderer->sceneManager;
 	activeScene = sceneManager->GetActiveScene();
 
@@ -56,16 +57,16 @@ void Editor::Update()
 		return;
 	}
 
-	//if(selectedPrimitive != app->nearestPrimitive)
-	//{
-	//	selectedPrimitive = app->nearestPrimitive;
-	//}
+	if(selectedPrimitive != app->renderer->nearestPrimitive)
+	{
+		selectedPrimitive = app->renderer->nearestPrimitive;
+	}
 
 	MenuBar();
 
-	//PrimitiveSelection();
-	//PrimitiveHierarchy();
-	//PrimitiveCreation();
+	PrimitiveSelection();
+	PrimitiveHierarchy();
+	PrimitiveCreation();
 
 	SceneSettings();
 	PostProcessSettings();
@@ -91,7 +92,7 @@ void Editor::MenuBar()
 {
 	if(ImGui::BeginMainMenuBar())
 	{
-		ImGui::Checkbox("Lock Movement", &app->renderer->lockUserMovement);
+		ImGui::Checkbox("Lock Movement", &sceneManager->lockCameraMovement);
 	
 		// Window Selection //
 		if(ImGui::BeginMenu("Windows"))
@@ -109,7 +110,7 @@ void Editor::MenuBar()
 			app->renderer->MakeScreenshot();
 		}
 
-		int offset = app->renderer->screenWidth - 800;
+		int offset = renderer->screenWidth - 800;
 		if(offset > 10)
 		{
 			ImGui::Dummy(ImVec2(offset, 0));
@@ -202,12 +203,12 @@ void Editor::SceneSettings()
 	// Window Positioning & Flags //
 	const int width = 350;
 	const int height = 200;
-	const int x = app->screenWidth - width;
+	const int x = renderer->screenWidth - width;
 	int y = 18;
 
 	// If selectedPrimitive is not 'NUll/nullptr' 
 	// then the PrimitiveSelection window is open, thus it needs to move down
-	if (selectedPrimitive)
+	if (selectedPrimitive && showPrimitiveSelection)
 	{
 		y += 365;
 	}
@@ -243,45 +244,48 @@ void Editor::SceneSettings()
 
 void Editor::PathTracerSettings()
 {
-	//ImGui::Columns(2);
+	Renderer* renderer = app->renderer;
 
-	//ImGui::Separator();
-	//ImGui::AlignTextToFramePadding();
-	//ImGui::Text("Target Sample Count");
-	//ImGui::NextColumn();
-	//if(ImGui::DragInt("##0", &app->targetSampleCount, 50, 0, 1000000)) 
-	//{ 
-	//	sceneUpdated = true; 
-	//	app->updateScreenBuffer = true; 
-	//}
-	//ImGui::NextColumn();
+	ImGui::Columns(2);
 
-	//ImGui::Separator();
-	//ImGui::AlignTextToFramePadding();
-	//ImGui::Text("Max Luminance Per Frame");
-	//ImGui::NextColumn();
-	//if(ImGui::DragFloat("##1", &app->rayTracer->maxLuminance, 0.1f, 0.0f, 1000.0f)) { sceneUpdated = true; }
-	//ImGui::NextColumn();
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Target Sample Count");
+	ImGui::NextColumn();
+	if(ImGui::DragInt("##0", &renderer->targetSampleCount, 50, 0, 1000000))
+	{ 
+		sceneUpdated = true; 
+		renderer->updateScreenBuffer = true;
+	}
+	ImGui::NextColumn();
 
-	//ImGui::Separator();
-	//ImGui::AlignTextToFramePadding();
-	//ImGui::Text("Ray Depth");
-	//ImGui::NextColumn();
-	//if(ImGui::DragInt("##2", &app->rayTracer->maxRayDepth, 0.02f, 1, 100)) { sceneUpdated = true; }
-	//ImGui::NextColumn();
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Max Luminance Per Frame");
+	ImGui::NextColumn();
+	if(ImGui::DragFloat("##1", &renderer->rayTracer->maxLuminance, 0.1f, 0.0f, 1000.0f)) { sceneUpdated = true; }
+	ImGui::NextColumn();
 
-	//ImGui::Separator();
-	//ImGui::AlignTextToFramePadding();
-	//ImGui::Text("Use Skydome");
-	//ImGui::NextColumn();
-	//if(ImGui::Checkbox("##4", &app->rayTracer->useSkydomeTexture)) { sceneUpdated = true; }
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Ray Depth");
+	ImGui::NextColumn();
+	if(ImGui::DragInt("##2", &renderer->rayTracer->maxRayDepth, 0.02f, 1, 100)) { sceneUpdated = true; }
+	ImGui::NextColumn();
 
-	//ImGui::Columns(1);
-	//ImGui::Separator();
+	ImGui::Separator();
+	ImGui::AlignTextToFramePadding();
+	ImGui::Text("Use Skydome");
+	ImGui::NextColumn();
+	if(ImGui::Checkbox("##4", &renderer->rayTracer->useSkydomeTexture)) { sceneUpdated = true; }
+
+	ImGui::Columns(1);
+	ImGui::Separator();
 }
 
 void Editor::SkydomeSettings()
 {
+	Renderer* renderer = app->renderer;
 	Skydome& skydome = sceneManager->GetActiveScene()->Skydome;
 
 	ImGui::PushFont(boldFont);
@@ -295,35 +299,35 @@ void Editor::SkydomeSettings()
 	ImGui::Text("Active Skydome");
 	ImGui::NextColumn();
 	
-	//int currentItem = 0;
-	//for(int i = 0; i < exrFilePaths.size(); i++)
-	//{
-	//	if(app->rayTracer->skydomePath == exrFilePaths[i])
-	//	{
-	//		currentItem = i;
-	//	}
-	//}
-	//
-	//if(ImGui::BeginCombo("##5", app->rayTracer->skydomePath.c_str()))
-	//{
-	//	for(int i = 0; i < exrFilePaths.size(); i++)
-	//	{
-	//		bool isSelected = currentItem == i;
-	//
-	//		if(ImGui::Selectable(exrFilePaths[i].c_str(), isSelected))
-	//		{
-	//			app->rayTracer->skydomePath = exrFilePaths[i];
-	//			app->reloadSkydome = true;
-	//			sceneUpdated = true;
-	//		}
-	//
-	//		if(isSelected)
-	//		{
-	//			ImGui::SetItemDefaultFocus();
-	//		}
-	//	}
-	//	ImGui::EndCombo();
-	//}
+	int currentItem = 0;
+	for(int i = 0; i < exrFilePaths.size(); i++)
+	{
+		if(skydome.Name == exrFilePaths[i])
+		{
+			currentItem = i;
+		}
+	}
+	
+	if(ImGui::BeginCombo("##5", skydome.Name.c_str()))
+	{
+		for(int i = 0; i < exrFilePaths.size(); i++)
+		{
+			bool isSelected = currentItem == i;
+	
+			if(ImGui::Selectable(exrFilePaths[i].c_str(), isSelected))
+			{
+				sceneManager->skydomeToLoad = exrFilePaths[i];
+				sceneManager->reloadSkydome = true;
+				sceneUpdated = true;
+			}
+	
+			if(isSelected)
+			{
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+		ImGui::EndCombo();
+	}
 
 	ImGui::NextColumn();
 
@@ -378,7 +382,7 @@ void Editor::SkydomeSettings()
 
 void Editor::CameraSettings()
 {
-	/*Camera* camera = app->rayTracer->camera;
+	Camera* camera = app->renderer->rayTracer->camera;
 	bool cameraUpdated = false;
 
 	ImGui::Columns(2);
@@ -422,9 +426,9 @@ void Editor::CameraSettings()
 
 	if(cameraUpdated)
 	{
-		camera->SetupVirtualPlane(app->screenWidth, app->screenHeight);
+		camera->SetupVirtualPlane(renderer->screenWidth, renderer->screenHeight);
 		sceneUpdated = true;
-	}*/
+	}
 }
 
 void Editor::PostProcessSettings()
@@ -455,7 +459,7 @@ void Editor::PrimitiveSelection()
 	// Window Positioning & Flags //
 	const int width = 350;
 	const int height = 365;
-	const int x = app->screenWidth - width;
+	const int x = renderer->screenWidth - width;
 	const int y = 19;
 
 	ImGui::SetNextWindowPos(ImVec2(x, y));
@@ -624,86 +628,85 @@ void Editor::PrimitiveSelection()
 
 void Editor::PrimitiveHierarchy()
 {
-	//if (!showSceneHierarchy)
-	//{
-	//	return;
-	//}
+	if (!showSceneHierarchy)
+	{
+		return;
+	}
 
-	//// Window Positioning & Flags //
-	//const int width = 300;
-	//const int height = 300;
-	//const int x = 0;
-	//const int y = 19;
+	// Window Positioning & Flags //
+	const int width = 300;
+	const int height = 300;
+	const int x = 0;
+	const int y = 19;
 
-	//ImGui::SetNextWindowPos(ImVec2(x, y));
-	//ImGui::SetNextWindowSize(ImVec2(width, height));
+	ImGui::SetNextWindowPos(ImVec2(x, y));
 
-	//ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
-	//std::vector<Primitive*>& primitives = app->rayTracer->scene->primitives;
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+	std::vector<Primitive*>& primitives = renderer->rayTracer->scene->primitives;
 
-	//ImGui::PushFont(boldFont);
-	//ImGui::Begin("Scene Hierarchy", NULL, flags);
-	//ImGui::PushFont(baseFont);
+	ImGui::PushFont(boldFont);
+	ImGui::Begin("Scene Hierarchy", NULL, flags);
+	ImGui::PushFont(baseFont);
 
-	//ImGui::Separator();
-	//ImGui::Indent(8.0f);
+	ImGui::Separator();
+	ImGui::Indent(8.0f);
 
-	//for(int i = 0; i < primitives.size(); i++)
-	//{
-	//	ImGui::PushID(i);
+	for(int i = 0; i < primitives.size(); i++)
+	{
+		ImGui::PushID(i);
 
-	//	ImGui::Bullet();
+		ImGui::Bullet();
 
-	//	Primitive* primitive = primitives[i];
-	//	std::string name = primitive->name.c_str();
+		Primitive* primitive = primitives[i];
+		std::string name = primitive->name.c_str();
 
-	//	bool isSelected = primitive == selectedPrimitive;
-	//	if(ImGui::Selectable(name.c_str(), isSelected))
-	//	{
-	//		selectedPrimitive = primitive;
-	//		app->nearestPrimitive = primitive;
-	//	}
+		bool isSelected = primitive == selectedPrimitive;
+		if(ImGui::Selectable(name.c_str(), isSelected))
+		{
+			selectedPrimitive = primitive;
+			renderer->nearestPrimitive = primitive;
+		}
 
-	//	if(isSelected)
-	//	{
-	//		ImGui::SetItemDefaultFocus();
-	//	}
+		if(isSelected)
+		{
+			ImGui::SetItemDefaultFocus();
+		}
 
-	//	ImGui::SameLine();
-	//	ImGui::Text("-");
-	//	ImGui::SameLine();
-	//	ImGui::Text(primitiveNames[int(primitive->Type)]);
-	//	
-	//	ImGui::SameLine();
-	//	ImGui::Text("-");
+		ImGui::SameLine();
+		ImGui::Text("-");
+		ImGui::SameLine();
+		ImGui::Text(primitiveNames[int(primitive->Type)]);
+		
+		ImGui::SameLine();
+		ImGui::Text("-");
 
-	//	ImGui::SameLine();
-	//	if(primitive->Material.isDielectric)
-	//	{
-	//		ImGui::Text("Dielectric");
-	//	}
-	//	else if(primitive->Material.isEmissive)
-	//	{
-	//		ImGui::Text("Emissive");
-	//	}
-	//	else if(primitive->Material.Specularity > 0.99f)
-	//	{
-	//		ImGui::Text("Pure Specular");
-	//	}
-	//	else
-	//	{
-	//		ImGui::Text("Opaque");
-	//	}
+		ImGui::SameLine();
+		if(primitive->Material.isDielectric)
+		{
+			ImGui::Text("Dielectric");
+		}
+		else if(primitive->Material.isEmissive)
+		{
+			ImGui::Text("Emissive");
+		}
+		else if(primitive->Material.Specularity > 0.99f)
+		{
+			ImGui::Text("Pure Specular");
+		}
+		else
+		{
+			ImGui::Text("Opaque");
+		}
 
-	//	ImGui::PopID();
-	//}
+		ImGui::PopID();
+	}
 
-	//ImGui::Unindent(8.0f);
-	//ImGui::Separator();
+	ImGui::Unindent(8.0f);
+	ImGui::Separator();
 
-	//ImGui::PopFont();
-	//ImGui::End();
-	//ImGui::PopFont();
+	ImGui::PopFont();
+	ImGui::End();
+	ImGui::PopFont();
 }
 
 void Editor::PrimitiveCreation()
