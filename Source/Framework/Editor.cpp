@@ -439,6 +439,9 @@ void Editor::PostProcessSettings()
 	if(ImGui::DragFloat("Gamma", &pp->gamma, 0.01f, 0.0f, 10.0f)) { pp->gammaInverse = 1.0f / pp->gamma; }
 	if(ImGui::DragFloat("Exposure", &pp->exposure, 0.01f, 0.0f, 10.0f));
 	ImGui::Checkbox("Use ACES Tonemapping", &pp->doACESTonemapping);
+	ImGui::Separator();
+	ImGui::Checkbox("Use Gaussian Filtering", &pp->doGaussianFilter);
+	if(ImGui::DragFloat("Gaussian Gamma", &pp->gaussianSigma, 0.01f, 0.01f, 10.0f)) { pp->GenerateGaussianFilter(); }
 	ImGui::End();
 }
 

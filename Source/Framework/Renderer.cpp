@@ -45,7 +45,7 @@ Renderer::Renderer(const std::string& windowName, unsigned int screenWidth, unsi
 	sceneManager = new SceneManager(screenWidth, screenHeight);
 	rayTracer = new RayTracer(screenWidth, screenHeight, sceneManager->GetActiveScene());
 	workerSystem = new WorkerSystem(this, screenWidth, screenHeight);
-	postProcessor = new PostProcessor();
+	postProcessor = new PostProcessor(screenWidth, screenHeight);
 
 	clock = new std::chrono::high_resolution_clock();
 	t0 = std::chrono::time_point_cast<std::chrono::milliseconds>((clock->now())).time_since_epoch();
@@ -124,18 +124,8 @@ void Renderer::Render()
 		deltaTime = (t1 - t0).count() * .001;
 		t0 = t1;
 
-		float sampleINV = (1.0f / (float)sampleCount);
-		for(int x = 0; x < screenWidth; x++)
-		{
-			for(int y = 0; y < screenHeight; y++)
-			{
-				int i = x + y * screenWidth;
-				vec3 output = sampleBuffer[i];
-				output = output * sampleINV;
-
-				screenBuffer[i] = postProcessor->PostProcess(output);
-			}
-		}
+		postProcessor->PostProcess(sampleBuffer, sampleCount);
+		postProcessor->CopyProcessedData(screenBuffer);
 		sampleCount++;
 
 		if(resizeScreenBuffers)
@@ -191,6 +181,7 @@ void Renderer::ResizeScreenBuffers(int width, int height)
 	sampleBuffer = new vec3[bufferSize];
 
 	clearScreenBuffers = true;
+	postProcessor->Resize(screenWidth, screenHeight);
 	workerSystem->ResizeJobTiles(screenWidth, screenHeight);
 	sceneManager->GetActiveScene()->Camera->SetupVirtualPlane(screenWidth, screenHeight);
 }
@@ -199,6 +190,7 @@ void Renderer::ClearSampleBuffer()
 {
 	sampleCount = 1;
 	renderTime = 0.0f;
+
 
 	// Load in or remove new primitives to the scene //
 	sceneManager->UpdateScene();
